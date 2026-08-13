@@ -7,26 +7,29 @@
 Jenkins represents a **critical attack surface** in enterprise development environments, serving as the **central automation hub** for **continuous integration and continuous deployment (CI/CD)** pipelines. With **over 86,000 companies** using Jenkins and **widespread deployment** across internal networks, Jenkins often provides **high-privilege access** to development infrastructure and **SYSTEM/root level execution context**.
 
 **Key Jenkins Statistics:**
-- **86,000+ companies** actively using Jenkins globally
-- **Original name:** Hudson (2005) → renamed Jenkins (2011) after Oracle dispute
-- **Major enterprise users:** Facebook, Netflix, Udemy, Robinhood, LinkedIn
-- **300+ plugins** for build and test project automation
-- **Java-based architecture** - runs in servlet containers like Tomcat
+
+* **86,000+ companies** actively using Jenkins globally
+* **Original name:** Hudson (2005) → renamed Jenkins (2011) after Oracle dispute
+* **Major enterprise users:** Facebook, Netflix, Udemy, Robinhood, LinkedIn
+* **300+ plugins** for build and test project automation
+* **Java-based architecture** - runs in servlet containers like Tomcat
 
 **Enterprise Attack Significance:**
-- **Development Infrastructure Access** - Central hub for source code, build processes, deployment credentials
-- **SYSTEM/Root Execution** - Jenkins often runs with highest privileges for system integration
-- **Active Directory Integration** - Domain-joined Windows servers with elevated service accounts
-- **Supply Chain Impact** - Compromise can inject malicious code into production deployments
-- **Credential Repository** - Access to database passwords, API keys, cloud credentials
 
----
+* **Development Infrastructure Access** - Central hub for source code, build processes, deployment credentials
+* **SYSTEM/Root Execution** - Jenkins often runs with highest privileges for system integration
+* **Active Directory Integration** - Domain-joined Windows servers with elevated service accounts
+* **Supply Chain Impact** - Compromise can inject malicious code into production deployments
+* **Credential Repository** - Access to database passwords, API keys, cloud credentials
+
+***
 
 ## Jenkins Architecture & Components
 
 ### Core System Structure
 
 #### Jenkins Installation Components
+
 ```
 /var/lib/jenkins/ (Linux) or C:\Program Files\Jenkins\ (Windows)
 ├── config.xml                # Main configuration file
@@ -52,6 +55,7 @@ Jenkins represents a **critical attack surface** in enterprise development envir
 ```
 
 #### Network Architecture
+
 ```
 Standard Jenkins Deployment:
 ┌─────────────────────────────────────────────────┐
@@ -85,6 +89,7 @@ Integration Points:
 ### Default Network Configuration
 
 #### Standard Port Usage
+
 ```bash
 # Primary Jenkins services
 8080/tcp    # HTTP web interface (default)
@@ -99,6 +104,7 @@ Integration Points:
 ```
 
 #### Service Identification Commands
+
 ```bash
 # Port scanning for Jenkins services
 nmap -sV -p 8080,8443,5000,50000,9000,8000,8180 target.com
@@ -112,13 +118,14 @@ curl -I http://target.com:8080/
 curl -s http://target.com:8080/ | grep -i jenkins
 ```
 
----
+***
 
 ## Discovery & Fingerprinting Techniques
 
 ### HTTP-Based Discovery
 
 #### Web Interface Identification
+
 ```bash
 # Primary Jenkins detection methods
 curl -s http://target.com:8080/ | grep -i jenkins
@@ -150,6 +157,7 @@ done
 ```
 
 #### Version Detection Techniques
+
 ```bash
 # Method 1: Login page analysis
 curl -s "http://target.com:8080/login" | grep -oP 'Jenkins ver\. \K[0-9.]+'
@@ -171,6 +179,7 @@ curl -s "http://target.com:8080/cli" | grep -i version
 ```
 
 #### Authentication Mechanism Detection
+
 ```bash
 # Detect authentication requirements
 auth_response=$(curl -s -o /dev/null -w "%{http_code}" "http://target.com:8080/manage")
@@ -192,6 +201,7 @@ curl -s "http://target.com:8080/configureSecurity/" | grep -E "(ldap|database|un
 ### Advanced Reconnaissance
 
 #### Plugin and Extension Discovery
+
 ```bash
 # Plugin enumeration via API
 curl -s "http://target.com:8080/pluginManager/api/json?depth=1" | \
@@ -223,6 +233,7 @@ done
 ```
 
 #### Job and Pipeline Discovery
+
 ```bash
 # Job enumeration via API
 curl -s "http://target.com:8080/api/json" | jq -r '.jobs[] | .name'
@@ -239,6 +250,7 @@ curl -s "http://target.com:8080/job/[JOB_NAME]/[BUILD_NUMBER]/artifact/"
 ```
 
 #### Credential and Secret Discovery
+
 ```bash
 # Credential store enumeration (if accessible)
 curl -s "http://target.com:8080/credentials/" | grep -i credential
@@ -255,13 +267,14 @@ curl -s "http://target.com:8080/job/[JOB_NAME]/config.xml" | \
   grep -E "(username|password|credentialsId)"
 ```
 
----
+***
 
 ## Authentication & Authorization Assessment
 
 ### Default Credential Testing
 
 #### Common Jenkins Credentials
+
 ```bash
 # Standard default credentials to test
 jenkins_creds=(
@@ -294,6 +307,7 @@ done
 ```
 
 #### Authentication Bypass Testing
+
 ```bash
 # Test for anonymous access
 curl -s "http://target.com:8080/script" | grep -q "Script Console" && \
@@ -315,6 +329,7 @@ curl -s -b session.txt "http://target.com:8080/manage" | \
 ### Authorization Level Enumeration
 
 #### Permission Matrix Analysis
+
 ```bash
 # User permission enumeration (if authenticated)
 curl -s -u "username:password" \
@@ -343,13 +358,14 @@ for endpoint in "${admin_endpoints[@]}"; do
 done
 ```
 
----
+***
 
 ## Build System Analysis
 
 ### Job Configuration Assessment
 
 #### Build Process Enumeration
+
 ```bash
 # Job configuration analysis
 job_config_analysis() {
@@ -389,6 +405,7 @@ done
 ```
 
 #### Pipeline Security Analysis
+
 ```bash
 # Pipeline script analysis (Jenkinsfile)
 pipeline_analysis() {
@@ -434,6 +451,7 @@ done
 ### Build Artifact Analysis
 
 #### Artifact Security Assessment
+
 ```bash
 # Build artifact enumeration and analysis
 artifact_analysis() {
@@ -492,16 +510,18 @@ for build_info in $recent_builds; do
 done
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab 1: Jenkins Version Detection
+
 **Question:** "Log in to the Jenkins instance at http://jenkins.inlanefreight.local:8000. Browse around and submit the version number when you are ready to move on."
 
 **Solution Methodology:**
 
 #### Step 1: Environment Setup
+
 ```bash
 # Add VHost entry to /etc/hosts
 echo "TARGET_IP jenkins.inlanefreight.local" >> /etc/hosts
@@ -511,6 +531,7 @@ curl -I http://jenkins.inlanefreight.local:8000/
 ```
 
 #### Step 2: Authentication
+
 ```bash
 # Login with provided credentials: admin:admin
 curl -c cookies.txt -d "j_username=admin&j_password=admin" \
@@ -521,6 +542,7 @@ curl -b cookies.txt http://jenkins.inlanefreight.local:8000/manage | grep -q "Ma
 ```
 
 #### Step 3: Version Detection Methods
+
 ```bash
 # Method 1: Login page footer analysis
 curl -s http://jenkins.inlanefreight.local:8000/login | \
@@ -545,6 +567,7 @@ curl -b cookies.txt http://jenkins.inlanefreight.local:8000/systemInfo | \
 ```
 
 #### Step 4: Version Verification
+
 ```bash
 # HTB Academy expected version: 2.303.1
 # This version can typically be found in:
@@ -556,13 +579,14 @@ curl -b cookies.txt http://jenkins.inlanefreight.local:8000/systemInfo | \
 # HTB Answer: 2.303.1
 ```
 
----
+***
 
 ## Enterprise Deployment Patterns
 
 ### Internal Network Recognition
 
 #### CI/CD Infrastructure Mapping
+
 ```bash
 # Jenkins in enterprise environments commonly found:
 # 1. Development networks (internal CI/CD)
@@ -581,6 +605,7 @@ curl -I http://jenkins.internal.com:8080/ | grep -i "x-forwarded\|load-balancer"
 ```
 
 #### Development Tool Integration
+
 ```bash
 # Common Jenkins integrations to identify:
 integration_indicators=(
@@ -604,6 +629,7 @@ done
 ### Security Configuration Analysis
 
 #### Authentication Method Assessment
+
 ```bash
 # Security realm analysis
 curl -s -b cookies.txt "http://jenkins.inlanefreight.local:8000/configureSecurity/" | \
@@ -622,43 +648,48 @@ curl -s -b cookies.txt "http://jenkins.inlanefreight.local:8000/configureSecurit
   grep -i "csrf" && echo "[+] CSRF protection configured"
 ```
 
----
+***
 
 ## Intelligence Gathering Workflow
 
 ### Systematic Jenkins Assessment
 
 #### Phase 1: Discovery & Identification
-- [ ] **Service Detection** - Port scanning and service identification
-- [ ] **Version Fingerprinting** - Login pages, API endpoints, headers
-- [ ] **Authentication Analysis** - Default credentials, anonymous access
-- [ ] **Plugin Enumeration** - Security plugins and extensions
+
+* [ ] **Service Detection** - Port scanning and service identification
+* [ ] **Version Fingerprinting** - Login pages, API endpoints, headers
+* [ ] **Authentication Analysis** - Default credentials, anonymous access
+* [ ] **Plugin Enumeration** - Security plugins and extensions
 
 #### Phase 2: Access Control Assessment
-- [ ] **Authentication Bypass** - Anonymous access testing
-- [ ] **Default Credential Testing** - Common username/password combinations
-- [ ] **Authorization Analysis** - Permission matrix and role evaluation
-- [ ] **Session Management** - Cookie analysis and session security
+
+* [ ] **Authentication Bypass** - Anonymous access testing
+* [ ] **Default Credential Testing** - Common username/password combinations
+* [ ] **Authorization Analysis** - Permission matrix and role evaluation
+* [ ] **Session Management** - Cookie analysis and session security
 
 #### Phase 3: Build System Analysis
-- [ ] **Job Configuration** - Build processes and trigger mechanisms
-- [ ] **Pipeline Security** - Groovy script analysis and command execution
-- [ ] **Artifact Assessment** - Build outputs and sensitive data exposure
-- [ ] **Credential Discovery** - Hardcoded secrets and credential stores
+
+* [ ] **Job Configuration** - Build processes and trigger mechanisms
+* [ ] **Pipeline Security** - Groovy script analysis and command execution
+* [ ] **Artifact Assessment** - Build outputs and sensitive data exposure
+* [ ] **Credential Discovery** - Hardcoded secrets and credential stores
 
 #### Phase 4: Infrastructure Mapping
-- [ ] **Agent Discovery** - Build slave identification and configuration
-- [ ] **Integration Analysis** - Third-party tool connections and APIs
-- [ ] **Network Architecture** - Master-agent communication and clustering
-- [ ] **Supply Chain Assessment** - Deployment targets and production impact
 
----
+* [ ] **Agent Discovery** - Build slave identification and configuration
+* [ ] **Integration Analysis** - Third-party tool connections and APIs
+* [ ] **Network Architecture** - Master-agent communication and clustering
+* [ ] **Supply Chain Assessment** - Deployment targets and production impact
+
+***
 
 ## Risk Assessment Framework
 
 ### Jenkins Security Priorities
 
 #### Critical Findings
+
 ```bash
 # Immediate security concerns to identify:
 critical_checks=(
@@ -688,13 +719,14 @@ for check in "${critical_checks[@]}"; do
 done
 ```
 
----
+***
 
 ## Next Steps
 
 After Jenkins enumeration, proceed to:
-1. **[Jenkins Attacks & Exploitation](jenkins-attacks.md)** - Script Console abuse and RCE
-2. **[CI/CD Pipeline Security](cicd-security.md)** - Build process manipulation
-3. **[GitLab Discovery](gitlab-discovery.md)** - Source code management reconnaissance
 
-**💡 Key Takeaway:** Jenkins enumeration focuses on **CI/CD infrastructure reconnaissance**, **authentication bypass discovery**, and **build system analysis**. Enterprise environments frequently contain **Jenkins instances with weak security configurations**, making systematic enumeration crucial for identifying **development infrastructure attack vectors** and **supply chain compromise opportunities**. 
+1. [**Jenkins Attacks & Exploitation**](jenkins-attacks.md) - Script Console abuse and RCE
+2. [**CI/CD Pipeline Security**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/cicd-security.md) - Build process manipulation
+3. [**GitLab Discovery**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/gitlab-discovery.md) - Source code management reconnaissance
+
+**💡 Key Takeaway:** Jenkins enumeration focuses on **CI/CD infrastructure reconnaissance**, **authentication bypass discovery**, and **build system analysis**. Enterprise environments frequently contain **Jenkins instances with weak security configurations**, making systematic enumeration crucial for identifying **development infrastructure attack vectors** and **supply chain compromise opportunities**.

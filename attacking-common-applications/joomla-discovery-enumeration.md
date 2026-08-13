@@ -7,17 +7,19 @@
 Joomla powers approximately 3% of all websites on the internet, making it the second most prevalent CMS after WordPress. Released in 2005, Joomla is a PHP-based CMS using MySQL backend, enhanced with over 7,000 extensions and 1,000+ templates. Understanding Joomla architecture and enumeration techniques is crucial for comprehensive web application assessments.
 
 **Key Statistics:**
-- **3.5% CMS market share** - Second largest after WordPress
-- **2.7+ million installations** worldwide (via public API data)
-- **7,000+ extensions** and **1,000+ templates** available
-- **Notable users:** eBay, Yamaha, Harvard University, UK government
-- **"Jumla" means "all together"** in Swahili
 
----
+* **3.5% CMS market share** - Second largest after WordPress
+* **2.7+ million installations** worldwide (via public API data)
+* **7,000+ extensions** and **1,000+ templates** available
+* **Notable users:** eBay, Yamaha, Harvard University, UK government
+* **"Jumla" means "all together"** in Swahili
+
+***
 
 ## Joomla Architecture & Components
 
 ### Core Directory Structure
+
 ```
 /administrator/          # Administrative backend
 /bin/                   # Command-line scripts
@@ -42,6 +44,7 @@ robots.txt             # Search engine directives
 ```
 
 ### User Role Hierarchy
+
 ```
 Super Administrator → Full system access + core configuration
 Administrator      → Site management + user administration  
@@ -52,13 +55,14 @@ Author            → Create and edit own articles
 Registered        → Basic user access + profile editing
 ```
 
----
+***
 
 ## Discovery & Fingerprinting
 
 ### Initial Identification Techniques
 
 #### Method 1: HTML Meta Generator Tag
+
 ```bash
 # Search for Joomla generator tag in page source
 curl -s http://target.com | grep -i joomla
@@ -68,6 +72,7 @@ curl -s http://target.com | grep -i joomla
 ```
 
 #### Method 2: robots.txt Analysis
+
 ```bash
 # Check robots.txt for Joomla-specific directories
 curl -s http://target.com/robots.txt
@@ -91,6 +96,7 @@ Disallow: /tmp/
 ```
 
 #### Method 3: Favicon Detection
+
 ```bash
 # Check for default Joomla favicon
 curl -I http://target.com/favicon.ico
@@ -100,6 +106,7 @@ curl -I http://target.com/favicon.ico
 ```
 
 #### Method 4: Directory Structure Probing
+
 ```bash
 # Test for Joomla-specific directories
 curl -I http://target.com/administrator/
@@ -111,13 +118,14 @@ curl -I http://target.com/templates/
 # Look for 200/403 responses indicating directory existence
 ```
 
----
+***
 
 ## Version Detection Strategies
 
 ### Core Version Identification
 
 #### Method 1: README.txt File
+
 ```bash
 # Extract version from README.txt
 curl -s http://target.com/README.txt | head -n 10
@@ -130,6 +138,7 @@ curl -s http://target.com/README.txt | head -n 10
 ```
 
 #### Method 2: XML Manifest Files
+
 ```bash
 # Check administrator manifest for precise version
 curl -s http://target.com/administrator/manifests/files/joomla.xml | xmllint --format -
@@ -141,6 +150,7 @@ curl -s http://target.com/administrator/manifests/files/joomla.xml | grep -oP '<
 ```
 
 #### Method 3: Cache XML Version
+
 ```bash
 # Alternative version detection via cache plugin
 curl -s http://target.com/plugins/system/cache/cache.xml | grep version
@@ -149,6 +159,7 @@ curl -s http://target.com/plugins/system/cache/cache.xml | grep version
 ```
 
 #### Method 4: JavaScript File Analysis
+
 ```bash
 # Check media directory for version-specific JS files
 curl -s http://target.com/media/system/js/ | grep -oP 'core-\K[0-9.]+'
@@ -157,6 +168,7 @@ curl -s http://target.com/media/system/js/ | grep -oP 'core-\K[0-9.]+'
 ```
 
 ### Language and Locale Detection
+
 ```bash
 # Identify site language configuration
 curl -s http://target.com/language/en-GB/en-GB.xml | head -n 5
@@ -165,13 +177,14 @@ curl -s http://target.com/language/en-GB/en-GB.xml | head -n 5
 ls -la /language/
 ```
 
----
+***
 
 ## Manual Enumeration Techniques
 
 ### Template Discovery & Analysis
 
 #### Active Template Identification
+
 ```bash
 # Extract template information from page source
 curl -s http://target.com/ | grep -i template
@@ -182,6 +195,7 @@ curl -s http://target.com/ | grep -i template
 ```
 
 #### Template Directory Enumeration
+
 ```bash
 # List available templates
 curl -s http://target.com/templates/
@@ -195,6 +209,7 @@ curl -s http://target.com/templates/
 ### Component & Extension Discovery
 
 #### Core Component Enumeration
+
 ```bash
 # Test for common Joomla components
 components=(
@@ -214,6 +229,7 @@ done
 ```
 
 #### Plugin Directory Analysis
+
 ```bash
 # Enumerate plugin directories
 curl -s http://target.com/plugins/
@@ -228,6 +244,7 @@ curl -s http://target.com/plugins/
 ```
 
 #### Module Discovery
+
 ```bash
 # Check for exposed module directories
 curl -s http://target.com/modules/
@@ -239,6 +256,7 @@ find /modules -name "*.xml" -type f
 ### Configuration File Analysis
 
 #### Database Configuration
+
 ```bash
 # Attempt to access configuration file (usually protected)
 curl -s http://target.com/configuration.php
@@ -253,6 +271,7 @@ curl -s http://target.com/configuration.php
 ### Admin Panel Discovery
 
 #### Administrative Access Points
+
 ```bash
 # Standard admin login locations
 curl -I http://target.com/administrator/
@@ -263,13 +282,14 @@ curl -I http://target.com/admin/
 curl -I http://target.com/backend/
 ```
 
----
+***
 
 ## Automated Enumeration Tools
 
 ### DroopeScan - Multi-CMS Scanner
 
 #### Installation & Setup
+
 ```bash
 # Install via pip
 sudo pip3 install droopescan
@@ -284,6 +304,7 @@ pip install -r requirements.txt
 ```
 
 #### Basic Joomla Scanning
+
 ```bash
 # Comprehensive Joomla scan
 droopescan scan joomla --url http://target.com
@@ -302,6 +323,7 @@ droopescan scan joomla --url http://target.com
 ```
 
 #### Advanced DroopeScan Options
+
 ```bash
 # Scan with threads and timeout control
 droopescan scan joomla --url http://target.com --threads 10 --timeout 30
@@ -317,6 +339,7 @@ droopescan scan joomla --url http://target.com --output json > joomla_scan.json
 ### JoomlaScan - Legacy Python Tool
 
 #### Installation & Dependencies
+
 ```bash
 # Download JoomlaScan
 git clone https://github.com/drego85/JoomlaScan.git
@@ -330,6 +353,7 @@ sudo python2.7 -m pip install requests
 ```
 
 #### JoomlaScan Execution
+
 ```bash
 # Basic scan with component enumeration
 python2.7 joomlascan.py -u http://target.com
@@ -345,6 +369,7 @@ LICENSE file found > http://target.com/administrator/components/com_admin/admin.
 ### Custom Enumeration Scripts
 
 #### Component Brute Force Script
+
 ```bash
 #!/bin/bash
 # joomla-component-enum.sh
@@ -378,11 +403,12 @@ while IFS= read -r component; do
 done < "$components_file"
 ```
 
----
+***
 
 ## Version-Specific Intelligence
 
 ### Joomla 3.x Series Analysis
+
 ```bash
 # Joomla 3.x specific features and files
 curl -s http://target.com/templates/protostar/  # Default 3.x template
@@ -394,7 +420,8 @@ curl -s http://target.com/media/jui/            # jQuery UI integration
 # - Authentication bypasses
 ```
 
-### Joomla 4.x Series Analysis  
+### Joomla 4.x Series Analysis
+
 ```bash
 # Joomla 4.x specific indicators
 curl -s http://target.com/templates/cassiopeia/ # Default 4.x template
@@ -406,19 +433,21 @@ curl -s http://target.com/ | grep -i "vue"
 ```
 
 ### Legacy Version Detection
+
 ```bash
 # Joomla 1.5/2.5 legacy indicators (rarely seen)
 curl -s http://target.com/templates/beez/       # Legacy template
 curl -s http://target.com/libraries/joomla/     # Legacy library structure
 ```
 
----
+***
 
 ## Authentication & Brute Force Attacks
 
 ### User Enumeration Limitations
 
 #### Login Error Analysis
+
 ```bash
 # Joomla returns generic error messages
 curl -X POST http://target.com/administrator/index.php \
@@ -433,6 +462,7 @@ curl -X POST http://target.com/administrator/index.php \
 ### Brute Force Attack Strategies
 
 #### Default Credential Testing
+
 ```bash
 # Common default credentials to test
 admin:admin
@@ -443,6 +473,7 @@ root:root
 ```
 
 #### Custom Brute Force Script
+
 ```bash
 #!/bin/bash
 # joomla-brute.py equivalent in bash
@@ -466,6 +497,7 @@ done < "$userlist"
 ```
 
 #### Metasploit Brute Force Module
+
 ```bash
 # Using Metasploit for Joomla brute force
 msfconsole
@@ -476,13 +508,14 @@ set PASS_FILE passwords.txt
 run
 ```
 
----
+***
 
 ## Joomla-Specific Vulnerability Patterns
 
 ### Common Security Issues
 
 #### Installation Directory Exposure
+
 ```bash
 # Check if installation directory exists (should be removed)
 curl -I http://target.com/installation/
@@ -494,6 +527,7 @@ curl -I http://target.com/installation/
 ```
 
 #### Configuration Backup Files
+
 ```bash
 # Look for configuration backups
 curl -I http://target.com/configuration.php.bak
@@ -502,6 +536,7 @@ curl -I http://target.com/configuration.php~
 ```
 
 #### Directory Listing Vulnerabilities
+
 ```bash
 # Test for directory listing on key folders
 directories=(
@@ -520,6 +555,7 @@ done
 ```
 
 #### Component-Specific Vulnerabilities
+
 ```bash
 # Research component versions for CVEs
 curl -s http://target.com/administrator/components/com_admin/admin.xml | grep version
@@ -531,39 +567,44 @@ curl -s http://target.com/components/com_content/ | grep -i version
 # - Exploit-DB
 ```
 
----
+***
 
 ## Intelligence Gathering Workflow
 
 ### Comprehensive Enumeration Checklist
 
 #### Phase 1: Initial Discovery
-- [ ] **Joomla Confirmation** - Meta tags, robots.txt, directory structure
-- [ ] **Version Detection** - README.txt, XML manifests, cache files
-- [ ] **Directory Listing** - Check for exposed directories
-- [ ] **Admin Panel Location** - Confirm administrator access
+
+* [ ] **Joomla Confirmation** - Meta tags, robots.txt, directory structure
+* [ ] **Version Detection** - README.txt, XML manifests, cache files
+* [ ] **Directory Listing** - Check for exposed directories
+* [ ] **Admin Panel Location** - Confirm administrator access
 
 #### Phase 2: Component Analysis
-- [ ] **Active Template** - Identification and version detection
-- [ ] **Component Discovery** - Enumerate installed components
-- [ ] **Plugin Enumeration** - System and content plugins
-- [ ] **Module Analysis** - Site and administrative modules
+
+* [ ] **Active Template** - Identification and version detection
+* [ ] **Component Discovery** - Enumerate installed components
+* [ ] **Plugin Enumeration** - System and content plugins
+* [ ] **Module Analysis** - Site and administrative modules
 
 #### Phase 3: Vulnerability Research
-- [ ] **CVE Mapping** - Map versions to known vulnerabilities
-- [ ] **Configuration Review** - Default settings and misconfigurations
-- [ ] **Extension Security** - Third-party component vulnerabilities
+
+* [ ] **CVE Mapping** - Map versions to known vulnerabilities
+* [ ] **Configuration Review** - Default settings and misconfigurations
+* [ ] **Extension Security** - Third-party component vulnerabilities
 
 #### Phase 4: Authentication Assessment
-- [ ] **Default Credentials** - Test common username/password combinations
-- [ ] **Brute Force Viability** - Assess account lockout policies
-- [ ] **Admin Access Methods** - Alternative authentication mechanisms
 
----
+* [ ] **Default Credentials** - Test common username/password combinations
+* [ ] **Brute Force Viability** - Assess account lockout policies
+* [ ] **Admin Access Methods** - Alternative authentication mechanisms
+
+***
 
 ## Global Joomla Statistics API
 
 ### Version Distribution Analysis
+
 ```bash
 # Query Joomla public statistics API
 curl -s https://developer.joomla.org/stats/cms_version | python3 -m json.tool
@@ -587,6 +628,7 @@ curl -s https://developer.joomla.org/stats/cms_version | jq '.data.cms_version'
 ```
 
 ### Geographic and Technology Statistics
+
 ```bash
 # Additional API endpoints for intelligence
 curl -s https://developer.joomla.org/stats/php_version | jq .
@@ -594,14 +636,16 @@ curl -s https://developer.joomla.org/stats/db_type | jq .
 curl -s https://developer.joomla.org/stats/server_os | jq .
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab 1: Version Fingerprinting
+
 **Question:** "Fingerprint the Joomla version in use on http://app.inlanefreight.local (Format: x.x.x)"
 
 **Solution Methodology:**
+
 ```bash
 # Method 1: XML Manifest (Most Accurate)
 curl -s http://app.inlanefreight.local/administrator/manifests/files/joomla.xml | grep -oP '<version>\K[^<]+'
@@ -619,9 +663,11 @@ droopescan scan joomla --url http://app.inlanefreight.local
 ```
 
 ### Lab 2: Admin Password Discovery
+
 **Question:** "Find the password for the admin user on http://app.inlanefreight.local"
 
 **Solution Methodology:**
+
 ```bash
 # Method 1: Default Credentials Testing
 curl -X POST http://app.inlanefreight.local/administrator/index.php \
@@ -655,11 +701,12 @@ python3 joomla-brute.py -u http://app.inlanefreight.local \
 # Expected answer: admin (weak default configuration)
 ```
 
----
+***
 
 ## Professional Documentation
 
 ### Enumeration Findings Template
+
 ```
 === Joomla Discovery Report ===
 
@@ -688,11 +735,12 @@ CVE: [IF APPLICABLE]
 3. [MONITORING RECOMMENDATIONS]
 ```
 
----
+***
 
 ## Defensive Considerations
 
 ### Security Hardening Recommendations
+
 ```bash
 # Essential Joomla security steps
 1. Remove /installation/ directory after setup
@@ -704,6 +752,7 @@ CVE: [IF APPLICABLE]
 ```
 
 ### Monitoring and Detection
+
 ```bash
 # Log locations to monitor
 /logs/error.php          # Error logs
@@ -713,13 +762,14 @@ CVE: [IF APPLICABLE]
 find /administrator -name "*.php" -type f -exec md5sum {} \; > joomla_hashes.txt
 ```
 
----
+***
 
 ## Next Steps
 
 After Joomla enumeration, proceed to:
-1. **[Joomla Attacks & Exploitation](joomla-attacks.md)** - Weaponizing discovered vulnerabilities
-2. **[Component-Specific Attacks](joomla-component-attacks.md)** - Extension exploitation techniques
-3. **[Privilege Escalation](joomla-privilege-escalation.md)** - Administrative access and persistence
 
-**💡 Key Takeaway:** Joomla enumeration requires systematic analysis of version indicators, component discovery, and security configuration assessment. While less common than WordPress, Joomla installations often contain unique vulnerabilities in custom components and configurations that reward thorough enumeration efforts. 
+1. [**Joomla Attacks & Exploitation**](joomla-attacks.md) - Weaponizing discovered vulnerabilities
+2. [**Component-Specific Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/joomla-component-attacks.md) - Extension exploitation techniques
+3. [**Privilege Escalation**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/joomla-privilege-escalation.md) - Administrative access and persistence
+
+**💡 Key Takeaway:** Joomla enumeration requires systematic analysis of version indicators, component discovery, and security configuration assessment. While less common than WordPress, Joomla installations often contain unique vulnerabilities in custom components and configurations that reward thorough enumeration efforts.

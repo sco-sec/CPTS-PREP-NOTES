@@ -1,81 +1,86 @@
-# Email Enumeration (IMAP/POP3)
+# 📮 Email Services (IMAP/POP3)
 
 ## Overview
+
 IMAP and POP3 are email retrieval protocols that allow clients to access email messages stored on mail servers. During enumeration, these services can reveal valuable information about the organization, system configuration, and potentially provide access to email data.
 
 **Key Characteristics:**
-- **POP3**: Port 110 (plain), 995 (SSL/TLS)
-- **IMAP**: Port 143 (plain), 993 (SSL/TLS)
-- **Protocol**: Text-based commands
-- **Authentication**: Username/password based
-- **Encryption**: STARTTLS or SSL/TLS
+
+* **POP3**: Port 110 (plain), 995 (SSL/TLS)
+* **IMAP**: Port 143 (plain), 993 (SSL/TLS)
+* **Protocol**: Text-based commands
+* **Authentication**: Username/password based
+* **Encryption**: STARTTLS or SSL/TLS
 
 ## IMAP vs POP3 Differences
 
-| Feature | IMAP | POP3 |
-|---------|------|------|
-| **Email Storage** | Server-side (emails remain on server) | Client-side (downloads to local) |
-| **Multi-device Access** | Yes (synchronization across devices) | Limited (downloads remove from server) |
-| **Folder Management** | Yes (hierarchical mailboxes) | No (single inbox only) |
-| **Offline Access** | Limited (requires sync) | Full (emails downloaded locally) |
-| **Server Storage** | Higher (emails stored on server) | Lower (emails removed after download) |
-| **Functionality** | Advanced (search, flags, folders) | Basic (list, retrieve, delete) |
-| **Typical Usage** | Modern email clients, webmail | Legacy systems, simple clients |
+| Feature                 | IMAP                                  | POP3                                   |
+| ----------------------- | ------------------------------------- | -------------------------------------- |
+| **Email Storage**       | Server-side (emails remain on server) | Client-side (downloads to local)       |
+| **Multi-device Access** | Yes (synchronization across devices)  | Limited (downloads remove from server) |
+| **Folder Management**   | Yes (hierarchical mailboxes)          | No (single inbox only)                 |
+| **Offline Access**      | Limited (requires sync)               | Full (emails downloaded locally)       |
+| **Server Storage**      | Higher (emails stored on server)      | Lower (emails removed after download)  |
+| **Functionality**       | Advanced (search, flags, folders)     | Basic (list, retrieve, delete)         |
+| **Typical Usage**       | Modern email clients, webmail         | Legacy systems, simple clients         |
 
 ## Port Overview
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **POP3** | 110 | Post Office Protocol v3 (plain text) |
-| **POP3S** | 995 | POP3 over SSL/TLS |
-| **IMAP** | 143 | Internet Message Access Protocol (plain text) |
-| **IMAPS** | 993 | IMAP over SSL/TLS |
+| Service   | Port | Description                                   |
+| --------- | ---- | --------------------------------------------- |
+| **POP3**  | 110  | Post Office Protocol v3 (plain text)          |
+| **POP3S** | 995  | POP3 over SSL/TLS                             |
+| **IMAP**  | 143  | Internet Message Access Protocol (plain text) |
+| **IMAPS** | 993  | IMAP over SSL/TLS                             |
 
 ## Protocol Commands
 
 ### IMAP Commands
-| Command | Description |
-|---------|-------------|
-| `1 LOGIN username password` | User's login |
-| `1 LIST "" *` | Lists all directories |
-| `1 CREATE "INBOX"` | Creates a mailbox with specified name |
-| `1 DELETE "INBOX"` | Deletes a mailbox |
-| `1 RENAME "ToRead" "Important"` | Renames a mailbox |
-| `1 LSUB "" *` | Returns subset of names from active/subscribed mailboxes |
-| `1 SELECT INBOX` | Selects a mailbox for message access |
-| `1 UNSELECT INBOX` | Exits the selected mailbox |
-| `1 FETCH <ID> all` | Retrieves data associated with a message |
-| `1 CLOSE` | Removes all messages with Deleted flag set |
-| `1 LOGOUT` | Closes connection with IMAP server |
+
+| Command                         | Description                                              |
+| ------------------------------- | -------------------------------------------------------- |
+| `1 LOGIN username password`     | User's login                                             |
+| `1 LIST "" *`                   | Lists all directories                                    |
+| `1 CREATE "INBOX"`              | Creates a mailbox with specified name                    |
+| `1 DELETE "INBOX"`              | Deletes a mailbox                                        |
+| `1 RENAME "ToRead" "Important"` | Renames a mailbox                                        |
+| `1 LSUB "" *`                   | Returns subset of names from active/subscribed mailboxes |
+| `1 SELECT INBOX`                | Selects a mailbox for message access                     |
+| `1 UNSELECT INBOX`              | Exits the selected mailbox                               |
+| `1 FETCH <ID> all`              | Retrieves data associated with a message                 |
+| `1 CLOSE`                       | Removes all messages with Deleted flag set               |
+| `1 LOGOUT`                      | Closes connection with IMAP server                       |
 
 ### POP3 Commands
-| Command | Description |
-|---------|-------------|
-| `USER username` | Identifies the user |
-| `PASS password` | Authentication of the user using password |
-| `STAT` | Requests number of saved emails from server |
-| `LIST` | Requests number and size of all emails |
-| `RETR id` | Requests server to deliver requested email by ID |
-| `DELE id` | Requests server to delete requested email by ID |
-| `CAPA` | Requests server to display server capabilities |
-| `RSET` | Requests server to reset transmitted information |
-| `QUIT` | Closes connection with POP3 server |
+
+| Command         | Description                                      |
+| --------------- | ------------------------------------------------ |
+| `USER username` | Identifies the user                              |
+| `PASS password` | Authentication of the user using password        |
+| `STAT`          | Requests number of saved emails from server      |
+| `LIST`          | Requests number and size of all emails           |
+| `RETR id`       | Requests server to deliver requested email by ID |
+| `DELE id`       | Requests server to delete requested email by ID  |
+| `CAPA`          | Requests server to display server capabilities   |
+| `RSET`          | Requests server to reset transmitted information |
+| `QUIT`          | Closes connection with POP3 server               |
 
 ## Dangerous Settings
 
 IMAP/POP3 servers like Dovecot can be misconfigured, potentially exposing sensitive information:
 
-| Setting | Description | Risk Level |
-|---------|-------------|------------|
-| `auth_debug` | Enables all authentication debug logging | High |
-| `auth_debug_passwords` | Logs submitted passwords and schemes | Critical |
-| `auth_verbose` | Logs unsuccessful authentication attempts and reasons | Medium |
-| `auth_verbose_passwords` | Passwords used for authentication are logged | Critical |
-| `auth_anonymous_username` | Username for ANONYMOUS SASL mechanism | Medium |
+| Setting                   | Description                                           | Risk Level |
+| ------------------------- | ----------------------------------------------------- | ---------- |
+| `auth_debug`              | Enables all authentication debug logging              | High       |
+| `auth_debug_passwords`    | Logs submitted passwords and schemes                  | Critical   |
+| `auth_verbose`            | Logs unsuccessful authentication attempts and reasons | Medium     |
+| `auth_verbose_passwords`  | Passwords used for authentication are logged          | Critical   |
+| `auth_anonymous_username` | Username for ANONYMOUS SASL mechanism                 | Medium     |
 
 ## Enumeration Techniques
 
 ### 1. Service Detection
+
 ```bash
 # Nmap service detection
 nmap -p110,143,993,995 -sV -sC target
@@ -85,6 +90,7 @@ nmap -p110,143,993,995 --script imap-capabilities,pop3-capabilities target
 ```
 
 ### 2. Banner Grabbing
+
 ```bash
 # POP3 banner grabbing
 telnet target 110
@@ -96,6 +102,7 @@ nc target 143
 ```
 
 ### 3. SSL Certificate Analysis
+
 ```bash
 # Connect to IMAPS and analyze certificate
 openssl s_client -connect target:993
@@ -111,6 +118,7 @@ openssl s_client -connect target:993 < /dev/null 2>/dev/null | openssl x509 -tex
 ```
 
 ### 4. Service Capabilities
+
 ```bash
 # IMAP capability enumeration
 telnet target 143
@@ -124,6 +132,7 @@ CAPA
 ## Advanced Enumeration
 
 ### Using OpenSSL for Encrypted Connections
+
 ```bash
 # Connect to IMAPS
 openssl s_client -connect target:993
@@ -138,6 +147,7 @@ openssl s_client -connect target:993 -tls1_2
 ```
 
 ### Using cURL for IMAP/POP3 Testing
+
 ```bash
 # Basic IMAP connection with cURL
 curl -k 'imaps://target' --user user:password
@@ -156,6 +166,7 @@ curl -k 'pop3s://target' --user username:password -v
 ```
 
 **Example cURL Verbose Output Analysis:**
+
 ```bash
 # cURL -v provides detailed TLS and protocol information:
 curl -k 'imaps://target' --user cry0l1t3:1234 -v
@@ -170,6 +181,7 @@ curl -k 'imaps://target' --user cry0l1t3:1234 -v
 ```
 
 ### SSL Certificate Information Extraction
+
 ```bash
 # Extract organization information
 openssl s_client -connect target:993 2>/dev/null | grep -E "subject|issuer|commonName|organizationName"
@@ -181,6 +193,7 @@ openssl s_client -connect target:993 2>/dev/null | grep -E "subject|issuer|commo
 ```
 
 ### Authentication Testing
+
 ```bash
 # IMAP authentication
 openssl s_client -connect target:993
@@ -195,6 +208,7 @@ PASS password
 ## IMAP Enumeration
 
 ### Basic IMAP Commands
+
 ```bash
 # Common IMAP commands
 CAPABILITY          # List server capabilities
@@ -206,6 +220,7 @@ LOGOUT             # Disconnect
 ```
 
 ### IMAP Enumeration Session
+
 ```bash
 # Connect to IMAPS
 openssl s_client -connect target:993
@@ -226,6 +241,7 @@ tag3 FETCH 1 (BODY[])
 ## POP3 Enumeration
 
 ### Basic POP3 Commands
+
 ```bash
 # Common POP3 commands
 USER username       # Specify username
@@ -237,6 +253,7 @@ QUIT               # Disconnect
 ```
 
 ### POP3 Enumeration Session
+
 ```bash
 # Connect to POP3S
 openssl s_client -connect target:995
@@ -255,6 +272,7 @@ RETR 1
 ## Information Gathering
 
 ### SSL Certificate Analysis
+
 ```bash
 # Extract useful information from certificates
 openssl s_client -connect target:993 2>/dev/null | grep -E "commonName|organizationName|stateOrProvinceName|countryName"
@@ -267,6 +285,7 @@ openssl s_client -connect target:993 2>/dev/null | grep -E "commonName|organizat
 ```
 
 ### Email Header Analysis
+
 ```bash
 # After connecting and authenticating, analyze email headers
 tag3 FETCH 1 (BODY[HEADER])
@@ -281,6 +300,7 @@ tag3 FETCH 1 (BODY[HEADER])
 ## Practical Examples
 
 ### HTB Academy Style Enumeration
+
 ```bash
 # Step 1: Service detection
 nmap -p110,143,993,995 -sV -sC target
@@ -303,6 +323,7 @@ tag3 FETCH 1 (BODY[])
 ```
 
 ### HTB Academy Lab Questions Examples
+
 ```bash
 # Question 1: "Figure out the exact organization name from the IMAP/POP3 service"
 nmap -p110,143,993,995 -sV -sC target
@@ -340,6 +361,7 @@ tag3 FETCH 1 (BODY[])
 ```
 
 ### Custom Version Detection
+
 ```bash
 # Connect to POP3 and grab custom version
 telnet target 110
@@ -351,6 +373,7 @@ telnet target 143
 ```
 
 ### Certificate Information Extraction
+
 ```bash
 # Detailed certificate analysis from HTB Academy
 openssl s_client -connect target:993 2>/dev/null | grep -E "subject|issuer"
@@ -370,12 +393,14 @@ openssl s_client -connect target:993 2>/dev/null | grep -E "subject|issuer"
 ## Security Assessment
 
 ### Common Vulnerabilities
+
 1. **Weak Authentication**: Default or weak passwords
 2. **Plaintext Transmission**: Unencrypted connections
 3. **Information Disclosure**: Verbose error messages
 4. **Certificate Issues**: Self-signed or invalid certificates
 
 ### Authentication Testing
+
 ```bash
 # Test common credentials
 USER admin
@@ -392,32 +417,37 @@ PASS common_password
 ## Enumeration Checklist
 
 ### Initial Discovery
-- [ ] Port scan for 110, 143, 993, 995
-- [ ] Service version detection
-- [ ] Banner grabbing
-- [ ] SSL certificate analysis
+
+* [ ] Port scan for 110, 143, 993, 995
+* [ ] Service version detection
+* [ ] Banner grabbing
+* [ ] SSL certificate analysis
 
 ### Information Gathering
-- [ ] Extract organization name from certificates
-- [ ] Identify server FQDN
-- [ ] Analyze custom version strings
-- [ ] Document server capabilities
+
+* [ ] Extract organization name from certificates
+* [ ] Identify server FQDN
+* [ ] Analyze custom version strings
+* [ ] Document server capabilities
 
 ### Authentication Testing
-- [ ] Test common credential combinations
-- [ ] Use discovered usernames
-- [ ] Test for authentication bypass
-- [ ] Check for account lockout policies
+
+* [ ] Test common credential combinations
+* [ ] Use discovered usernames
+* [ ] Test for authentication bypass
+* [ ] Check for account lockout policies
 
 ### Content Analysis
-- [ ] Enumerate email folders
-- [ ] Analyze email headers
-- [ ] Search for sensitive information
-- [ ] Document administrative contacts
+
+* [ ] Enumerate email folders
+* [ ] Analyze email headers
+* [ ] Search for sensitive information
+* [ ] Document administrative contacts
 
 ## Tools and Techniques
 
 ### Essential Tools
+
 ```bash
 # Manual testing
 telnet               # Basic connection testing
@@ -430,6 +460,7 @@ smtp-user-enum       # Can also test IMAP/POP3 in some cases
 ```
 
 ### Custom Scripts
+
 ```bash
 # IMAP banner grabber
 #!/bin/bash
@@ -447,6 +478,7 @@ openssl s_client -connect $1:993 2>/dev/null | openssl x509 -text | grep -E "Sub
 ## Defensive Measures
 
 ### Secure Configuration
+
 ```bash
 # Disable plaintext authentication
 # In dovecot.conf:
@@ -460,6 +492,7 @@ ssl_key = </path/to/key.pem
 ```
 
 ### Best Practices
+
 1. **Enforce SSL/TLS**: Disable plaintext protocols
 2. **Strong Authentication**: Implement strong password policies
 3. **Rate Limiting**: Prevent brute force attacks
@@ -467,6 +500,7 @@ ssl_key = </path/to/key.pem
 5. **Certificate Management**: Use valid certificates
 
 ### Detection and Monitoring
+
 ```bash
 # Monitor mail server logs
 tail -f /var/log/maillog
@@ -479,6 +513,7 @@ grep "Login failed" /var/log/maillog
 ## Common Attack Vectors
 
 ### 1. Credential Brute Force
+
 ```bash
 # Manual testing
 for user in admin root test; do
@@ -489,12 +524,14 @@ done
 ```
 
 ### 2. Information Disclosure
-- Server version information
-- Internal network details
-- Email addresses and contacts
-- Organizational structure
+
+* Server version information
+* Internal network details
+* Email addresses and contacts
+* Organizational structure
 
 ### 3. Man-in-the-Middle
-- Intercept plaintext connections
-- Certificate validation bypass
-- Credential harvesting
+
+* Intercept plaintext connections
+* Certificate validation bypass
+* Credential harvesting

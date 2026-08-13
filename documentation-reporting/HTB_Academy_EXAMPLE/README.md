@@ -1,4 +1,4 @@
-# HTB Academy Example - Obsidian Notetaking Structure
+# 📁 HTB Academy Example
 
 ## 🎯 Overview
 
@@ -28,13 +28,15 @@ Inlanefreight Penetration Test/
 ## 📝 Obsidian Integration
 
 ### Key Features
-- **Markdown-based notes** for professional documentation
-- **Linked references** between findings and evidence
-- **Local storage** for client data security
-- **Template consistency** across assessments
-- **Professional presentation** ready
+
+* **Markdown-based notes** for professional documentation
+* **Linked references** between findings and evidence
+* **Local storage** for client data security
+* **Template consistency** across assessments
+* **Professional presentation** ready
 
 ### Usage Instructions
+
 1. **Open in Obsidian**: Select "Open folder as vault"
 2. **Explore structure**: Navigate through folders and notes
 3. **Review examples**: See how findings are documented
@@ -43,26 +45,29 @@ Inlanefreight Penetration Test/
 ## 🎯 Example Content
 
 ### Sample Assessment: INLANEFREIGHT.LOCAL
-- **Domain compromise** via Active Directory attacks
-- **Complete attack chain** from LLMNR poisoning to DCSync
-- **Professional findings** with evidence and remediation
-- **Organized evidence** collection and presentation
+
+* **Domain compromise** via Active Directory attacks
+* **Complete attack chain** from LLMNR poisoning to DCSync
+* **Professional findings** with evidence and remediation
+* **Organized evidence** collection and presentation
 
 ### Learning Objectives
-- **Practical notetaking** structure implementation
-- **Professional documentation** standards
-- **Evidence organization** best practices
-- **Client-ready presentation** format
+
+* **Practical notetaking** structure implementation
+* **Professional documentation** standards
+* **Evidence organization** best practices
+* **Client-ready presentation** format
 
 ## 💡 Key Takeaways
 
 This example demonstrates:
+
 1. **Structured approach** to penetration test documentation
 2. **Professional organization** for complex assessments
 3. **Evidence management** for comprehensive reporting
 4. **Obsidian integration** for efficient notetaking
 5. **Real-world application** of HTB Academy methodology
 
----
+***
 
-*This practical example shows how professional penetration testing documentation should be organized for maximum efficiency and client value.* 
+_This practical example shows how professional penetration testing documentation should be organized for maximum efficiency and client value._

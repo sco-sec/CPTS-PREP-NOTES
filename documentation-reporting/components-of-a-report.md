@@ -1,4 +1,4 @@
-# Components of a Report
+# 📋 Components of a Report
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 📋 Core Report Structure
 
 ### 🎯 Executive Summary
+
 ```cmd
 # Purpose:
 - Written for non-technical stakeholders
@@ -23,6 +24,7 @@
 ```
 
 ### ⚔️ Attack Chain
+
 ```cmd
 # Purpose:
 - Demonstrate exploitation path
@@ -39,6 +41,7 @@
 ```
 
 ### 🔍 Findings Section
+
 ```cmd
 # Content:
 - Technical vulnerability details
@@ -55,6 +58,7 @@
 ```
 
 ### 📊 Summary of Recommendations
+
 ```cmd
 # Timeframe categories:
 - Short-term: Immediate patches/fixes
@@ -71,6 +75,7 @@
 ## 📝 Executive Summary Best Practices
 
 ### ✅ DO
+
 ```cmd
 # Content guidelines:
 - Use specific numbers instead of vague terms
@@ -88,6 +93,7 @@
 ```
 
 ### ❌ DON'T
+
 ```cmd
 # Avoid:
 - Specific vendor recommendations
@@ -105,6 +111,7 @@
 ```
 
 ### 🔄 Technical Term Translation
+
 ```cmd
 # Professional vocabulary conversion:
 VPN/SSH → "secure remote administration protocol"
@@ -119,6 +126,7 @@ SQL Injection → "database manipulation vulnerability"
 ## 📊 Sample Attack Chain Structure
 
 ### 🎯 INLANEFREIGHT.LOCAL Example
+
 ```cmd
 # Attack progression:
 1. LLMNR/NBT-NS Poisoning → bsmith user hash
@@ -144,6 +152,7 @@ SQL Injection → "database manipulation vulnerability"
 ## 📋 Report Appendices
 
 ### 🔒 Static Appendices (Always Include)
+
 ```cmd
 # Scope:
 - Assessment boundaries
@@ -171,6 +180,7 @@ SQL Injection → "database manipulation vulnerability"
 ```
 
 ### 🔄 Dynamic Appendices (Conditional)
+
 ```cmd
 # Exploitation Attempts:
 - Payload deployment log
@@ -214,6 +224,7 @@ SQL Injection → "database manipulation vulnerability"
 ## 🎯 HTB Academy Lab Solutions
 
 ### Lab Questions
+
 ```bash
 # Question 1: Non-technical report component
 # Answer: Executive Summary
@@ -223,6 +234,7 @@ SQL Injection → "database manipulation vulnerability"
 ```
 
 ### Executive Summary Principles
+
 ```cmd
 # Target audience:
 - Budget decision makers
@@ -240,6 +252,7 @@ SQL Injection → "database manipulation vulnerability"
 ## ⚠️ Professional Considerations
 
 ### 📋 Finding Prioritization
+
 ```cmd
 # Focus areas:
 - Remote code execution flaws
@@ -255,6 +268,7 @@ SQL Injection → "database manipulation vulnerability"
 ```
 
 ### 🔍 Evidence Quality
+
 ```cmd
 # Essential elements:
 - Clear reproduction steps
@@ -280,6 +294,6 @@ SQL Injection → "database manipulation vulnerability"
 6. **Professional language** essential for stakeholder communication
 7. **Evidence quality** determines report credibility and usefulness
 
----
+***
 
-*Effective report components balance technical accuracy with business communication, ensuring all stakeholders can understand and act on penetration testing findings.* 
+_Effective report components balance technical accuracy with business communication, ensuring all stakeholders can understand and act on penetration testing findings._

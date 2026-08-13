@@ -1,4 +1,4 @@
-# 🅳 Drupal Discovery & Enumeration
+# Drupal Discovery & Enumeration
 
 > **🎯 Objective:** Master the identification, enumeration, and intelligence gathering techniques for Drupal installations to complete comprehensive CMS security assessment capabilities across the three major content management platforms.
 
@@ -7,20 +7,22 @@
 Drupal, launched in **2001**, represents the third pillar of the **CMS Trinity** alongside WordPress and Joomla. While holding a smaller market share (**2.4% of CMS market**), Drupal powers critical infrastructure including **56% of government websites globally** and **33 Fortune 500 companies**. Its enterprise focus and robust architecture make it a high-value target requiring specialized enumeration techniques.
 
 **Key Drupal Statistics:**
-- **1.5% of internet sites** (over 1.1 million installations)
-- **5% of top 1 million websites** worldwide
-- **7% of top 10,000 sites** (enterprise concentration)
-- **950,000+ active instances** (Update Status module data)
-- **Available in 100 languages** with global deployment
-- **Major users:** Tesla, Warner Bros Records, government agencies
 
----
+* **1.5% of internet sites** (over 1.1 million installations)
+* **5% of top 1 million websites** worldwide
+* **7% of top 10,000 sites** (enterprise concentration)
+* **950,000+ active instances** (Update Status module data)
+* **Available in 100 languages** with global deployment
+* **Major users:** Tesla, Warner Bros Records, government agencies
+
+***
 
 ## Drupal Architecture & Fundamentals
 
 ### Core Concepts & Structure
 
 #### Content Management via Nodes
+
 ```
 Node System Architecture:
 /node/1     → Blog post
@@ -33,6 +35,7 @@ Node = Universal content container in Drupal
 ```
 
 #### User Role Hierarchy
+
 ```
 Administrator      → Complete system control and configuration
 Authenticated User → Login access with role-based permissions
@@ -45,6 +48,7 @@ Content Manager   → Specific content type management
 ```
 
 #### Directory Structure Analysis
+
 ```
 /core/               # Drupal 8+ core files
 /modules/            # Contributed and custom modules
@@ -60,13 +64,14 @@ sites/default/settings.php      # Database and site configuration
 robots.txt                     # Search engine directives
 ```
 
----
+***
 
 ## Discovery & Fingerprinting Techniques
 
 ### Initial Identification Methods
 
 #### Method 1: Generator Meta Tag Detection
+
 ```bash
 # Search for Drupal generator meta tag
 curl -s http://target.com | grep -i drupal
@@ -77,6 +82,7 @@ curl -s http://target.com | grep -i drupal
 ```
 
 #### Method 2: Powered by Footer Analysis
+
 ```bash
 # Look for Drupal attribution in page footer
 curl -s http://target.com | grep -i "powered by"
@@ -86,6 +92,7 @@ curl -s http://target.com | grep -i "powered by"
 ```
 
 #### Method 3: Node-Based URL Pattern Recognition
+
 ```bash
 # Test for node-based URL structure
 curl -I http://target.com/node/1
@@ -101,6 +108,7 @@ curl -I http://target.com/?q=node/1
 ```
 
 #### Method 4: Standard File Detection
+
 ```bash
 # Check for Drupal-specific files
 curl -I http://target.com/CHANGELOG.txt
@@ -122,6 +130,7 @@ Disallow: /user/register/
 ```
 
 #### Method 5: CSS/JavaScript Fingerprinting
+
 ```bash
 # Search for Drupal-specific assets
 curl -s http://target.com | grep -E "(drupal|misc/|sites/)"
@@ -134,13 +143,14 @@ curl -s http://target.com | grep -E "(drupal|misc/|sites/)"
 /themes/[theme]/css/          # Theme assets
 ```
 
----
+***
 
 ## Version Detection Strategies
 
 ### Core Version Identification
 
 #### Method 1: CHANGELOG.txt Analysis (Primary)
+
 ```bash
 # Extract version from CHANGELOG.txt (most reliable)
 curl -s http://target.com/CHANGELOG.txt | head -n 3
@@ -159,6 +169,7 @@ curl -I http://target.com/CHANGELOG.txt
 ```
 
 #### Method 2: Generator Meta Tag Version
+
 ```bash
 # Extract version from HTML meta generator
 curl -s http://target.com | grep -oP 'content="Drupal \K[0-9.]+'
@@ -168,6 +179,7 @@ curl -s http://target.com | grep generator | grep -oP 'Drupal \K[0-9.]+'
 ```
 
 #### Method 3: Core JavaScript File Analysis
+
 ```bash
 # Drupal 7 version detection via jQuery
 curl -s http://target.com/misc/jquery.js | head -n 5
@@ -180,6 +192,7 @@ curl -s http://target.com | grep -oP '/core/misc/drupal\.js\?v=\K[0-9.]+'
 ```
 
 #### Method 4: CSS Timestamp Analysis
+
 ```bash
 # Check CSS files for version indicators
 curl -s http://target.com | grep -oP 'system\.css\?[a-z0-9]+'
@@ -189,6 +202,7 @@ curl -s http://target.com/modules/system/system.css | head -n 3
 ```
 
 #### Method 5: Update Status Module Detection
+
 ```bash
 # Check for update.php (indicates version)
 curl -I http://target.com/update.php
@@ -200,6 +214,7 @@ curl -s http://target.com/profiles/standard/standard.info
 ### Version-Specific Indicators
 
 #### Drupal 6 Characteristics
+
 ```bash
 # Directory structure indicators
 curl -I http://target.com/misc/drupal.js
@@ -211,7 +226,8 @@ curl -I http://target.com/themes/garland/    # Default theme
 curl -s http://target.com/misc/jquery.js | grep -oP 'jQuery \K[0-9.]+'
 ```
 
-#### Drupal 7 Characteristics  
+#### Drupal 7 Characteristics
+
 ```bash
 # Drupal 7 specific files and paths
 curl -I http://target.com/misc/            # Misc directory
@@ -223,6 +239,7 @@ curl -s http://target.com/misc/jquery.js | head -n 3
 ```
 
 #### Drupal 8+ Characteristics
+
 ```bash
 # Drupal 8+ modern structure
 curl -I http://target.com/core/            # Core directory
@@ -236,13 +253,14 @@ curl -s http://target.com | grep -i symfony
 curl -s http://target.com | grep -E "\.html\.twig"
 ```
 
----
+***
 
 ## Manual Enumeration Techniques
 
 ### Content Discovery via Node Enumeration
 
 #### Sequential Node Discovery
+
 ```bash
 # Enumerate content nodes systematically
 for i in {1..100}; do
@@ -260,6 +278,7 @@ done
 ```
 
 #### Content Type Analysis
+
 ```bash
 # Identify content types from node URLs
 curl -s http://target.com/node/1 | grep -oP 'content-type-\K[a-z-]+'
@@ -275,6 +294,7 @@ curl -s http://target.com/node/1 | grep -oP 'content-type-\K[a-z-]+'
 ### Administrative Interface Discovery
 
 #### Admin Panel Enumeration
+
 ```bash
 # Standard administrative paths
 curl -I http://target.com/admin
@@ -304,6 +324,7 @@ done
 ```
 
 #### User Management Interface
+
 ```bash
 # User-related paths
 curl -I http://target.com/user
@@ -320,6 +341,7 @@ done
 ### Module & Theme Discovery
 
 #### Active Module Enumeration
+
 ```bash
 # Common module paths to test
 modules=(
@@ -353,6 +375,7 @@ done
 ```
 
 #### Theme Discovery & Analysis
+
 ```bash
 # Enumerate active themes
 curl -s http://target.com | grep -oP '/themes/[^/]+/' | sort -u
@@ -375,6 +398,7 @@ done
 ```
 
 #### Custom Module Discovery
+
 ```bash
 # Look for custom modules in sites directory
 curl -s http://target.com/sites/all/modules/ | grep -oP 'href="[^"]*"' | cut -d'"' -f2
@@ -394,13 +418,14 @@ for module in "${dev_modules[@]}"; do
 done
 ```
 
----
+***
 
 ## Automated Enumeration Tools
 
 ### DroopeScan - Advanced Drupal Scanner
 
 #### Installation & Setup
+
 ```bash
 # Install via pip (recommended)
 sudo pip3 install droopescan
@@ -416,6 +441,7 @@ python3 droopescan -h
 ```
 
 #### Basic Drupal Scanning
+
 ```bash
 # Comprehensive Drupal enumeration
 droopescan scan drupal -u http://target.com
@@ -438,6 +464,7 @@ droopescan scan drupal -u http://target.com
 ```
 
 #### Advanced DroopeScan Options
+
 ```bash
 # Enumerate specific components
 droopescan scan drupal -u http://target.com --enumerate p    # plugins only
@@ -455,6 +482,7 @@ droopescan scan drupal -u http://target.com --output json > drupal_scan.json
 ```
 
 #### DroopeScan Output Analysis
+
 ```bash
 # Parse JSON output for specific information
 cat drupal_scan.json | jq '.plugins[].name'
@@ -468,6 +496,7 @@ cat drupal_scan.json | jq '.plugins[] | select(.confidence > 75)'
 ### Custom Drupal Enumeration Scripts
 
 #### Comprehensive Module Brute Force
+
 ```bash
 #!/bin/bash
 # drupal-module-enum.sh
@@ -535,6 +564,7 @@ done < "$wordlist"
 ```
 
 #### Node Content Discovery Script
+
 ```bash
 #!/bin/bash
 # drupal-node-discovery.sh
@@ -571,13 +601,14 @@ echo "[+] Summary: Found ${#found_nodes[@]} accessible nodes"
 printf '%s\n' "${found_nodes[@]}"
 ```
 
----
+***
 
 ## Configuration & Security Analysis
 
 ### Settings.php Analysis
 
 #### Database Configuration Discovery
+
 ```bash
 # Attempt to access settings.php (usually protected)
 curl -s http://target.com/sites/default/settings.php
@@ -608,6 +639,7 @@ done
 ```
 
 #### Multi-site Configuration Detection
+
 ```bash
 # Check for multi-site setup
 curl -s http://target.com/sites/ | grep -oP 'href="[^"]*"' | grep -v '\.\.'
@@ -624,6 +656,7 @@ curl -I http://target.com/sites/www.example.com/
 ### Update Status & Security Headers
 
 #### Update Status Analysis
+
 ```bash
 # Check for update.php access
 curl -I http://target.com/update.php
@@ -636,6 +669,7 @@ curl -s http://target.com/admin/modules/update
 ```
 
 #### Security Header Analysis
+
 ```bash
 # Analyze Drupal security headers
 curl -I http://target.com
@@ -648,16 +682,18 @@ curl -I http://target.com
 # Content-Security-Policy: (XSS protection)
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab: Drupal Version Detection
+
 **Question:** "Identify the Drupal version number in use on http://drupal-qa.inlanefreight.local"
 
 **Solution Methodology:**
 
 #### Step 1: Environment Setup
+
 ```bash
 # Add VHost entry to /etc/hosts
 echo "STMIP drupal-qa.inlanefreight.local" >> /etc/hosts
@@ -667,6 +703,7 @@ curl -I http://drupal-qa.inlanefreight.local/
 ```
 
 #### Step 2: Primary Version Detection Method
+
 ```bash
 # Method 1: CHANGELOG.txt (Most Reliable)
 curl -s http://drupal-qa.inlanefreight.local/CHANGELOG.txt | head -n 5
@@ -682,6 +719,7 @@ curl -s http://drupal-qa.inlanefreight.local/CHANGELOG.txt | grep -m1 "Drupal" |
 ```
 
 #### Step 3: Alternative Detection Methods
+
 ```bash
 # Method 2: Generator Meta Tag
 curl -s http://drupal-qa.inlanefreight.local/ | grep -i generator
@@ -697,6 +735,7 @@ curl -s http://drupal-qa.inlanefreight.local/misc/jquery.js | head -n 3
 ```
 
 #### Step 4: Verify Answer Format
+
 ```bash
 # HTB Lab Answer: 7.30
 # Full version from CHANGELOG: Drupal 7.30, 2014-07-24
@@ -709,18 +748,19 @@ curl -s http://drupal-qa.inlanefreight.local/CHANGELOG.txt | grep -m1 "Drupal" |
 
 ### Expected Lab Answers
 
-**Target:** `http://drupal-qa.inlanefreight.local`  
-**Answer:** `7.30`  
-**Method:** CHANGELOG.txt analysis  
+**Target:** `http://drupal-qa.inlanefreight.local`\
+**Answer:** `7.30`\
+**Method:** CHANGELOG.txt analysis\
 **Full Version String:** `Drupal 7.30, 2014-07-24`
 
----
+***
 
 ## Version-Specific Vulnerability Research
 
 ### Drupal 7 Security Landscape
 
 #### Common Drupal 7 Vulnerabilities
+
 ```bash
 # Research known vulnerabilities for identified version
 searchsploit "drupal 7"
@@ -735,6 +775,7 @@ searchsploit "drupal 7.30"
 ```
 
 #### Drupalgeddon Vulnerability Series
+
 ```bash
 # CVE-2014-3704 (Drupalgeddon 1) - SQL Injection
 # Affects: Drupal 7.0 - 7.31
@@ -752,6 +793,7 @@ searchsploit "drupal 7.30"
 ### Module-Specific Security Research
 
 #### High-Risk Module Categories
+
 ```bash
 # File upload modules (arbitrary file upload)
 - imagefield
@@ -778,6 +820,7 @@ searchsploit "drupal 7.30"
 ```
 
 #### Module Vulnerability Research
+
 ```bash
 # Research specific module vulnerabilities
 module="webform"
@@ -794,43 +837,48 @@ curl -s "https://www.drupal.org/security" | grep -i "$module"
 curl -s "https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=drupal+$module"
 ```
 
----
+***
 
 ## Intelligence Gathering Workflow
 
 ### Comprehensive Enumeration Checklist
 
 #### Phase 1: Initial Discovery
-- [ ] **Drupal Confirmation** - Generator meta tag, powered by footer, node URLs
-- [ ] **Version Detection** - CHANGELOG.txt, README.txt, meta tags, assets
-- [ ] **Architecture Analysis** - Directory structure, clean URLs, multi-site
-- [ ] **Admin Interface Discovery** - Login page, admin paths accessibility
 
-#### Phase 2: Content Analysis  
-- [ ] **Node Enumeration** - Sequential content discovery and type analysis
-- [ ] **User Interface Discovery** - Registration, password reset, profile access
-- [ ] **Content Type Mapping** - Articles, pages, custom types identification
-- [ ] **URL Structure Analysis** - Clean URLs vs query parameters
+* [ ] **Drupal Confirmation** - Generator meta tag, powered by footer, node URLs
+* [ ] **Version Detection** - CHANGELOG.txt, README.txt, meta tags, assets
+* [ ] **Architecture Analysis** - Directory structure, clean URLs, multi-site
+* [ ] **Admin Interface Discovery** - Login page, admin paths accessibility
+
+#### Phase 2: Content Analysis
+
+* [ ] **Node Enumeration** - Sequential content discovery and type analysis
+* [ ] **User Interface Discovery** - Registration, password reset, profile access
+* [ ] **Content Type Mapping** - Articles, pages, custom types identification
+* [ ] **URL Structure Analysis** - Clean URLs vs query parameters
 
 #### Phase 3: Module & Theme Discovery
-- [ ] **Active Module Enumeration** - Core and contributed modules identification
-- [ ] **Theme Discovery** - Active and available themes analysis
-- [ ] **Custom Code Detection** - Site-specific modules and modifications
-- [ ] **Development Module Check** - Dangerous dev modules exposure
+
+* [ ] **Active Module Enumeration** - Core and contributed modules identification
+* [ ] **Theme Discovery** - Active and available themes analysis
+* [ ] **Custom Code Detection** - Site-specific modules and modifications
+* [ ] **Development Module Check** - Dangerous dev modules exposure
 
 #### Phase 4: Configuration & Security Assessment
-- [ ] **Configuration File Analysis** - Settings.php accessibility and backups
-- [ ] **Multi-site Configuration** - Additional site discovery
-- [ ] **Update Status Review** - Security updates and patch levels
-- [ ] **Security Header Analysis** - Protection mechanisms evaluation
 
----
+* [ ] **Configuration File Analysis** - Settings.php accessibility and backups
+* [ ] **Multi-site Configuration** - Additional site discovery
+* [ ] **Update Status Review** - Security updates and patch levels
+* [ ] **Security Header Analysis** - Protection mechanisms evaluation
+
+***
 
 ## Defensive Considerations
 
 ### Security Hardening Recommendations
 
 #### Core Security Measures
+
 ```bash
 # Essential Drupal security steps:
 1. Remove/rename update.php after updates
@@ -842,6 +890,7 @@ curl -s "https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=drupal+$module"
 ```
 
 #### File System Hardening
+
 ```bash
 # Recommended file permissions
 find /var/www/drupal/ -type f -exec chmod 644 {} \;
@@ -858,6 +907,7 @@ chmod 444 /var/www/drupal/sites/default/settings.php
 ### Monitoring and Detection
 
 #### Attack Pattern Recognition
+
 ```bash
 # Monitor for common attack patterns:
 # - CHANGELOG.txt access attempts
@@ -871,6 +921,7 @@ tail -f /var/log/apache2/access.log | grep -E "(CHANGELOG|node/[0-9]+|admin|sett
 ```
 
 #### Security Monitoring Setup
+
 ```bash
 # File integrity monitoring for key files
 find /var/www/drupal/ -name "*.php" -type f -exec md5sum {} \; > drupal_hashes.txt
@@ -879,13 +930,14 @@ find /var/www/drupal/ -name "*.php" -type f -exec md5sum {} \; > drupal_hashes.t
 inotifywait -m -r -e modify /var/www/drupal/sites/default/settings.php
 ```
 
----
+***
 
 ## Cross-Module Integration
 
 ### Drupal in Multi-CMS Environments
 
 #### CMS Fingerprinting Automation
+
 ```bash
 #!/bin/bash
 # cms-identify.sh
@@ -913,18 +965,20 @@ fi
 ```
 
 #### Integration with Other Modules
-- **[File Upload Attacks](../file-upload-attacks/)** - Drupal media module vulnerabilities
-- **[Command Injection](../command-injection/)** - Drupal module command execution
-- **[SQL Injection](../databases/)** - Drupalgeddon and database attacks
-- **[XSS Attacks](../xss-cross-site-scripting.md)** - Drupal input filtering bypasses
 
----
+* [**File Upload Attacks**](../file-upload-attacks/) - Drupal media module vulnerabilities
+* [**Command Injection**](../command-injection/) - Drupal module command execution
+* [**SQL Injection**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/databases/README.md) - Drupalgeddon and database attacks
+* [**XSS Attacks**](../xss-cross-site-scripting.md) - Drupal input filtering bypasses
+
+***
 
 ## Next Steps
 
 After Drupal enumeration, proceed to:
-1. **[Drupal Attacks & Exploitation](drupal-attacks.md)** - Drupalgeddon and module vulnerabilities
-2. **[Servlet Containers](tomcat-enumeration.md)** - Java application attacks  
-3. **[Development Tools](jenkins-enumeration.md)** - CI/CD and build system attacks
 
-**💡 Key Takeaway:** Drupal enumeration requires understanding of the **node-based content system**, **version-specific file locations**, and **module architecture**. While less common than WordPress, Drupal installations often power **critical enterprise and government infrastructure**, making thorough enumeration essential for comprehensive security assessments. 
+1. [**Drupal Attacks & Exploitation**](drupal-attacks.md) - Drupalgeddon and module vulnerabilities
+2. [**Servlet Containers**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/tomcat-enumeration.md) - Java application attacks
+3. [**Development Tools**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/jenkins-enumeration.md) - CI/CD and build system attacks
+
+**💡 Key Takeaway:** Drupal enumeration requires understanding of the **node-based content system**, **version-specific file locations**, and **module architecture**. While less common than WordPress, Drupal installations often power **critical enterprise and government infrastructure**, making thorough enumeration essential for comprehensive security assessments.

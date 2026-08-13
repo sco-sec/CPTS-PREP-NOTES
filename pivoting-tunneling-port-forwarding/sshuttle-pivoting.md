@@ -1,36 +1,38 @@
-# **sshuttle SSH Pivoting - HTB Academy Page 9**
+# 🛡️ SSHuttle Pivoting
 
 ## **📋 Module Overview**
 
-**Purpose:** Automated SSH pivoting with transparent traffic routing  
-**Tool:** sshuttle - Python-based SSH tunnel manager  
-**Key Feature:** Automatic iptables configuration (no proxychains needed)  
-**Protocol:** SSH-only (no TOR/HTTPS proxy support)  
-**Advantage:** Direct tool usage without proxy configuration  
+**Purpose:** Automated SSH pivoting with transparent traffic routing\
+**Tool:** sshuttle - Python-based SSH tunnel manager\
+**Key Feature:** Automatic iptables configuration (no proxychains needed)\
+**Protocol:** SSH-only (no TOR/HTTPS proxy support)\
+**Advantage:** Direct tool usage without proxy configuration
 
----
+***
 
 ## **1. Introduction to sshuttle**
 
 ### **What is sshuttle?**
-- **Language:** Python-based networking tool
-- **Function:** Automated SSH pivot with transparent routing
-- **Mechanism:** Creates iptables rules for traffic redirection
-- **Scope:** SSH tunneling only (no other protocols)
-- **Philosophy:** "VPN over SSH" approach
+
+* **Language:** Python-based networking tool
+* **Function:** Automated SSH pivot with transparent routing
+* **Mechanism:** Creates iptables rules for traffic redirection
+* **Scope:** SSH tunneling only (no other protocols)
+* **Philosophy:** "VPN over SSH" approach
 
 ### **sshuttle vs Traditional Methods**
 
-| **Aspect** | **sshuttle** | **SSH + proxychains** |
-|------------|--------------|------------------------|
-| **Setup** | Single command | SSH tunnel + proxychains config |
-| **iptables** | Automatic | Manual/none |
-| **Application Support** | All TCP traffic | SOCKS-aware only |
-| **Transparency** | Completely transparent | Requires proxy awareness |
-| **Performance** | High (kernel-level) | Lower (userspace proxy) |
-| **Protocol Support** | SSH only | SSH/SOCKS/HTTP/TOR |
+| **Aspect**              | **sshuttle**           | **SSH + proxychains**           |
+| ----------------------- | ---------------------- | ------------------------------- |
+| **Setup**               | Single command         | SSH tunnel + proxychains config |
+| **iptables**            | Automatic              | Manual/none                     |
+| **Application Support** | All TCP traffic        | SOCKS-aware only                |
+| **Transparency**        | Completely transparent | Requires proxy awareness        |
+| **Performance**         | High (kernel-level)    | Lower (userspace proxy)         |
+| **Protocol Support**    | SSH only               | SSH/SOCKS/HTTP/TOR              |
 
 ### **Key Advantages**
+
 1. **No proxychains configuration** required
 2. **Automatic iptables management** for routing
 3. **Transparent operation** - tools work normally
@@ -38,19 +40,21 @@
 5. **Simple command syntax** - easy to use
 
 ### **Limitations**
+
 1. **SSH-only protocol** support
 2. **No TOR/HTTPS proxy** integration
 3. **Requires root privileges** for iptables
 4. **TCP traffic only** (no UDP support with default method)
 5. **Python dependency** required
 
----
+***
 
 ## **2. Installation and Setup**
 
 ### **Installing sshuttle**
 
 #### **Ubuntu/Debian Systems**
+
 ```bash
 # Install from package manager
 sudo apt-get install sshuttle
@@ -69,6 +73,7 @@ After this operation, 508 kB of additional disk space will be used.
 ```
 
 #### **Alternative Installation Methods**
+
 ```bash
 # Install via pip (latest version)
 sudo pip3 install sshuttle
@@ -86,6 +91,7 @@ brew install sshuttle
 ```
 
 ### **Verification**
+
 ```bash
 # Check installation
 sshuttle --version
@@ -95,11 +101,12 @@ sshuttle --version
 sshuttle --help
 ```
 
----
+***
 
 ## **3. Basic sshuttle Usage**
 
 ### **Network Topology**
+
 ```
 [Attack Host] → [Ubuntu Pivot] → [Internal Network]
 10.10.14.18      10.129.202.64     172.16.5.0/23
@@ -108,6 +115,7 @@ iptables rules
 ```
 
 ### **Basic Command Syntax**
+
 ```bash
 # Basic sshuttle pivoting
 sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 -v
@@ -120,6 +128,7 @@ sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 -v
 ```
 
 ### **Expected Connection Output**
+
 ```bash
 Starting sshuttle proxy (version 1.1.0).
 c : Starting firewall manager with command: ['/usr/bin/python3', '/usr/local/lib/python3.9/dist-packages/sshuttle/__main__.py', '-v', '--method', 'auto', '--firewall']
@@ -149,6 +158,7 @@ c : Connected to server.
 ```
 
 ### **iptables Rules Creation**
+
 ```bash
 # sshuttle automatically creates these rules:
 fw: setting up.
@@ -167,11 +177,12 @@ fw: iptables -w -t nat -A sshuttle-12300 -j RETURN --dest 127.0.0.1/32 -p tcp
 fw: iptables -w -t nat -A sshuttle-12300 -j REDIRECT --dest 172.16.5.0/32 -p tcp --to-ports 12300
 ```
 
----
+***
 
 ## **4. Direct Tool Usage (No Proxychains)**
 
 ### **Transparent nmap Scanning**
+
 ```bash
 # Direct nmap scan through sshuttle tunnel
 nmap -v -sV -p3389 172.16.5.19 -A -Pn
@@ -198,6 +209,7 @@ Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 ```
 
 ### **Direct Tool Benefits**
+
 ```bash
 # ALL tools work transparently:
 
@@ -217,13 +229,14 @@ ssh administrator@172.16.5.19
 xfreerdp /v:172.16.5.19 /u:victor /p:pass@123
 ```
 
----
+***
 
 ## **5. Advanced sshuttle Options**
 
 ### **Authentication Methods**
 
 #### **Password Authentication**
+
 ```bash
 # Interactive password prompt
 sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23
@@ -233,6 +246,7 @@ sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 --ssh-cmd 'ssh -o PasswordAu
 ```
 
 #### **Key-based Authentication**
+
 ```bash
 # Using SSH key
 sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 --ssh-cmd 'ssh -i /path/to/key'
@@ -244,6 +258,7 @@ sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23
 ```
 
 ### **Multiple Network Routing**
+
 ```bash
 # Route multiple networks
 sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 192.168.1.0/24 10.0.0.0/8
@@ -256,6 +271,7 @@ sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 -x 172.16.5.1/32
 ```
 
 ### **DNS Routing**
+
 ```bash
 # Route DNS queries through tunnel
 sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 --dns
@@ -265,6 +281,7 @@ sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 --dns --ns 172.16.5.1
 ```
 
 ### **Advanced Options**
+
 ```bash
 # Custom method (for special cases)
 sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 --method=nat
@@ -279,16 +296,18 @@ sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 -D
 sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 --pidfile=/var/run/sshuttle.pid
 ```
 
----
+***
 
 ## **6. HTB Academy Lab Exercise**
 
 ### **Lab Challenge**
+
 **Task:** "Try using sshuttle from Pwnbox to connect via RDP to the Windows target (172.16.5.19) with 'victor:pass@123'"
 
 ### **Complete Solution**
 
 #### **Step 1: Install sshuttle (if needed)**
+
 ```bash
 # Check if sshuttle is available
 which sshuttle
@@ -299,6 +318,7 @@ sudo apt-get install sshuttle
 ```
 
 #### **Step 2: Establish sshuttle Tunnel**
+
 ```bash
 # Connect through Ubuntu pivot to internal network
 sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 -v
@@ -313,6 +333,7 @@ fw: setting up.
 ```
 
 #### **Step 3: Verify Network Routing**
+
 ```bash
 # Test connectivity to target
 ping -c 3 172.16.5.19
@@ -324,6 +345,7 @@ nmap -p 3389 172.16.5.19
 ```
 
 #### **Step 4: RDP Connection**
+
 ```bash
 # Connect via RDP (multiple methods)
 
@@ -338,6 +360,7 @@ krdc rdp://victor:pass@123@172.16.5.19
 ```
 
 #### **Step 5: Verification and Cleanup**
+
 ```bash
 # Verify successful RDP connection to Windows target
 # Should see Windows desktop as user "victor"
@@ -350,45 +373,49 @@ fw: undoing changes.
 ```
 
 #### **Step 6: Submit Answer**
+
 ```
 Answer: "I tried sshuttle"
 ```
 
----
+***
 
 ## **7. sshuttle vs Other Pivoting Methods**
 
 ### **Comprehensive Comparison**
 
-| **Method** | **Setup Complexity** | **Tool Transparency** | **Performance** | **Protocol Support** |
-|------------|----------------------|----------------------|-----------------|---------------------|
-| **sshuttle** | Low (single command) | High (fully transparent) | High (kernel-level) | SSH only |
-| **SSH + proxychains** | Medium (config files) | Medium (SOCKS-aware) | Medium (userspace) | Multiple protocols |
-| **Meterpreter** | High (payload + handler) | Low (manual forwarding) | Medium | Multiple protocols |
-| **Socat** | Medium (multiple commands) | Low (manual setup) | High | Any TCP/UDP |
-| **Plink + Proxifier** | High (Windows GUI config) | High (app-specific) | Medium | Windows-centric |
+| **Method**            | **Setup Complexity**       | **Tool Transparency**    | **Performance**     | **Protocol Support** |
+| --------------------- | -------------------------- | ------------------------ | ------------------- | -------------------- |
+| **sshuttle**          | Low (single command)       | High (fully transparent) | High (kernel-level) | SSH only             |
+| **SSH + proxychains** | Medium (config files)      | Medium (SOCKS-aware)     | Medium (userspace)  | Multiple protocols   |
+| **Meterpreter**       | High (payload + handler)   | Low (manual forwarding)  | Medium              | Multiple protocols   |
+| **Socat**             | Medium (multiple commands) | Low (manual setup)       | High                | Any TCP/UDP          |
+| **Plink + Proxifier** | High (Windows GUI config)  | High (app-specific)      | Medium              | Windows-centric      |
 
 ### **When to Use sshuttle**
-✅ **SSH access available** to pivot host  
-✅ **Transparent tool usage** required  
-✅ **Multiple tools** need network access  
-✅ **Performance is critical** (kernel routing)  
-✅ **Simple setup** preferred over complex configurations  
+
+✅ **SSH access available** to pivot host\
+✅ **Transparent tool usage** required\
+✅ **Multiple tools** need network access\
+✅ **Performance is critical** (kernel routing)\
+✅ **Simple setup** preferred over complex configurations
 
 ### **When NOT to Use sshuttle**
-❌ **No SSH access** (use Meterpreter/Socat)  
-❌ **UDP traffic required** (use SSH local forwards)  
-❌ **TOR/HTTP proxy** needed (use proxychains)  
-❌ **Windows-only environment** (use Plink)  
-❌ **Stealth operation** (iptables changes detectable)  
 
----
+❌ **No SSH access** (use Meterpreter/Socat)\
+❌ **UDP traffic required** (use SSH local forwards)\
+❌ **TOR/HTTP proxy** needed (use proxychains)\
+❌ **Windows-only environment** (use Plink)\
+❌ **Stealth operation** (iptables changes detectable)
+
+***
 
 ## **8. Troubleshooting sshuttle**
 
 ### **Common Issues and Solutions**
 
 #### **Permission Denied Errors**
+
 ```bash
 # Problem: iptables modification failed
 ERROR: Failed to modify iptables rules
@@ -405,6 +432,7 @@ ERROR: Failed to modify iptables rules
 ```
 
 #### **SSH Authentication Failures**
+
 ```bash
 # Problem: Cannot connect to SSH server
 Permission denied (publickey,password)
@@ -421,6 +449,7 @@ Permission denied (publickey,password)
 ```
 
 #### **Network Routing Issues**
+
 ```bash
 # Problem: Cannot reach target network
 Network unreachable
@@ -437,6 +466,7 @@ Network unreachable
 ```
 
 #### **iptables Cleanup Problems**
+
 ```bash
 # Problem: iptables rules not cleaned up
 Rules persist after sshuttle exit
@@ -454,11 +484,12 @@ Rules persist after sshuttle exit
    sudo systemctl restart networking
 ```
 
----
+***
 
 ## **9. Advanced Scenarios**
 
 ### **Multiple Pivot Chains**
+
 ```bash
 # Chain multiple sshuttle connections
 # Terminal 1: First pivot
@@ -469,6 +500,7 @@ sudo sshuttle -r user2@10.0.1.5 192.168.0.0/16 --ssh-cmd 'ssh -o ProxyCommand="s
 ```
 
 ### **Persistent sshuttle Service**
+
 ```bash
 # Create systemd service
 sudo cat > /etc/systemd/system/sshuttle-pivot.service << EOF
@@ -493,6 +525,7 @@ sudo systemctl start sshuttle-pivot
 ```
 
 ### **sshuttle with SSH Tunnels**
+
 ```bash
 # Combine with local port forwards
 ssh -L 8080:172.16.5.19:80 ubuntu@10.129.202.64 &
@@ -503,11 +536,12 @@ curl http://localhost:8080        # SSH local forward
 curl http://172.16.5.19          # sshuttle routing
 ```
 
----
+***
 
 ## **10. Performance and Monitoring**
 
 ### **Performance Optimization**
+
 ```bash
 # Enable compression for slow links
 sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 --ssh-cmd 'ssh -C'
@@ -520,6 +554,7 @@ sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 --ssh-cmd 'ssh -c aes128-ctr
 ```
 
 ### **Traffic Monitoring**
+
 ```bash
 # Monitor sshuttle traffic
 sudo tcpdump -i any host 10.129.202.64
@@ -532,6 +567,7 @@ iftop -i eth0 -f "host 10.129.202.64"
 ```
 
 ### **Resource Usage**
+
 ```bash
 # Check sshuttle processes
 ps aux | grep sshuttle
@@ -543,11 +579,12 @@ top -p $(pgrep sshuttle)
 ss -tuln | grep :12300
 ```
 
----
+***
 
 ## **11. Security Considerations**
 
 ### **Operational Security**
+
 1. **iptables Modifications** - detectable by system administrators
 2. **Process Visibility** - sshuttle processes visible in ps output
 3. **Network Traffic** - SSH connections to pivot hosts logged
@@ -555,6 +592,7 @@ ss -tuln | grep :12300
 5. **Root Privileges** - requires elevated access
 
 ### **Detection Mitigation**
+
 ```bash
 # Use non-standard SSH ports
 sudo sshuttle -r ubuntu@10.129.202.64:2222 172.16.5.0/23
@@ -567,6 +605,7 @@ sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 --python /usr/bin/python3
 ```
 
 ### **Cleanup Procedures**
+
 ```bash
 # Proper shutdown
 # Use Ctrl+C to stop sshuttle (auto-cleanup)
@@ -580,11 +619,12 @@ sudo iptables -t nat -X
 ssh-keygen -R 10.129.202.64
 ```
 
----
+***
 
 ## **12. Integration with Other Tools**
 
 ### **Metasploit Integration**
+
 ```ruby
 # Use Metasploit normally with sshuttle active
 msf6 > use auxiliary/scanner/portscan/tcp
@@ -595,6 +635,7 @@ msf6 auxiliary(scanner/portscan/tcp) > run
 ```
 
 ### **Nmap Advanced Usage**
+
 ```bash
 # Full network scans through sshuttle
 nmap -sS -A 172.16.5.0/24
@@ -607,6 +648,7 @@ nmap --script vuln 172.16.5.19
 ```
 
 ### **Custom Applications**
+
 ```bash
 # Any TCP application works transparently
 telnet 172.16.5.19 23
@@ -614,12 +656,12 @@ nc 172.16.5.19 445
 python3 -c "import socket; s=socket.socket(); s.connect(('172.16.5.19', 80))"
 ```
 
----
+***
 
 ## **References**
 
-- **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 9
-- **sshuttle GitHub**: [Official Repository](https://github.com/sshuttle/sshuttle)
-- **sshuttle Documentation**: [ReadTheDocs](https://sshuttle.readthedocs.io/)
-- **Man Page**: `man sshuttle`
-- **Python SSH Tunneling**: [SSH Tunnel Techniques](https://www.pythonsecrets.com/ssh-tunneling/) 
+* **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 9
+* **sshuttle GitHub**: [Official Repository](https://github.com/sshuttle/sshuttle)
+* **sshuttle Documentation**: [ReadTheDocs](https://sshuttle.readthedocs.io/)
+* **Man Page**: `man sshuttle`
+* **Python SSH Tunneling**: [SSH Tunnel Techniques](https://www.pythonsecrets.com/ssh-tunneling/)

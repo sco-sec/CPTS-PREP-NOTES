@@ -1,4 +1,4 @@
-# Credential Hunting in Network Traffic
+# 🌐 Network Traffic Credential Hunting
 
 ## 🎯 Overview
 
@@ -9,21 +9,23 @@
 ## 🔓 Cleartext vs Encrypted Protocols
 
 ### Common Unencrypted Protocols
-| Unencrypted Protocol | Encrypted Counterpart | Description | Credential Risk |
-|---------------------|----------------------|-------------|-----------------|
-| **HTTP** | HTTPS | Web pages and resources | ⚠️ Forms, Basic Auth, Cookies |
-| **FTP** | FTPS/SFTP | File transfer | ⚠️ Username/Password in AUTH |
-| **SNMP** | SNMPv3 (encrypted) | Network device monitoring | ⚠️ Community strings |
-| **POP3** | POP3S | Email retrieval | ⚠️ Username/Password |
-| **IMAP** | IMAPS | Email access | ⚠️ Username/Password |
-| **SMTP** | SMTPS | Email sending | ⚠️ AUTH credentials |
-| **LDAP** | LDAPS | Directory services | ⚠️ Bind credentials |
-| **Telnet** | SSH | Remote terminal | ⚠️ All keystrokes |
-| **DNS** | DNS over HTTPS (DoH) | Domain resolution | ⚠️ Query information |
-| **SMB v1/v2** | SMB 3.0 with TLS | File sharing | ⚠️ NTLM hashes |
-| **VNC** | VNC with TLS/SSL | Remote desktop | ⚠️ Passwords, screen data |
+
+| Unencrypted Protocol | Encrypted Counterpart | Description               | Credential Risk               |
+| -------------------- | --------------------- | ------------------------- | ----------------------------- |
+| **HTTP**             | HTTPS                 | Web pages and resources   | ⚠️ Forms, Basic Auth, Cookies |
+| **FTP**              | FTPS/SFTP             | File transfer             | ⚠️ Username/Password in AUTH  |
+| **SNMP**             | SNMPv3 (encrypted)    | Network device monitoring | ⚠️ Community strings          |
+| **POP3**             | POP3S                 | Email retrieval           | ⚠️ Username/Password          |
+| **IMAP**             | IMAPS                 | Email access              | ⚠️ Username/Password          |
+| **SMTP**             | SMTPS                 | Email sending             | ⚠️ AUTH credentials           |
+| **LDAP**             | LDAPS                 | Directory services        | ⚠️ Bind credentials           |
+| **Telnet**           | SSH                   | Remote terminal           | ⚠️ All keystrokes             |
+| **DNS**              | DNS over HTTPS (DoH)  | Domain resolution         | ⚠️ Query information          |
+| **SMB v1/v2**        | SMB 3.0 with TLS      | File sharing              | ⚠️ NTLM hashes                |
+| **VNC**              | VNC with TLS/SSL      | Remote desktop            | ⚠️ Passwords, screen data     |
 
 ### Risk Assessment
+
 ```bash
 # High Risk (Credentials in cleartext)
 - HTTP Basic Authentication
@@ -48,6 +50,7 @@
 ### Essential Wireshark Filters
 
 #### Network and Transport Layer Filters
+
 ```bash
 # IP Address filtering
 ip.addr == 192.168.1.100           # Specific IP traffic
@@ -67,6 +70,7 @@ eth.addr == 00:11:22:33:44:55      # Specific MAC address
 ```
 
 #### Protocol-Specific Filters
+
 ```bash
 # HTTP Analysis
 http                               # All HTTP traffic
@@ -98,6 +102,7 @@ ldap                              # LDAP traffic
 ```
 
 #### Advanced Filtering Techniques
+
 ```bash
 # TCP Stream Analysis
 tcp.stream eq 0                   # Follow specific TCP conversation
@@ -122,6 +127,7 @@ telnet contains "login:"          # Telnet login prompts
 ### Wireshark Search Techniques
 
 #### Manual Packet Search
+
 ```bash
 # Via Display Filter
 1. Enter filter: http contains "password"
@@ -145,6 +151,7 @@ telnet contains "login:"          # Telnet login prompts
 ```
 
 #### Following TCP Streams
+
 ```bash
 # Right-click packet → Follow → TCP Stream
 # Shows complete conversation between hosts
@@ -158,6 +165,7 @@ telnet contains "login:"          # Telnet login prompts
 ## 🛠️ Pcredz - Automated Credential Extraction
 
 ### Installation and Setup
+
 ```bash
 # Clone Pcredz repository
 git clone https://github.com/lgandx/PCredz.git
@@ -174,6 +182,7 @@ docker pull lgandx/pcredz
 ### Pcredz Usage
 
 #### Basic Analysis
+
 ```bash
 # Analyze packet capture file
 python3 ./Pcredz -f capture.pcap
@@ -189,6 +198,7 @@ python3 ./Pcredz -f capture.pcap -v -t
 ```
 
 #### Live Traffic Analysis
+
 ```bash
 # Monitor live interface
 sudo python3 ./Pcredz -i eth0
@@ -203,6 +213,7 @@ sudo python3 ./Pcredz -i eth0 -t
 ### Pcredz Extraction Capabilities
 
 #### Supported Credential Types
+
 ```bash
 # Network Authentication
 - HTTP Basic Authentication
@@ -227,6 +238,7 @@ sudo python3 ./Pcredz -i eth0 -t
 ```
 
 #### Example Pcredz Output
+
 ```bash
 $ python3 ./Pcredz -f demo.pcapng -t -v
 
@@ -257,6 +269,7 @@ Type: Visa
 ### HTTP Credential Hunting
 
 #### HTTP Basic Authentication
+
 ```bash
 # Wireshark filter
 http.authorization
@@ -271,6 +284,7 @@ Authorization: Basic YWRtaW46cGFzc3dvcmQ=  # admin:password
 ```
 
 #### HTTP Form Authentication
+
 ```bash
 # Wireshark filters
 http.request.method == "POST"
@@ -284,6 +298,7 @@ http contains "login"
 ```
 
 #### HTTP NTLM Authentication
+
 ```bash
 # Wireshark filter
 http contains "NTLM"
@@ -297,6 +312,7 @@ http contains "NTLM"
 ### FTP Analysis
 
 #### FTP Command Sequence
+
 ```bash
 # Wireshark filters
 ftp.request.command == "USER"
@@ -310,6 +326,7 @@ PASS secretpassword
 ```
 
 #### FTP Data Analysis
+
 ```bash
 # Track file transfers
 ftp.request.command == "RETR"   # Downloads
@@ -321,6 +338,7 @@ tcp.port == 20                  # FTP data port
 ```
 
 ### SNMP Community String Extraction
+
 ```bash
 # Wireshark filter
 snmp
@@ -341,6 +359,7 @@ snmp
 ### Email Protocol Analysis
 
 #### POP3 Credential Extraction
+
 ```bash
 # Wireshark filter
 pop
@@ -355,6 +374,7 @@ USER, PASS, STAT, LIST, RETR, DELE, QUIT
 ```
 
 #### SMTP Authentication
+
 ```bash
 # Wireshark filter
 smtp
@@ -369,6 +389,7 @@ AUTH LOGIN
 ## 🕵️ Advanced Network Hunting Techniques
 
 ### Network Reconnaissance from Traffic
+
 ```bash
 # DNS Analysis
 dns                           # All DNS traffic
@@ -382,6 +403,7 @@ icmp.type == 8                # Ping requests
 ```
 
 ### Wireless Network Credential Hunting
+
 ```bash
 # WiFi authentication analysis
 wlan.fc.type_subtype == 0x0b  # Authentication frames
@@ -394,6 +416,7 @@ eapol                         # WPA/WPA2 handshakes
 ```
 
 ### VPN and Tunneled Traffic
+
 ```bash
 # IPSec analysis
 esp                           # Encrypted Security Payload
@@ -407,15 +430,17 @@ tcp.port == 443 && ssl        # SSL VPN
 ## 🎯 HTB Academy Lab Exercise
 
 ### Lab Setup
-- **Objective**: Analyze demo.pcapng for credential extraction
-- **Tools**: Wireshark and Pcredz
-- **Target Information**: Mixed network traffic with cleartext credentials
+
+* **Objective**: Analyze demo.pcapng for credential extraction
+* **Tools**: Wireshark and Pcredz
+* **Target Information**: Mixed network traffic with cleartext credentials
 
 ### Lab Questions and Analysis
 
 #### Question 1: Credit Card Information
-**Objective**: Find cleartext credit card number
-**Analysis approach**:
+
+**Objective**: Find cleartext credit card number **Analysis approach**:
+
 ```bash
 # Wireshark analysis
 http contains "4"             # Look for card numbers starting with 4
@@ -428,8 +453,9 @@ python3 ./Pcredz -f demo.pcapng -v
 ```
 
 #### Question 2: SNMPv2 Community String
-**Objective**: Extract SNMP community string
-**Analysis approach**:
+
+**Objective**: Extract SNMP community string **Analysis approach**:
+
 ```bash
 # Wireshark analysis
 snmp                          # Filter SNMP traffic
@@ -441,8 +467,9 @@ python3 ./Pcredz -f demo.pcapng -v
 ```
 
 #### Question 3: FTP Password
-**Objective**: Find FTP login password
-**Analysis approach**:
+
+**Objective**: Find FTP login password **Analysis approach**:
+
 ```bash
 # Wireshark analysis
 ftp.request.command == "PASS" # FTP password commands
@@ -454,8 +481,9 @@ python3 ./Pcredz -f demo.pcapng -v
 ```
 
 #### Question 4: Downloaded File
-**Objective**: Identify file downloaded via FTP
-**Analysis approach**:
+
+**Objective**: Identify file downloaded via FTP **Analysis approach**:
+
 ```bash
 # Wireshark analysis
 ftp.request.command == "RETR" # File retrieval commands
@@ -468,6 +496,7 @@ ftp                           # Follow FTP data stream
 ```
 
 ### Systematic Analysis Workflow
+
 ```bash
 # Step 1: Open pcap in Wireshark
 wireshark demo.pcapng
@@ -493,43 +522,49 @@ File → Export Objects → HTTP/FTP
 ## 📋 Network Credential Hunting Checklist
 
 ### Pre-Analysis Setup
-- [ ] Identify capture source and timeframe
-- [ ] Check file integrity and size
-- [ ] Review capture filters used
-- [ ] Understand network topology
+
+* [ ] Identify capture source and timeframe
+* [ ] Check file integrity and size
+* [ ] Review capture filters used
+* [ ] Understand network topology
 
 ### Protocol Analysis
-- [ ] HTTP traffic for forms and Basic Auth
-- [ ] FTP for username/password sequences
-- [ ] SNMP for community strings
-- [ ] Email protocols (POP3/IMAP/SMTP)
-- [ ] Telnet for cleartext sessions
-- [ ] LDAP for bind credentials
+
+* [ ] HTTP traffic for forms and Basic Auth
+* [ ] FTP for username/password sequences
+* [ ] SNMP for community strings
+* [ ] Email protocols (POP3/IMAP/SMTP)
+* [ ] Telnet for cleartext sessions
+* [ ] LDAP for bind credentials
 
 ### Automated Analysis
-- [ ] Run Pcredz with verbose output
-- [ ] Check for credit card patterns
-- [ ] Extract NTLM hashes
-- [ ] Identify Kerberos tickets
-- [ ] Parse authentication headers
+
+* [ ] Run Pcredz with verbose output
+* [ ] Check for credit card patterns
+* [ ] Extract NTLM hashes
+* [ ] Identify Kerberos tickets
+* [ ] Parse authentication headers
 
 ### Manual Verification
-- [ ] Verify automated findings
-- [ ] Follow relevant TCP streams
-- [ ] Decode base64 credentials
-- [ ] Cross-reference timestamps
-- [ ] Document credential context
+
+* [ ] Verify automated findings
+* [ ] Follow relevant TCP streams
+* [ ] Decode base64 credentials
+* [ ] Cross-reference timestamps
+* [ ] Document credential context
 
 ### Reporting
-- [ ] Catalog all discovered credentials
-- [ ] Note protocols and timestamps
-- [ ] Assess credential strength
-- [ ] Identify affected systems
-- [ ] Recommend remediation
+
+* [ ] Catalog all discovered credentials
+* [ ] Note protocols and timestamps
+* [ ] Assess credential strength
+* [ ] Identify affected systems
+* [ ] Recommend remediation
 
 ## 🛡️ Detection and Prevention
 
 ### Network Security Recommendations
+
 ```bash
 # Protocol Migration
 HTTP → HTTPS                  # Implement TLS certificates
@@ -540,6 +575,7 @@ POP3/IMAP → POP3S/IMAPS      # Enable email encryption
 ```
 
 ### Network Monitoring
+
 ```bash
 # Detect credential hunting activities
 - Promiscuous mode detection
@@ -559,6 +595,6 @@ POP3/IMAP → POP3S/IMAPS      # Enable email encryption
 7. **Automated tools** - Combine manual analysis with automated extraction
 8. **Defense awareness** - Recommend encrypted alternatives
 
----
+***
 
-*This guide provides comprehensive network traffic credential hunting techniques using Wireshark and Pcredz, based on HTB Academy's Password Attacks module.* 
+_This guide provides comprehensive network traffic credential hunting techniques using Wireshark and Pcredz, based on HTB Academy's Password Attacks module._

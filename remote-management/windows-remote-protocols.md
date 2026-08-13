@@ -1,28 +1,33 @@
-# Windows Remote Management Protocols
+# 🪟 Windows Remote Protocols
 
 ## Overview
+
 Windows systems utilize various remote management protocols for system administration, monitoring, and control. These protocols enable IT administrators to manage Windows machines remotely and provide various levels of access and functionality.
 
 ## RDP (Remote Desktop Protocol)
 
 ### Overview
+
 RDP (Remote Desktop Protocol) is a proprietary protocol developed by Microsoft that allows for remote connections to Windows systems. It provides full desktop access with graphical user interface over network connections.
 
 **Key Characteristics:**
-- **Port 3389**: Default RDP port
-- **Authentication**: Network Level Authentication (NLA), password-based
-- **Encryption**: TLS encryption for secure connections
-- **Functionality**: Full desktop remote access
-- **Clients**: Windows Remote Desktop, mstsc, rdesktop, xfreerdp
+
+* **Port 3389**: Default RDP port
+* **Authentication**: Network Level Authentication (NLA), password-based
+* **Encryption**: TLS encryption for secure connections
+* **Functionality**: Full desktop remote access
+* **Clients**: Windows Remote Desktop, mstsc, rdesktop, xfreerdp
 
 ### RDP Features
-- **Desktop Sharing**: Full graphical desktop access
-- **Multi-Session**: Multiple simultaneous connections
-- **RemoteApp**: Application-specific remote access
-- **Clipboard Integration**: Copy/paste between local and remote systems
-- **Drive Redirection**: Access to local drives from remote session
+
+* **Desktop Sharing**: Full graphical desktop access
+* **Multi-Session**: Multiple simultaneous connections
+* **RemoteApp**: Application-specific remote access
+* **Clipboard Integration**: Copy/paste between local and remote systems
+* **Drive Redirection**: Access to local drives from remote session
 
 ### RDP Configuration
+
 ```bash
 # Enable RDP via registry
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
@@ -35,6 +40,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-T
 ```
 
 ### RDP Enumeration
+
 ```bash
 # Nmap RDP detection
 nmap -p3389 -sV -sC target
@@ -48,6 +54,7 @@ nmap -p3389 --script rdp-vuln* target
 ```
 
 ### RDP Security Issues
+
 1. **Weak Authentication**: Default or weak passwords
 2. **Version Vulnerabilities**: Outdated RDP versions
 3. **Encryption Issues**: Weak encryption protocols
@@ -57,23 +64,27 @@ nmap -p3389 --script rdp-vuln* target
 ## WinRM (Windows Remote Management)
 
 ### Overview
+
 WinRM (Windows Remote Management) is Microsoft's implementation of the WS-Management Protocol, providing remote management capabilities for Windows systems. It enables remote execution of commands and scripts.
 
 **Key Characteristics:**
-- **Port 5985**: HTTP (unencrypted)
-- **Port 5986**: HTTPS (encrypted)
-- **Authentication**: Kerberos, NTLM, Basic, Certificate
-- **Protocol**: SOAP over HTTP/HTTPS
-- **Functionality**: Remote command execution, PowerShell remoting
+
+* **Port 5985**: HTTP (unencrypted)
+* **Port 5986**: HTTPS (encrypted)
+* **Authentication**: Kerberos, NTLM, Basic, Certificate
+* **Protocol**: SOAP over HTTP/HTTPS
+* **Functionality**: Remote command execution, PowerShell remoting
 
 ### WinRM Features
-- **PowerShell Remoting**: Remote PowerShell sessions
-- **Command Execution**: Execute commands on remote systems
-- **Event Forwarding**: Forward Windows events
-- **Configuration Management**: Remote system configuration
-- **Scalability**: Manage multiple systems simultaneously
+
+* **PowerShell Remoting**: Remote PowerShell sessions
+* **Command Execution**: Execute commands on remote systems
+* **Event Forwarding**: Forward Windows events
+* **Configuration Management**: Remote system configuration
+* **Scalability**: Manage multiple systems simultaneously
 
 ### WinRM Configuration
+
 ```bash
 # Enable WinRM
 winrm quickconfig
@@ -90,6 +101,7 @@ winrm set winrm/config/client @{TrustedHosts="*"}
 ```
 
 ### WinRM Enumeration
+
 ```bash
 # Nmap WinRM detection
 nmap -p5985,5986 -sV -sC target
@@ -103,6 +115,7 @@ nmap -p5985 --script http-auth target
 ```
 
 ### WinRM Security Issues
+
 1. **Weak Authentication**: Basic authentication over HTTP
 2. **Configuration**: Overly permissive settings
 3. **Encryption**: Unencrypted HTTP transport
@@ -112,23 +125,27 @@ nmap -p5985 --script http-auth target
 ## WMI (Windows Management Instrumentation)
 
 ### Overview
+
 WMI (Windows Management Instrumentation) is Microsoft's implementation of Web-Based Enterprise Management (WBEM) and Common Information Model (CIM). It provides a standardized way to access management information in an enterprise environment.
 
 **Key Characteristics:**
-- **Port 135**: RPC endpoint mapper
-- **Dynamic Ports**: Random high ports for actual communication
-- **Authentication**: Windows authentication (NTLM, Kerberos)
-- **Functionality**: System information, configuration, monitoring
-- **Access**: Local and remote management
+
+* **Port 135**: RPC endpoint mapper
+* **Dynamic Ports**: Random high ports for actual communication
+* **Authentication**: Windows authentication (NTLM, Kerberos)
+* **Functionality**: System information, configuration, monitoring
+* **Access**: Local and remote management
 
 ### WMI Components
-- **WMI Service**: Core service providing WMI functionality
-- **WMI Repository**: Database storing WMI class definitions
-- **WMI Providers**: Components that provide management data
-- **WMI Classes**: Object-oriented representation of manageable resources
-- **WQL**: WMI Query Language for data retrieval
+
+* **WMI Service**: Core service providing WMI functionality
+* **WMI Repository**: Database storing WMI class definitions
+* **WMI Providers**: Components that provide management data
+* **WMI Classes**: Object-oriented representation of manageable resources
+* **WQL**: WMI Query Language for data retrieval
 
 ### WMI Configuration
+
 ```bash
 # Enable WMI through firewall
 netsh advfirewall firewall set rule group="windows management instrumentation (wmi)" new enable=yes
@@ -139,6 +156,7 @@ dcomcnfg.exe
 ```
 
 ### WMI Enumeration
+
 ```bash
 # Nmap WMI detection
 nmap -p135 -sV -sC target
@@ -149,6 +167,7 @@ nmap -p135 --script ms-sql-info target
 ```
 
 ### WMI Security Issues
+
 1. **Authentication**: Windows authentication bypass
 2. **Access Control**: Insufficient WMI permissions
 3. **Information Disclosure**: Sensitive system information
@@ -158,6 +177,7 @@ nmap -p135 --script ms-sql-info target
 ## Advanced Enumeration Techniques
 
 ### RDP Advanced Enumeration
+
 ```bash
 # RDP certificate analysis
 nmap -p3389 --script ssl-cert target
@@ -171,6 +191,7 @@ ncrack -u administrator -P passwords.txt rdp://target
 ```
 
 ### WinRM Advanced Enumeration
+
 ```bash
 # WinRM service detection
 crackmapexec winrm target -u username -p password
@@ -183,6 +204,7 @@ Enter-PSSession -ComputerName target -Credential (Get-Credential)
 ```
 
 ### WMI Advanced Enumeration
+
 ```bash
 # WMI remote queries
 wmic /node:target /user:domain\username /password:password computersystem get name
@@ -196,6 +218,7 @@ wmic /node:target process get name,processid,commandline
 ## Practical Examples
 
 ### HTB Academy Style RDP Enumeration
+
 ```bash
 # Step 1: Service detection
 nmap -p3389 -sV -sC target
@@ -212,6 +235,7 @@ rdesktop -u administrator -p password target
 ```
 
 ### HTB Academy Style WinRM Enumeration
+
 ```bash
 # Step 1: Service detection
 nmap -p5985,5986 -sV -sC target
@@ -228,6 +252,7 @@ Enter-PSSession -ComputerName target -Credential username
 ```
 
 ### HTB Academy Lab Questions Examples
+
 ```bash
 # Question 1: "What version of RDP is running on the target?"
 nmap -p3389 -sV target
@@ -253,6 +278,7 @@ evil-winrm -i target -u username -p password
 ## Security Assessment
 
 ### RDP Security Assessment
+
 ```bash
 # RDP vulnerability scanning
 nmap -p3389 --script rdp-vuln* target
@@ -265,6 +291,7 @@ nmap -p3389 --script rdp-enum-encryption target
 ```
 
 ### WinRM Security Assessment
+
 ```bash
 # WinRM configuration analysis
 crackmapexec winrm target -u username -p password
@@ -277,6 +304,7 @@ winrs -r:target -u:username -p:password cmd
 ```
 
 ### WMI Security Assessment
+
 ```bash
 # WMI access testing
 wmic /node:target /user:username /password:password computersystem get name
@@ -289,35 +317,39 @@ wmic /node:target process get name,processid
 ## Enumeration Checklist
 
 ### RDP Enumeration
-- [ ] Port scan for RDP (3389/tcp)
-- [ ] Version detection and banner grabbing
-- [ ] Certificate analysis
-- [ ] Encryption enumeration
-- [ ] Authentication testing
-- [ ] Vulnerability scanning
-- [ ] Brute force protection testing
+
+* [ ] Port scan for RDP (3389/tcp)
+* [ ] Version detection and banner grabbing
+* [ ] Certificate analysis
+* [ ] Encryption enumeration
+* [ ] Authentication testing
+* [ ] Vulnerability scanning
+* [ ] Brute force protection testing
 
 ### WinRM Enumeration
-- [ ] Port scan for WinRM (5985,5986/tcp)
-- [ ] Service detection and version identification
-- [ ] Authentication method enumeration
-- [ ] HTTP/HTTPS configuration analysis
-- [ ] Command execution testing
-- [ ] PowerShell remoting testing
-- [ ] Configuration analysis
+
+* [ ] Port scan for WinRM (5985,5986/tcp)
+* [ ] Service detection and version identification
+* [ ] Authentication method enumeration
+* [ ] HTTP/HTTPS configuration analysis
+* [ ] Command execution testing
+* [ ] PowerShell remoting testing
+* [ ] Configuration analysis
 
 ### WMI Enumeration
-- [ ] Port scan for RPC (135/tcp)
-- [ ] Service detection and enumeration
-- [ ] Authentication testing
-- [ ] Information gathering via WMI queries
-- [ ] Access control testing
-- [ ] Privilege assessment
-- [ ] Persistence mechanism analysis
+
+* [ ] Port scan for RPC (135/tcp)
+* [ ] Service detection and enumeration
+* [ ] Authentication testing
+* [ ] Information gathering via WMI queries
+* [ ] Access control testing
+* [ ] Privilege assessment
+* [ ] Persistence mechanism analysis
 
 ## Attack Vectors
 
 ### RDP Attack Vectors
+
 ```bash
 # RDP brute force
 hydra -l administrator -P passwords.txt rdp://target
@@ -332,6 +364,7 @@ hydra -l administrator -P passwords.txt rdp://target
 ```
 
 ### WinRM Attack Vectors
+
 ```bash
 # WinRM command execution
 evil-winrm -i target -u username -p password
@@ -346,6 +379,7 @@ Invoke-Command -ComputerName target -ScriptBlock {whoami}
 ```
 
 ### WMI Attack Vectors
+
 ```bash
 # WMI command execution
 wmic /node:target process call create "cmd.exe /c command"
@@ -363,27 +397,31 @@ wmic /node:target process call create "cmd.exe /c command"
 ## Common Vulnerabilities
 
 ### RDP Vulnerabilities
-- **CVE-2019-0708**: BlueKeep RCE vulnerability
-- **CVE-2019-1181**: DejaBlue RCE vulnerability
-- **CVE-2019-1182**: DejaBlue RCE vulnerability
-- **CVE-2012-0002**: RDP denial of service
-- **CVE-2018-0886**: CredSSP authentication bypass
+
+* **CVE-2019-0708**: BlueKeep RCE vulnerability
+* **CVE-2019-1181**: DejaBlue RCE vulnerability
+* **CVE-2019-1182**: DejaBlue RCE vulnerability
+* **CVE-2012-0002**: RDP denial of service
+* **CVE-2018-0886**: CredSSP authentication bypass
 
 ### WinRM Vulnerabilities
-- **Configuration Issues**: Weak authentication settings
-- **Network Exposure**: WinRM accessible from untrusted networks
-- **Authentication Bypass**: Weak authentication mechanisms
-- **Privilege Escalation**: WinRM-based escalation techniques
+
+* **Configuration Issues**: Weak authentication settings
+* **Network Exposure**: WinRM accessible from untrusted networks
+* **Authentication Bypass**: Weak authentication mechanisms
+* **Privilege Escalation**: WinRM-based escalation techniques
 
 ### WMI Vulnerabilities
-- **WMI Event Subscriptions**: Persistence mechanisms
-- **WMI Query Injection**: Malicious WQL queries
-- **Access Control**: Insufficient WMI permissions
-- **Information Disclosure**: Sensitive system information
+
+* **WMI Event Subscriptions**: Persistence mechanisms
+* **WMI Query Injection**: Malicious WQL queries
+* **Access Control**: Insufficient WMI permissions
+* **Information Disclosure**: Sensitive system information
 
 ## Tools and Techniques
 
 ### RDP Tools
+
 ```bash
 # RDP clients
 mstsc                # Windows Remote Desktop
@@ -398,6 +436,7 @@ ncrack               # Network authentication cracker
 ```
 
 ### WinRM Tools
+
 ```bash
 # WinRM clients
 winrs                # Windows Remote Shell
@@ -410,6 +449,7 @@ nmap                 # Service detection
 ```
 
 ### WMI Tools
+
 ```bash
 # WMI clients
 wmic                 # Windows WMI command-line
@@ -424,6 +464,7 @@ wmipersist           # WMI persistence toolkit
 ## Defensive Measures
 
 ### RDP Hardening
+
 ```bash
 # Change default RDP port
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v PortNumber /t REG_DWORD /d 3390 /f
@@ -437,6 +478,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-T
 ```
 
 ### WinRM Security
+
 ```bash
 # Disable WinRM if not needed
 Stop-Service winrm
@@ -452,6 +494,7 @@ winrm set winrm/config/service @{AllowUnencrypted="false"}
 ```
 
 ### WMI Security
+
 ```bash
 # Configure WMI security
 # Use Group Policy to configure WMI settings
@@ -466,6 +509,7 @@ Set-Service winmgmt -StartupType Disabled
 ## Best Practices
 
 ### RDP Best Practices
+
 1. **Change default port**: Use non-standard ports
 2. **Enable NLA**: Require Network Level Authentication
 3. **Use strong passwords**: Implement password policies
@@ -474,6 +518,7 @@ Set-Service winmgmt -StartupType Disabled
 6. **Keep updated**: Apply security patches regularly
 
 ### WinRM Best Practices
+
 1. **Use HTTPS**: Enable SSL/TLS encryption
 2. **Restrict authentication**: Disable basic authentication
 3. **Limit access**: Configure trusted hosts carefully
@@ -482,6 +527,7 @@ Set-Service winmgmt -StartupType Disabled
 6. **Regular audits**: Review WinRM configuration regularly
 
 ### WMI Best Practices
+
 1. **Access control**: Set appropriate WMI permissions
 2. **Monitor activity**: Log WMI queries and changes
 3. **Disable if unused**: Turn off WMI if not needed
@@ -492,6 +538,7 @@ Set-Service winmgmt -StartupType Disabled
 ## Detection and Monitoring
 
 ### RDP Monitoring
+
 ```bash
 # Monitor RDP connections
 # Windows Event Logs: Security, TerminalServices-LocalSessionManager
@@ -502,6 +549,7 @@ auditpol /set /subcategory:"Logon" /success:enable /failure:enable
 ```
 
 ### WinRM Monitoring
+
 ```bash
 # Monitor WinRM activity
 # Windows Event Logs: Microsoft-Windows-WinRM
@@ -512,6 +560,7 @@ winrm set winrm/config/service @{EnableCompatibilityHttpListener="true"}
 ```
 
 ### WMI Monitoring
+
 ```bash
 # Monitor WMI activity
 # Windows Event Logs: Microsoft-Windows-WMI-Activity
@@ -519,4 +568,4 @@ winrm set winrm/config/service @{EnableCompatibilityHttpListener="true"}
 
 # WMI logging configuration
 # Enable WMI-Activity logging via Group Policy
-``` 
+```

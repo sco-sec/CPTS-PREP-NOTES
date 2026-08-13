@@ -1,41 +1,47 @@
-# Custom Wordlists and Rules
+# 📝 Custom Wordlists & Rules
 
 ## Common Password Patterns
+
 Users often follow predictable patterns when creating passwords:
 
-- **First letter uppercase**: Password
-- **Adding numbers**: Password123
-- **Adding year**: Password2022
-- **Adding month**: Password02
-- **Exclamation at end**: Password2022!
-- **Special characters**: P@ssw0rd2022!
+* **First letter uppercase**: Password
+* **Adding numbers**: Password123
+* **Adding year**: Password2022
+* **Adding month**: Password02
+* **Exclamation at end**: Password2022!
+* **Special characters**: P@ssw0rd2022!
 
 ## OSINT for Password Creation
+
 Collect information about target users:
-- Company name
-- Personal interests, hobbies
-- Pet names
-- Family members
-- Sports teams
-- Birth dates/years
-- Geographic location
+
+* Company name
+* Personal interests, hobbies
+* Pet names
+* Family members
+* Sports teams
+* Birth dates/years
+* Geographic location
 
 ## Hashcat Rule Functions
-| Function | Description |
-|----------|-------------|
-| `:` | Do nothing |
-| `l` | Lowercase all letters |
-| `u` | Uppercase all letters |
-| `c` | Capitalize first letter, lowercase others |
-| `sXY` | Replace all instances of X with Y |
-| `$!` | Add exclamation at end |
-| `^X` | Prepend character X |
-| `]` | Delete last character |
-| `[` | Delete first character |
-| `$1` `$2` `$3` | Append digits |
+
+| Function       | Description                               |
+| -------------- | ----------------------------------------- |
+| `:`            | Do nothing                                |
+| `l`            | Lowercase all letters                     |
+| `u`            | Uppercase all letters                     |
+| `c`            | Capitalize first letter, lowercase others |
+| `sXY`          | Replace all instances of X with Y         |
+| `$!`           | Add exclamation at end                    |
+| `^X`           | Prepend character X                       |
+| `]`            | Delete last character                     |
+| `[`            | Delete first character                    |
+| `$1` `$2` `$3` | Append digits                             |
 
 ## Creating Custom Rules
+
 Example rule file:
+
 ```
 :
 c
@@ -55,6 +61,7 @@ $! c so0 sa@
 ```
 
 ## Generating Wordlists with Rules
+
 ```bash
 # Apply rules to wordlist
 hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
@@ -64,6 +71,7 @@ cat list1.txt list2.txt | sort -u > combined.txt
 ```
 
 ## CeWL - Website Wordlist Generation
+
 ```bash
 # Basic usage
 cewl https://target-company.com -d 4 -m 6 --lowercase -w company.wordlist
@@ -79,13 +87,15 @@ cewl https://target-company.com \
 ## Targeted Password Attack Strategy
 
 ### 1. Information Gathering
-- Company website
-- Social media profiles
-- Employee LinkedIn profiles
-- Company documents/presentations
-- Geographic information
+
+* Company website
+* Social media profiles
+* Employee LinkedIn profiles
+* Company documents/presentations
+* Geographic information
 
 ### 2. Base Wordlist Creation
+
 ```bash
 # Create base wordlist from gathered info
 echo "nexura" >> base.txt
@@ -99,7 +109,9 @@ echo "1998" >> base.txt
 ```
 
 ### 3. Rule Creation for Password Policy
+
 For policy: 12+ chars, uppercase, lowercase, symbol, number
+
 ```bash
 # Example rules for 12+ character passwords
 c $1 $9 $9 $8 $!        # Capitalize + year + !
@@ -109,6 +121,7 @@ u $1 $2 $3 $4 $!        # Uppercase + numbers + !
 ```
 
 ### 4. Generation and Testing
+
 ```bash
 # Generate mutated wordlist
 hashcat --force base.txt -r custom.rule --stdout | sort -u > targeted.txt
@@ -118,12 +131,14 @@ hashcat -a 0 -m 0 hash.txt targeted.txt
 ```
 
 ## Common Rule Files
-- `best64.rule` - 64 common transformations
-- `rockyou-30000.rule` - Based on rockyou analysis
-- `T0XlC.rule` - Advanced transformations
-- `dive.rule` - Comprehensive rule set
+
+* `best64.rule` - 64 common transformations
+* `rockyou-30000.rule` - Based on rockyou analysis
+* `T0XlC.rule` - Advanced transformations
+* `dive.rule` - Comprehensive rule set
 
 ## Tips for Custom Wordlists
+
 1. **Start with OSINT** - Gather target-specific information
 2. **Consider password policy** - Adapt rules to requirements
 3. **Use company-specific terms** - Include company name, products, locations
@@ -133,6 +148,7 @@ hashcat -a 0 -m 0 hash.txt targeted.txt
 7. **Industry-specific terms** - Technical jargon, common terms
 
 ## Example Workflow
+
 ```bash
 # 1. Gather words from company website
 cewl https://company.com -d 3 -m 5 --lowercase -w company.txt
@@ -153,16 +169,18 @@ hashcat -a 0 -m 0 hash.txt final.txt
 ## Practical Example: Mark White Case Study
 
 **Target Information:**
-- Name: Mark White
-- DOB: August 5, 1998
-- Company: Nexura Ltd
-- Location: San Francisco, CA
-- Pet: Bella (cat)
-- Family: Maria (wife), Alex (son)
-- Interest: Baseball
-- Password Policy: 12+ chars, uppercase, lowercase, symbol, number
+
+* Name: Mark White
+* DOB: August 5, 1998
+* Company: Nexura Ltd
+* Location: San Francisco, CA
+* Pet: Bella (cat)
+* Family: Maria (wife), Alex (son)
+* Interest: Baseball
+* Password Policy: 12+ chars, uppercase, lowercase, symbol, number
 
 ### Step 1: Create Base Wordlist
+
 ```bash
 cat << EOF > password.list
 Mark
@@ -180,6 +198,7 @@ EOF
 ```
 
 ### Step 2: Create Custom Rules
+
 ```bash
 cat << EOF > custom.rule
 c
@@ -195,43 +214,49 @@ EOF
 ```
 
 **Rule Explanation:**
-- `c` - Capitalize first character, lowercase rest
-- `C` - Lowercase first character, uppercase rest  
-- `t` - Toggle case of all characters
-- `$!` - Append exclamation mark
-- `$1$9$9$8` - Append '1998'
-- `$1$9$9$8$!` - Append '1998!'
-- `sa@` - Replace 'a' with '@'
-- `so0` - Replace 'o' with '0'
-- `ss$` - Replace 's' with '$'
+
+* `c` - Capitalize first character, lowercase rest
+* `C` - Lowercase first character, uppercase rest
+* `t` - Toggle case of all characters
+* `$!` - Append exclamation mark
+* `$1$9$9$8` - Append '1998'
+* `$1$9$9$8$!` - Append '1998!'
+* `sa@` - Replace 'a' with '@'
+* `so0` - Replace 'o' with '0'
+* `ss$` - Replace 's' with '$'
 
 ### Step 3: Generate Mutated Wordlist
+
 ```bash
 hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
 ```
 
 ### Step 4: Crack the Hash
+
 ```bash
 # Hash: 97268a8ae45ac7d15c3cea4ce6ea550b
 hashcat -a 0 -m 0 97268a8ae45ac7d15c3cea4ce6ea550b mut_password.list
 ```
 
 ### Step 5: Retrieve Results
+
 ```bash
 hashcat -m 0 97268a8ae45ac7d15c3cea4ce6ea550b --show
 ```
 
 This approach successfully cracked Mark's password by combining:
-- Personal/professional information (OSINT)
-- Password policy requirements
-- Common password patterns
-- Targeted rule transformations
 
----
+* Personal/professional information (OSINT)
+* Password policy requirements
+* Common password patterns
+* Targeted rule transformations
+
+***
 
 ## HTB Academy Custom Wordlists Workflow
 
 ### Tools Installation
+
 ```bash
 # Install CUPP (Common User Passwords Profiler)
 sudo apt install cupp -y
@@ -243,14 +268,16 @@ git clone https://github.com/urbanadventurer/username-anarchy.git
 ### Real-World Scenario: Jane Smith
 
 **Target Information (OSINT):**
-- Name: Jane Smith
-- Nickname: Janey
-- Birthdate: 11/12/1990
-- Partner: Jim (nickname: Jimbo, DOB: 12/12/1990)
-- Pet: Spot
-- Company: AHI
+
+* Name: Jane Smith
+* Nickname: Janey
+* Birthdate: 11/12/1990
+* Partner: Jim (nickname: Jimbo, DOB: 12/12/1990)
+* Pet: Spot
+* Company: AHI
 
 ### Step 1: Generate Username Variations
+
 ```bash
 cd username-anarchy
 ./username-anarchy Jane Smith > ../jane_smith_usernames.txt
@@ -260,6 +287,7 @@ cd username-anarchy
 ```
 
 ### Step 2: CUPP Interactive Password Generation
+
 ```bash
 cupp -i
 
@@ -282,6 +310,7 @@ cupp -i
 ```
 
 ### Step 3: Password Complexity Filtering
+
 ```bash
 # Filter for policy: 6+ chars, uppercase, lowercase, numbers, 2+ special chars
 grep -E '^.{6,}$' jane.txt | \
@@ -299,6 +328,7 @@ grep -E '([!@#$%^&*].*){2,}' > jane-filtered.txt
 ```
 
 ### Step 4: Targeted Brute Force Attack
+
 ```bash
 # HTTP POST form brute force with custom wordlists
 hydra -L jane_smith_usernames.txt -P jane-filtered.txt \
@@ -310,6 +340,7 @@ hydra -L jane_smith_usernames.txt -P jane-filtered.txt \
 ```
 
 ### Step 5: Success and Flag Retrieval
+
 ```bash
 # Login with discovered credentials
 # Username: jane
@@ -317,11 +348,12 @@ hydra -L jane_smith_usernames.txt -P jane-filtered.txt \
 # Navigate to target and retrieve flag
 ```
 
----
+***
 
 ## Advanced Filtering Techniques
 
 ### Password Policy Compliance
+
 ```bash
 # Example policies and corresponding grep filters:
 
@@ -343,6 +375,7 @@ grep -E '^[A-Z]' wordlist.txt > capital_start.txt
 ```
 
 ### Wordlist Quality Control
+
 ```bash
 # Remove duplicates and sort
 sort -u wordlist.txt > clean_wordlist.txt
@@ -358,9 +391,10 @@ sed '/^$/d' wordlist.txt > no_blanks.txt
 ```
 
 ### Targeted Attack Strategy Summary
+
 1. **OSINT Collection** - Personal/professional information
-2. **Username Generation** - username-anarchy variations  
+2. **Username Generation** - username-anarchy variations
 3. **Password Profiling** - CUPP interactive generation
 4. **Policy Filtering** - grep compliance checking
 5. **Targeted Attack** - Hydra with custom wordlists
-6. **Success Validation** - Login and objective completion 
+6. **Success Validation** - Login and objective completion

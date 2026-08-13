@@ -7,26 +7,29 @@
 Splunk represents a **critical high-value target** in enterprise environments, serving as the **central log analytics and SIEM platform** containing **sensitive security data**, **network intelligence**, and **business analytics**. With **over 7,500 employees**, **$2.4 billion annual revenue**, and **92 Fortune 100 companies** as clients, Splunk deployments often provide **privileged access** to comprehensive organizational data and **SYSTEM/root execution context**.
 
 **Key Splunk Statistics:**
-- **Founded 2003** - IPO 2012 on NASDAQ (SPLK), Fortune 1000 company (2020)
-- **$2.4 billion annual revenue** - 7,500+ employees globally
-- **92 Fortune 100 clients** - Major enterprise adoption across industries
-- **2,000+ Splunkbase apps** - Extensive third-party integration ecosystem
-- **Log analytics leader** - Primary SIEM solution in large corporate environments
+
+* **Founded 2003** - IPO 2012 on NASDAQ (SPLK), Fortune 1000 company (2020)
+* **$2.4 billion annual revenue** - 7,500+ employees globally
+* **92 Fortune 100 clients** - Major enterprise adoption across industries
+* **2,000+ Splunkbase apps** - Extensive third-party integration ecosystem
+* **Log analytics leader** - Primary SIEM solution in large corporate environments
 
 **Enterprise Attack Significance:**
-- **Sensitive Data Repository** - Security logs, user activities, network traffic, business intelligence
-- **SYSTEM/Root Privileges** - Splunk commonly runs with highest system privileges
-- **Internal Network Presence** - Rare external exposure but prevalent in internal assessments
-- **Authentication Bypass Potential** - Free version lacks authentication, weak credential configurations
-- **Lateral Movement Opportunities** - Deployment server capabilities for Universal Forwarder compromise
 
----
+* **Sensitive Data Repository** - Security logs, user activities, network traffic, business intelligence
+* **SYSTEM/Root Privileges** - Splunk commonly runs with highest system privileges
+* **Internal Network Presence** - Rare external exposure but prevalent in internal assessments
+* **Authentication Bypass Potential** - Free version lacks authentication, weak credential configurations
+* **Lateral Movement Opportunities** - Deployment server capabilities for Universal Forwarder compromise
+
+***
 
 ## Splunk Architecture & Components
 
 ### Core System Structure
 
 #### Splunk Installation Components
+
 ```
 /opt/splunk/ (Linux) or C:\Program Files\Splunk\ (Windows)
 ├── bin/                       # Splunk executables and utilities
@@ -55,6 +58,7 @@ Splunk represents a **critical high-value target** in enterprise environments, s
 ```
 
 #### Network Architecture & Communication
+
 ```
 Splunk Deployment Architecture:
 ┌─────────────────────────────────────────────────┐
@@ -89,6 +93,7 @@ Enterprise Integration Points:
 ### Default Network Configuration
 
 #### Standard Port Usage
+
 ```bash
 # Primary Splunk services
 8000/tcp    # Web interface (Splunk Web)
@@ -108,6 +113,7 @@ Enterprise Integration Points:
 ```
 
 #### Service Identification Commands
+
 ```bash
 # Comprehensive Splunk service detection
 nmap -sV -p 8000,8089,9997,8080,8191,9887 target.com
@@ -121,13 +127,14 @@ curl -I http://target.com:8000/
 curl -k -I https://target.com:8089/
 ```
 
----
+***
 
 ## Discovery & Fingerprinting Techniques
 
 ### HTTP-Based Discovery
 
 #### Web Interface Identification
+
 ```bash
 # Primary Splunk detection methods
 curl -s http://target.com:8000/ | grep -i splunk
@@ -158,6 +165,7 @@ done
 ```
 
 #### Version Detection Techniques
+
 ```bash
 # Method 1: Server info API endpoint
 curl -s -k "http://target.com:8089/services/server/info" | grep -oP '<s:key name="version">\K[^<]+'
@@ -183,6 +191,7 @@ curl -s "http://target.com:8000/" | grep -oP 'Splunk \K[0-9.]+'
 ```
 
 #### License Type Detection
+
 ```bash
 # Detect Splunk license type and authentication requirements
 license_detection() {
@@ -223,6 +232,7 @@ license_detection() {
 ### Advanced Reconnaissance
 
 #### Application and Add-on Discovery
+
 ```bash
 # Installed applications enumeration
 app_discovery() {
@@ -265,6 +275,7 @@ app_discovery() {
 ```
 
 #### Index and Data Source Discovery
+
 ```bash
 # Data index enumeration and analysis
 index_discovery() {
@@ -314,6 +325,7 @@ index_discovery() {
 ### Authentication Mechanism Analysis
 
 #### Default Credential Testing
+
 ```bash
 # Splunk default and common credentials
 splunk_creds=(
@@ -365,6 +377,7 @@ credential_testing() {
 ```
 
 #### Authentication Bypass Detection
+
 ```bash
 # Check for authentication bypass scenarios
 auth_bypass_testing() {
@@ -419,13 +432,14 @@ auth_bypass_testing() {
 # auth_bypass_testing "http://target.com:8000"
 ```
 
----
+***
 
 ## Data and Configuration Analysis
 
 ### Search Interface Reconnaissance
 
 #### Data Discovery Through Search
+
 ```bash
 # Search capability testing and data discovery
 search_reconnaissance() {
@@ -474,6 +488,7 @@ search_reconnaissance() {
 ```
 
 #### Sensitive Data Identification
+
 ```bash
 # Identify sensitive data patterns in Splunk
 sensitive_data_hunting() {
@@ -518,6 +533,7 @@ sensitive_data_hunting() {
 ### Configuration File Analysis
 
 #### Splunk Configuration Discovery
+
 ```bash
 # Configuration file analysis and extraction
 config_analysis() {
@@ -576,16 +592,18 @@ config_analysis() {
 # config_analysis "http://target.com:8000"
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab 1: Splunk Version Detection
+
 **Question:** "Enumerate the Splunk instance as an unauthenticated user. Submit the version number to move on (format 1.2.3)."
 
 **Solution Methodology:**
 
 #### Step 1: Environment Setup and Service Detection
+
 ```bash
 # Nmap service discovery
 nmap -sV -p 8000,8089 target.com
@@ -596,6 +614,7 @@ nmap -sV -p 8000,8089 target.com
 ```
 
 #### Step 2: Unauthenticated Version Detection
+
 ```bash
 # Method 1: REST API server info (most reliable)
 curl -s -k "http://target.com:8089/services/server/info" | \
@@ -615,6 +634,7 @@ curl -s "http://target.com:8000/en-US/manager/system/licensing" | \
 ```
 
 #### Step 3: Version Verification
+
 ```bash
 # HTB Academy expected version: 8.2.2
 # Primary detection method - REST API:
@@ -627,6 +647,7 @@ curl -s -k "http://10.129.201.50:8089/services/server/info" | \
 ```
 
 #### Step 4: Additional Reconnaissance
+
 ```bash
 # Check for unauthenticated access (common in Free license)
 curl -s "http://target.com:8000/en-US/app/launcher/home" | \
@@ -641,13 +662,14 @@ curl -s "http://target.com:8000/en-US/account/login" | \
   grep -i "changeme\|default" && echo "[+] Default credential hints found"
 ```
 
----
+***
 
 ## Enterprise Deployment Patterns
 
 ### Internal Network Recognition
 
 #### SIEM Infrastructure Mapping
+
 ```bash
 # Splunk in enterprise environments commonly found:
 # 1. Security Operations Centers (SOCs)
@@ -667,6 +689,7 @@ curl -s "http://splunk-server:8000/services/deployment/server" | \
 ```
 
 #### Universal Forwarder Discovery
+
 ```bash
 # Universal Forwarder enumeration
 forwarder_discovery() {
@@ -692,6 +715,7 @@ forwarder_discovery() {
 ### Security Configuration Assessment
 
 #### Authentication Method Analysis
+
 ```bash
 # Authentication mechanism detection
 auth_mechanism_analysis() {
@@ -721,6 +745,7 @@ auth_mechanism_analysis() {
 ```
 
 #### Security Hardening Assessment
+
 ```bash
 # Security configuration evaluation
 security_assessment() {
@@ -765,43 +790,48 @@ security_assessment() {
 # security_assessment "http://target.com:8000"
 ```
 
----
+***
 
 ## Intelligence Gathering Workflow
 
 ### Systematic Splunk Assessment
 
 #### Phase 1: Discovery & Identification
-- [ ] **Service Detection** - Port scanning and service identification
-- [ ] **Version Fingerprinting** - REST API, login pages, headers
-- [ ] **License Analysis** - Free vs Enterprise vs Trial detection
-- [ ] **Authentication Assessment** - Default credentials, bypass testing
+
+* [ ] **Service Detection** - Port scanning and service identification
+* [ ] **Version Fingerprinting** - REST API, login pages, headers
+* [ ] **License Analysis** - Free vs Enterprise vs Trial detection
+* [ ] **Authentication Assessment** - Default credentials, bypass testing
 
 #### Phase 2: Access Control Evaluation
-- [ ] **Authentication Bypass** - Unauthenticated access testing
-- [ ] **Default Credential Testing** - Common username/password combinations
-- [ ] **License Type Analysis** - Free license authentication bypass
-- [ ] **API Endpoint Assessment** - REST API access and permissions
+
+* [ ] **Authentication Bypass** - Unauthenticated access testing
+* [ ] **Default Credential Testing** - Common username/password combinations
+* [ ] **License Type Analysis** - Free license authentication bypass
+* [ ] **API Endpoint Assessment** - REST API access and permissions
 
 #### Phase 3: Data and Configuration Analysis
-- [ ] **Index Discovery** - Available data indexes and sources
-- [ ] **Application Enumeration** - Installed apps and add-ons
-- [ ] **Search Capability Testing** - Data access and query permissions
-- [ ] **Configuration Exposure** - Sensitive configuration access
+
+* [ ] **Index Discovery** - Available data indexes and sources
+* [ ] **Application Enumeration** - Installed apps and add-ons
+* [ ] **Search Capability Testing** - Data access and query permissions
+* [ ] **Configuration Exposure** - Sensitive configuration access
 
 #### Phase 4: Infrastructure Mapping
-- [ ] **Deployment Architecture** - Indexers, forwarders, deployment servers
-- [ ] **Universal Forwarder Discovery** - Connected endpoints and agents
-- [ ] **Cluster Analysis** - Multi-node deployments and replication
-- [ ] **Integration Assessment** - External system connections and data sources
 
----
+* [ ] **Deployment Architecture** - Indexers, forwarders, deployment servers
+* [ ] **Universal Forwarder Discovery** - Connected endpoints and agents
+* [ ] **Cluster Analysis** - Multi-node deployments and replication
+* [ ] **Integration Assessment** - External system connections and data sources
+
+***
 
 ## Risk Assessment Framework
 
 ### Splunk Security Priorities
 
 #### Critical Findings
+
 ```bash
 # Immediate security concerns to identify:
 critical_checks=(
@@ -832,6 +862,7 @@ done
 ```
 
 #### Data Sensitivity Analysis
+
 ```bash
 # Assess the sensitivity of data accessible through Splunk
 data_sensitivity_analysis() {
@@ -860,15 +891,16 @@ data_sensitivity_analysis() {
 # data_sensitivity_analysis "http://target.com:8000"
 ```
 
----
+***
 
 ## Next Steps
 
 After Splunk enumeration, proceed to:
-1. **[Splunk Attacks & Exploitation](splunk-attacks.md)** - Custom application RCE and data exfiltration
-2. **[PRTG Network Monitor Discovery](prtg-discovery.md)** - Infrastructure monitoring reconnaissance
-3. **[SIEM Security Assessment](siem-security.md)** - Advanced log analytics exploitation
+
+1. [**Splunk Attacks & Exploitation**](splunk-attacks.md) - Custom application RCE and data exfiltration
+2. [**PRTG Network Monitor Discovery**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/prtg-discovery.md) - Infrastructure monitoring reconnaissance
+3. [**SIEM Security Assessment**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/siem-security.md) - Advanced log analytics exploitation
 
 **💡 Key Takeaway:** Splunk enumeration focuses on **SIEM infrastructure reconnaissance**, **authentication bypass discovery**, and **sensitive data access evaluation**. Enterprise environments frequently contain **Splunk instances with weak authentication** or **Free license configurations**, making systematic enumeration crucial for identifying **high-value data repositories** and **privileged system access**.
 
-**📊 Professional Impact:** Splunk compromises provide access to **comprehensive organizational logs**, **security monitoring data**, and **business intelligence**, often with **SYSTEM/root privileges** and **lateral movement opportunities** through **Universal Forwarder networks**. 
+**📊 Professional Impact:** Splunk compromises provide access to **comprehensive organizational logs**, **security monitoring data**, and **business intelligence**, often with **SYSTEM/root privileges** and **lateral movement opportunities** through **Universal Forwarder networks**.

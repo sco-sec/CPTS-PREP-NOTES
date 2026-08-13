@@ -1,16 +1,19 @@
-# SMTP (Simple Mail Transfer Protocol) Enumeration
+# 📧 SMTP Enumeration
 
 ## Overview
+
 Simple Mail Transfer Protocol (SMTP) is a communication protocol for electronic mail transmission. SMTP is an application layer protocol that enables the sending of email messages between servers and clients. During enumeration, SMTP servers can reveal valuable information about the system and valid user accounts.
 
 **Key Characteristics:**
-- **Port 25**: Standard SMTP port
-- **Port 587**: SMTP submission port (often with STARTTLS)
-- **Port 465**: SMTP over SSL/TLS (deprecated but still used)
-- **Protocol**: Text-based, human-readable commands
-- **Authentication**: Optional, varies by configuration
+
+* **Port 25**: Standard SMTP port
+* **Port 587**: SMTP submission port (often with STARTTLS)
+* **Port 465**: SMTP over SSL/TLS (deprecated but still used)
+* **Protocol**: Text-based, human-readable commands
+* **Authentication**: Optional, varies by configuration
 
 **SMTP Process Flow:**
+
 ```
 Client (MUA) → Submission Agent (MSA) → Open Relay (MTA) → Mail Delivery Agent (MDA) → Mailbox (POP3/IMAP)
 ```
@@ -18,6 +21,7 @@ Client (MUA) → Submission Agent (MSA) → Open Relay (MTA) → Mail Delivery A
 ## SMTP Commands and Responses
 
 ### Common SMTP Commands
+
 ```bash
 # Basic SMTP commands
 HELO/EHLO    # Identify client to server (EHLO for Extended SMTP)
@@ -33,6 +37,7 @@ NOOP         # No operation (prevent timeout)
 ```
 
 ### User Enumeration Commands
+
 ```bash
 # VRFY - Verify if user exists
 VRFY username
@@ -49,6 +54,7 @@ RCPT TO:username@domain.com
 SMTP servers like Postfix can be configured in various ways. Understanding common configurations helps identify potential security issues.
 
 ### Example Postfix Configuration
+
 ```bash
 # View Postfix main configuration
 cat /etc/postfix/main.cf | grep -v "#" | sed -r "/^\s*$/d"
@@ -67,6 +73,7 @@ inet_protocols = ipv4
 ## Dangerous Settings
 
 ### Open Relay Configuration
+
 The most dangerous SMTP misconfiguration is an open relay, which allows anyone to send emails through the server:
 
 ```bash
@@ -78,14 +85,16 @@ mynetworks = 127.0.0.0/8 10.129.0.0/16
 ```
 
 **Open Relay Impact:**
-- Spam distribution
-- Reputation damage
-- Potential for email spoofing
-- Resource abuse
+
+* Spam distribution
+* Reputation damage
+* Potential for email spoofing
+* Resource abuse
 
 ## Enumeration Techniques
 
 ### 1. Banner Grabbing and Initial Connection
+
 ```bash
 # Telnet connection to grab banner
 telnet target 25
@@ -98,6 +107,7 @@ nmap -p25 --script smtp-commands target
 ```
 
 ### 2. SMTP Service Detection
+
 ```bash
 # Nmap service detection
 nmap -p25,587,465 -sV -sC target
@@ -107,6 +117,7 @@ nmap -p25,587,465 --script smtp-enum-users,smtp-commands,smtp-open-relay target
 ```
 
 ### 3. HELO vs EHLO Testing
+
 ```bash
 # Basic HELO command
 telnet target 25
@@ -129,6 +140,7 @@ EHLO mail1
 ```
 
 ### 4. User Enumeration with VRFY
+
 ```bash
 # Manual VRFY testing
 telnet target 25
@@ -150,6 +162,7 @@ VRFY cry0l1t3
 ```
 
 ### 5. User Enumeration with EXPN
+
 ```bash
 # Manual EXPN testing
 telnet target 25
@@ -162,6 +175,7 @@ EXPN admin
 ```
 
 ### 6. Email Sending Testing
+
 ```bash
 # Complete email sending session
 telnet target 25
@@ -180,6 +194,7 @@ QUIT
 ```
 
 ### 5. Automated User Enumeration
+
 ```bash
 # Using smtp-user-enum
 smtp-user-enum -M VRFY -U userlist.txt -t target
@@ -193,6 +208,7 @@ smtp-user-enum -M VRFY -U userlist.txt -t target -m 60 -w 20
 ## Advanced Enumeration
 
 ### Using Nmap NSE Scripts
+
 ```bash
 # SMTP user enumeration
 nmap -p25 --script smtp-enum-users --script-args smtp-enum-users.methods={VRFY,EXPN} target
@@ -208,6 +224,7 @@ nmap -p25 --script smtp-brute target
 ```
 
 ### Open Relay Testing
+
 ```bash
 # Test for open relay with Nmap
 nmap -p25 --script smtp-open-relay -v target
@@ -232,6 +249,7 @@ QUIT
 ```
 
 ### Manual Testing Session
+
 ```bash
 # Complete manual enumeration
 telnet target 25
@@ -246,36 +264,42 @@ QUIT
 ## Security Issues and Attack Vectors
 
 ### 1. User Enumeration
-- **Issue**: VRFY and EXPN commands reveal valid users
-- **Impact**: Username harvesting for brute force attacks
-- **Detection**: Different responses for valid vs invalid users
-- **Note**: Some servers return 252 for all users to prevent enumeration
+
+* **Issue**: VRFY and EXPN commands reveal valid users
+* **Impact**: Username harvesting for brute force attacks
+* **Detection**: Different responses for valid vs invalid users
+* **Note**: Some servers return 252 for all users to prevent enumeration
 
 ### 2. Open Relay
-- **Issue**: Server allows relay of mail from any source
-- **Impact**: Spam distribution, reputation damage, email spoofing
-- **Testing**: Attempt to send mail through server to external addresses
-- **Configuration**: `mynetworks = 0.0.0.0/0` creates open relay
+
+* **Issue**: Server allows relay of mail from any source
+* **Impact**: Spam distribution, reputation damage, email spoofing
+* **Testing**: Attempt to send mail through server to external addresses
+* **Configuration**: `mynetworks = 0.0.0.0/0` creates open relay
 
 ### 3. Information Disclosure
-- **Issue**: Verbose error messages and banners
-- **Impact**: System information, software versions
-- **Examples**: Server version, internal hostnames, configuration details
-- **Mitigation**: Use generic banners
+
+* **Issue**: Verbose error messages and banners
+* **Impact**: System information, software versions
+* **Examples**: Server version, internal hostnames, configuration details
+* **Mitigation**: Use generic banners
 
 ### 4. Authentication Bypass
-- **Issue**: Weak or missing authentication
-- **Impact**: Unauthorized mail sending
-- **Testing**: Attempt unauthenticated mail sending
+
+* **Issue**: Weak or missing authentication
+* **Impact**: Unauthorized mail sending
+* **Testing**: Attempt unauthenticated mail sending
 
 ### 5. Email Spoofing
-- **Issue**: Lack of SPF/DKIM/DMARC validation
-- **Impact**: Phishing attacks, reputation damage
-- **Testing**: Send emails with forged sender addresses
+
+* **Issue**: Lack of SPF/DKIM/DMARC validation
+* **Impact**: Phishing attacks, reputation damage
+* **Testing**: Send emails with forged sender addresses
 
 ## Practical Examples
 
 ### HTB Academy Style Enumeration
+
 ```bash
 # Step 1: Banner grabbing and version detection
 telnet target 25
@@ -297,6 +321,7 @@ VRFY discovered_user
 ```
 
 ### HTB Academy Lab Questions Examples
+
 ```bash
 # Question 1: "Enumerate the SMTP service and submit the banner"
 telnet target 25
@@ -312,6 +337,7 @@ VRFY discovered_username
 ```
 
 ### Wordlist-based User Enumeration
+
 ```bash
 # Create custom wordlist
 cat > smtp_users.txt << EOF
@@ -332,26 +358,30 @@ smtp-user-enum -M VRFY -U smtp_users.txt -t target
 ## Enumeration Checklist
 
 ### Initial Discovery
-- [ ] Port scan for 25, 587, 465
-- [ ] Banner grabbing and version identification
-- [ ] EHLO/HELO command testing
-- [ ] Available command enumeration
+
+* [ ] Port scan for 25, 587, 465
+* [ ] Banner grabbing and version identification
+* [ ] EHLO/HELO command testing
+* [ ] Available command enumeration
 
 ### User Enumeration
-- [ ] VRFY command testing
-- [ ] EXPN command testing
-- [ ] RCPT TO method testing
-- [ ] Automated user enumeration with wordlists
+
+* [ ] VRFY command testing
+* [ ] EXPN command testing
+* [ ] RCPT TO method testing
+* [ ] Automated user enumeration with wordlists
 
 ### Security Testing
-- [ ] Open relay testing
-- [ ] Authentication bypass attempts
-- [ ] Information disclosure assessment
-- [ ] Error message analysis
+
+* [ ] Open relay testing
+* [ ] Authentication bypass attempts
+* [ ] Information disclosure assessment
+* [ ] Error message analysis
 
 ## Tools and Techniques
 
 ### Essential SMTP Tools
+
 ```bash
 # Manual testing
 telnet               # Basic SMTP interaction
@@ -367,6 +397,7 @@ sendemail            # Command-line email sending
 ```
 
 ### Custom Scripts
+
 ```bash
 # Simple SMTP user checker
 #!/bin/bash
@@ -385,6 +416,7 @@ echo "QUIT" | nc $1 25 | head -1
 ## Defensive Measures
 
 ### Secure SMTP Configuration
+
 ```bash
 # Disable VRFY and EXPN
 # In postfix main.cf:
@@ -396,6 +428,7 @@ define(`confPRIVACY_FLAGS', `authwarnings,novrfy,noexpn,restrictqrun')
 ```
 
 ### Best Practices
+
 1. **Disable VRFY/EXPN**: Prevent user enumeration
 2. **Custom banners**: Hide version information
 3. **Rate limiting**: Prevent brute force attacks
@@ -403,6 +436,7 @@ define(`confPRIVACY_FLAGS', `authwarnings,novrfy,noexpn,restrictqrun')
 5. **Monitoring**: Log and monitor SMTP activities
 
 ### Detection and Monitoring
+
 ```bash
 # Monitor SMTP logs
 tail -f /var/log/maillog
@@ -415,11 +449,13 @@ grep "User unknown" /var/log/maillog
 ## Common Vulnerabilities
 
 ### CVE Examples
-- **CVE-2020-7247**: OpenSMTPD remote code execution
-- **CVE-2016-10009**: Postfix denial of service
-- **CVE-2014-3956**: Exim privilege escalation
+
+* **CVE-2020-7247**: OpenSMTPD remote code execution
+* **CVE-2016-10009**: Postfix denial of service
+* **CVE-2014-3956**: Exim privilege escalation
 
 ### Mitigation Strategies
+
 1. **Keep updated**: Regular security patches
 2. **Minimal configuration**: Disable unnecessary features
 3. **Access controls**: Restrict SMTP access

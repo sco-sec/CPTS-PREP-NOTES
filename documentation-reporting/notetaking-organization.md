@@ -1,4 +1,4 @@
-# Notetaking & Organization
+# 📝 Notetaking & Organization
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 📋 Essential Notetaking Structure
 
 ### Core Categories
+
 ```cmd
 # Primary sections for comprehensive documentation:
 1. Attack Path           # Complete exploitation chain with screenshots
@@ -24,6 +25,7 @@
 ```
 
 ### Folder Structure
+
 ```bash
 # Recommended directory organization:
 mkdir -p PROJECT/{Admin,Deliverables,Evidence/{Findings,Scans/{Vuln,Service,Web,'AD Enumeration'},Notes,OSINT,Wireless,'Logging output','Misc Files'},Retest}
@@ -50,6 +52,7 @@ PROJECT/
 ## 🛠️ Recommended Tools
 
 ### Notetaking Applications
+
 ```cmd
 # Local storage (secure for client data):
 - Obsidian           # Markdown-based, local storage
@@ -65,6 +68,7 @@ PROJECT/
 ```
 
 ### Session Logging
+
 ```cmd
 # Terminal logging solutions:
 - Tmux + logging plugin    # Comprehensive session logging
@@ -76,6 +80,7 @@ PROJECT/
 ## 📺 Tmux Logging Setup
 
 ### Installation
+
 ```bash
 # Clone Tmux Plugin Manager
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -99,6 +104,7 @@ tmux source ~/.tmux.conf
 ```
 
 ### Usage
+
 ```bash
 # Start new session
 tmux new -s assessment
@@ -123,6 +129,7 @@ tmux new -s assessment
 ```
 
 ### Key Bindings
+
 ```cmd
 # Essential Tmux commands:
 Ctrl+B, Shift+%     # Split panes vertically
@@ -136,6 +143,7 @@ Ctrl+B, Alt+P       # Screen capture
 ## 📊 Evidence Collection
 
 ### What to Capture
+
 ```cmd
 # High-priority evidence:
 - Command execution and output
@@ -149,6 +157,7 @@ Ctrl+B, Alt+P       # Screen capture
 ```
 
 ### Screenshot Best Practices
+
 ```cmd
 # Technical guidelines:
 - Include address bar in browser screenshots
@@ -164,6 +173,7 @@ Ctrl+B, Alt+P       # Screen capture
 ```
 
 ### Terminal Output Formatting
+
 ```cmd
 # Preferred: Copy-paste terminal text
 # Benefits:
@@ -181,6 +191,7 @@ SMB    172.16.5.5    445    DC01    [+] INLANEFREIGHT.LOCAL\administrator:<REDAC
 ## 📝 Artifact Tracking
 
 ### Payload Documentation
+
 ```cmd
 # Essential tracking information:
 - Timestamp of payload deployment
@@ -192,6 +203,7 @@ SMB    172.16.5.5    445    DC01    [+] INLANEFREIGHT.LOCAL\administrator:<REDAC
 ```
 
 ### System Modifications
+
 ```cmd
 # Required documentation:
 - Host IP/hostname where change was made
@@ -204,6 +216,7 @@ SMB    172.16.5.5    445    DC01    [+] INLANEFREIGHT.LOCAL\administrator:<REDAC
 ```
 
 ### Sample Tracking Format
+
 ```markdown
 ## Payload Log
 
@@ -223,6 +236,7 @@ SMB    172.16.5.5    445    DC01    [+] INLANEFREIGHT.LOCAL\administrator:<REDAC
 ## 🎯 HTB Academy Lab Solutions
 
 ### Lab Questions
+
 ```bash
 # Question 1: Session logging tool
 # Answer: tmux
@@ -232,6 +246,7 @@ SMB    172.16.5.5    445    DC01    [+] INLANEFREIGHT.LOCAL\administrator:<REDAC
 ```
 
 ### Practical Exercises
+
 ```bash
 # Optional lab access:
 xfreerdp /v:10.129.203.82 /u:htb-student /p:HTB_@cademy_stdnt!
@@ -246,6 +261,7 @@ xfreerdp /v:10.129.203.82 /u:htb-student /p:HTB_@cademy_stdnt!
 ## 🔄 Assessment Workflow
 
 ### Pre-Assessment Setup
+
 ```bash
 # 1. Create project directory structure
 mkdir -p CLIENT-ASSESSMENT/{Admin,Deliverables,Evidence/{Findings,Scans/{Vuln,Service,Web,'AD Enumeration'},Notes,OSINT,'Logging output','Misc Files'}}
@@ -256,6 +272,7 @@ mkdir -p CLIENT-ASSESSMENT/{Admin,Deliverables,Evidence/{Findings,Scans/{Vuln,Se
 ```
 
 ### During Assessment
+
 ```cmd
 # Continuous documentation:
 - Log all commands and output
@@ -267,6 +284,7 @@ mkdir -p CLIENT-ASSESSMENT/{Admin,Deliverables,Evidence/{Findings,Scans/{Vuln,Se
 ```
 
 ### Post-Assessment
+
 ```cmd
 # Report preparation:
 - Organize evidence by findings
@@ -279,6 +297,7 @@ mkdir -p CLIENT-ASSESSMENT/{Admin,Deliverables,Evidence/{Findings,Scans/{Vuln,Se
 ## ⚠️ Data Handling Guidelines
 
 ### What NOT to Collect
+
 ```cmd
 # Avoid collecting:
 - Unredacted PII (personal information)
@@ -289,6 +308,7 @@ mkdir -p CLIENT-ASSESSMENT/{Admin,Deliverables,Evidence/{Findings,Scans/{Vuln,Se
 ```
 
 ### Compliance Considerations
+
 ```cmd
 # Legal obligations:
 - GDPR compliance for EU clients
@@ -308,6 +328,6 @@ mkdir -p CLIENT-ASSESSMENT/{Admin,Deliverables,Evidence/{Findings,Scans/{Vuln,Se
 6. **Artifact tracking** critical for professional assessments
 7. **Tool selection** should match company policies and client requirements
 
----
+***
 
-*Effective notetaking and organization form the foundation of professional penetration testing deliverables and ensure comprehensive evidence collection throughout assessments.* 
+_Effective notetaking and organization form the foundation of professional penetration testing deliverables and ensure comprehensive evidence collection throughout assessments._

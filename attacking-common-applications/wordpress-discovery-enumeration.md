@@ -7,17 +7,19 @@
 WordPress powers approximately 32.5% of all websites on the internet, making it the most prevalent CMS we'll encounter during penetration testing. Understanding WordPress architecture, enumeration techniques, and vulnerability patterns is essential for successful web application assessments.
 
 **Key Statistics:**
-- **50,000+ plugins** and **4,100+ themes** available
-- **54% of vulnerabilities** originate from plugins
-- **31.5% from WordPress core**, **14.5% from themes**
-- **8% of compromises** due to weak passwords
-- **60% due to outdated versions**
 
----
+* **50,000+ plugins** and **4,100+ themes** available
+* **54% of vulnerabilities** originate from plugins
+* **31.5% from WordPress core**, **14.5% from themes**
+* **8% of compromises** due to weak passwords
+* **60% due to outdated versions**
+
+***
 
 ## WordPress Architecture & Components
 
 ### Core Directory Structure
+
 ```
 /wp-admin/          # Administrative backend
 /wp-content/        # Themes, plugins, uploads
@@ -33,6 +35,7 @@ robots.txt          # Search engine directives
 ```
 
 ### User Role Hierarchy
+
 ```
 Administrator  → Full administrative access + code execution potential
 Editor        → Publish/manage all posts + plugin access
@@ -41,13 +44,14 @@ Contributor   → Write/manage posts (cannot publish)
 Subscriber    → Browse posts + edit profile
 ```
 
----
+***
 
 ## Discovery & Fingerprinting
 
 ### Initial Identification Techniques
 
 #### Method 1: robots.txt Analysis
+
 ```bash
 # Check robots.txt for WordPress indicators
 curl -s http://target.com/robots.txt
@@ -61,6 +65,7 @@ Sitemap: https://target.com/wp-sitemap.xml
 ```
 
 #### Method 2: HTML Meta Generator Tag
+
 ```bash
 # Search for WordPress version in page source
 curl -s http://target.com | grep -i wordpress
@@ -70,6 +75,7 @@ curl -s http://target.com | grep -i wordpress
 ```
 
 #### Method 3: Directory Detection
+
 ```bash
 # Test for common WordPress directories
 curl -I http://target.com/wp-admin/
@@ -80,6 +86,7 @@ curl -I http://target.com/wp-login.php
 ```
 
 #### Method 4: File Signature Detection
+
 ```bash
 # Check for WordPress-specific files
 curl -I http://target.com/readme.html
@@ -87,13 +94,14 @@ curl -I http://target.com/wp-config.php
 curl -I http://target.com/xmlrpc.php
 ```
 
----
+***
 
 ## Manual Enumeration Techniques
 
 ### Theme Identification & Analysis
 
 #### Discovering Active Theme
+
 ```bash
 # Extract theme information from page source
 curl -s http://target.com/ | grep themes
@@ -103,6 +111,7 @@ curl -s http://target.com/ | grep themes
 ```
 
 #### Theme Version Detection
+
 ```bash
 # Check theme directory for version files
 curl -s http://target.com/wp-content/themes/business-gravity/readme.txt
@@ -112,6 +121,7 @@ curl -s http://target.com/wp-content/themes/business-gravity/style.css | grep Ve
 ### Plugin Discovery & Enumeration
 
 #### Source Code Analysis
+
 ```bash
 # Search for plugin references in page source
 curl -s http://target.com/ | grep plugins
@@ -122,6 +132,7 @@ curl -s http://target.com/ | grep plugins
 ```
 
 #### Direct Plugin Testing
+
 ```bash
 # Test for common plugins
 curl -I http://target.com/wp-content/plugins/wp-super-cache/
@@ -130,6 +141,7 @@ curl -I http://target.com/wp-content/plugins/contact-form-7/
 ```
 
 #### Plugin Version Detection
+
 ```bash
 # Check plugin readme files for version information
 curl -s http://target.com/wp-content/plugins/mail-masta/readme.txt
@@ -141,6 +153,7 @@ curl -s http://target.com/wp-content/plugins/plugin-name/ | grep -i version
 ### Directory Listing Exploitation
 
 #### Checking for Exposed Directories
+
 ```bash
 # Test common WordPress directories for listing
 curl -s http://target.com/wp-content/plugins/
@@ -151,6 +164,7 @@ curl -s http://target.com/wp-content/uploads/
 ```
 
 ### XML-RPC Discovery
+
 ```bash
 # Test XML-RPC availability
 curl -X POST http://target.com/xmlrpc.php
@@ -161,13 +175,14 @@ curl -X POST http://target.com/xmlrpc.php
 # - Information disclosure
 ```
 
----
+***
 
 ## User Enumeration Techniques
 
 ### Login Error Message Analysis
 
 #### Username Enumeration via Login Form
+
 ```bash
 # Test valid username with invalid password
 curl -X POST http://target.com/wp-login.php \
@@ -185,6 +200,7 @@ curl -X POST http://target.com/wp-login.php \
 ```
 
 #### Author ID Enumeration
+
 ```bash
 # Enumerate users via author parameter
 for i in {1..10}; do
@@ -195,6 +211,7 @@ done
 ```
 
 #### REST API User Enumeration
+
 ```bash
 # WordPress REST API user endpoint
 curl -s http://target.com/wp-json/wp/v2/users | jq .
@@ -203,11 +220,12 @@ curl -s http://target.com/wp-json/wp/v2/users | jq .
 curl -s http://target.com/wp-json/wp/v2/users | jq '.[].slug'
 ```
 
----
+***
 
 ## Automated Enumeration with WPScan
 
 ### Installation & Setup
+
 ```bash
 # Install WPScan
 sudo gem install wpscan
@@ -217,6 +235,7 @@ sudo gem install wpscan
 ```
 
 ### Basic Enumeration Scan
+
 ```bash
 # Comprehensive WordPress enumeration
 wpscan --url http://target.com --enumerate --api-token YOUR_API_TOKEN
@@ -232,6 +251,7 @@ wpscan --url http://target.com --enumerate --api-token YOUR_API_TOKEN
 ### Advanced WPScan Usage
 
 #### Plugin-Focused Enumeration
+
 ```bash
 # Enumerate all plugins (including inactive)
 wpscan --url http://target.com --enumerate ap --api-token YOUR_API_TOKEN
@@ -241,6 +261,7 @@ wpscan --url http://target.com --enumerate ap --plugins-detection aggressive
 ```
 
 #### User Enumeration & Brute Force
+
 ```bash
 # Enumerate users only
 wpscan --url http://target.com --enumerate u
@@ -250,6 +271,7 @@ wpscan --url http://target.com --usernames admin,john --passwords passwords.txt
 ```
 
 #### Custom Wordlists
+
 ```bash
 # Use custom plugin/theme wordlists
 wpscan --url http://target.com --enumerate ap --plugins-list custom_plugins.txt
@@ -258,6 +280,7 @@ wpscan --url http://target.com --enumerate ap --plugins-list custom_plugins.txt
 ### WPScan Output Analysis
 
 #### Vulnerability Assessment
+
 ```bash
 # Example WPScan output interpretation:
 [!] Title: WordPress 5.4 to 5.8 - Data Exposure via REST API
@@ -272,11 +295,12 @@ wpscan --url http://target.com --enumerate ap --plugins-list custom_plugins.txt
      - https://wpvulndb.com/vulnerabilities/f0f1a868-4462-4def-b4e7-1f1c5c534247
 ```
 
----
+***
 
 ## Version Detection Strategies
 
 ### Core WordPress Version
+
 ```bash
 # Multiple methods for version detection:
 
@@ -294,6 +318,7 @@ curl -s http://target.com | grep -oP 'ver=\K[0-9.]+'
 ```
 
 ### Plugin/Theme Versioning
+
 ```bash
 # Version detection methods:
 
@@ -307,42 +332,47 @@ curl -s http://target.com | grep -oP 'plugin-name.*?ver=\K[0-9.]+'
 curl -s http://target.com/wp-content/plugins/PLUGIN/plugin-file.php | grep "Version:"
 ```
 
----
+***
 
 ## Intelligence Gathering Workflow
 
 ### Comprehensive Enumeration Checklist
 
 #### Phase 1: Initial Discovery
-- [ ] **WordPress Confirmation** - robots.txt, directory structure, meta tags
-- [ ] **Version Detection** - Core version identification
-- [ ] **Directory Listing** - Check for exposed directories
-- [ ] **XML-RPC Status** - Test availability and functionality
 
-#### Phase 2: Component Analysis  
-- [ ] **Active Theme** - Identification and version detection
-- [ ] **Plugin Discovery** - Enumerate installed plugins
-- [ ] **Plugin Versions** - Specific version identification
-- [ ] **User Enumeration** - Valid username discovery
+* [ ] **WordPress Confirmation** - robots.txt, directory structure, meta tags
+* [ ] **Version Detection** - Core version identification
+* [ ] **Directory Listing** - Check for exposed directories
+* [ ] **XML-RPC Status** - Test availability and functionality
+
+#### Phase 2: Component Analysis
+
+* [ ] **Active Theme** - Identification and version detection
+* [ ] **Plugin Discovery** - Enumerate installed plugins
+* [ ] **Plugin Versions** - Specific version identification
+* [ ] **User Enumeration** - Valid username discovery
 
 #### Phase 3: Vulnerability Mapping
-- [ ] **CVE Research** - Map versions to known vulnerabilities
-- [ ] **Configuration Issues** - Default credentials, exposed files
-- [ ] **Custom Code Review** - Theme/plugin custom functionality
+
+* [ ] **CVE Research** - Map versions to known vulnerabilities
+* [ ] **Configuration Issues** - Default credentials, exposed files
+* [ ] **Custom Code Review** - Theme/plugin custom functionality
 
 #### Phase 4: Attack Surface Assessment
-- [ ] **Entry Points** - Login forms, comment sections, contact forms
-- [ ] **File Upload** - Media upload functionality
-- [ ] **Administrative Access** - wp-admin accessibility
-- [ ] **API Endpoints** - REST API and XML-RPC availability
 
----
+* [ ] **Entry Points** - Login forms, comment sections, contact forms
+* [ ] **File Upload** - Media upload functionality
+* [ ] **Administrative Access** - wp-admin accessibility
+* [ ] **API Endpoints** - REST API and XML-RPC availability
+
+***
 
 ## Common Vulnerability Patterns
 
 ### High-Priority Findings
 
 #### Outdated Core Installation
+
 ```bash
 # Impact: Multiple CVEs affecting core functionality
 # Detection: Version comparison with latest releases
@@ -350,6 +380,7 @@ curl -s http://target.com/wp-content/plugins/PLUGIN/plugin-file.php | grep "Vers
 ```
 
 #### Vulnerable Plugins
+
 ```bash
 # Most Common: 
 # - Contact Form 7 (various versions)
@@ -364,6 +395,7 @@ curl -s http://target.com/wp-content/plugins/PLUGIN/plugin-file.php | grep "Vers
 ```
 
 #### Default/Weak Credentials
+
 ```bash
 # Common credentials to test:
 admin:admin
@@ -375,6 +407,7 @@ wordpress:wordpress
 ```
 
 #### Directory Listing Enabled
+
 ```bash
 # Check critical directories:
 /wp-content/plugins/     # Plugin source code exposure
@@ -382,13 +415,14 @@ wordpress:wordpress
 /wp-content/themes/      # Theme file access
 ```
 
----
+***
 
 ## Example Discovery Session
 
 ### Target: blog.inlanefreight.local
 
 #### Step 1: Initial Fingerprinting
+
 ```bash
 # Confirm WordPress installation
 curl -s http://blog.inlanefreight.local/robots.txt
@@ -400,6 +434,7 @@ curl -s http://blog.inlanefreight.local | grep generator
 ```
 
 #### Step 2: Theme & Plugin Discovery
+
 ```bash
 # Identify theme
 curl -s http://blog.inlanefreight.local/ | grep themes
@@ -411,6 +446,7 @@ curl -s http://blog.inlanefreight.local/ | grep plugins
 ```
 
 #### Step 3: User Enumeration
+
 ```bash
 # Test login error messages
 curl -X POST http://blog.inlanefreight.local/wp-login.php -d "log=admin&pwd=test"
@@ -419,17 +455,19 @@ curl -X POST http://blog.inlanefreight.local/wp-login.php -d "log=admin&pwd=test
 ```
 
 #### Step 4: Automated Validation
+
 ```bash
 # WPScan confirmation
 wpscan --url http://blog.inlanefreight.local --enumerate --api-token TOKEN
 # Confirms findings and identifies additional vulnerabilities
 ```
 
----
+***
 
 ## Professional Documentation
 
 ### Enumeration Findings Template
+
 ```
 === WordPress Discovery Report ===
 
@@ -458,14 +496,16 @@ CVE: [IF APPLICABLE]
 3. [MONITORING RECOMMENDATIONS]
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab Questions
 
 #### Q1: Find flag.txt in accessible directory
+
 **Solution Methodology:**
+
 ```bash
 # Test directory listing on common paths
 curl -s http://blog.inlanefreight.local/wp-content/uploads/
@@ -478,7 +518,9 @@ curl -s http://blog.inlanefreight.local/wp-content/plugins/mail-masta/
 ```
 
 #### Q2: Discover additional plugin (manual enumeration)
+
 **Solution Methodology:**
+
 ```bash
 # Analyze different pages for plugin references
 curl -s http://blog.inlanefreight.local/?p=1 | grep plugins
@@ -494,7 +536,9 @@ curl -s http://blog.inlanefreight.local/category/news/ | grep plugins
 ```
 
 #### Q3: Find plugin version number
+
 **Solution Methodology:**
+
 ```bash
 # Check plugin directory for version files
 curl -s http://blog.inlanefreight.local/wp-content/plugins/[PLUGIN]/readme.txt
@@ -505,13 +549,14 @@ curl -s http://blog.inlanefreight.local/wp-content/plugins/[PLUGIN]/ | grep -i v
 curl -s http://blog.inlanefreight.local/?p=1 | grep -oP 'plugin-name.*?ver=\K[0-9.]+'
 ```
 
----
+***
 
 ## Next Steps
 
 After completing enumeration, proceed to:
-1. **[WordPress Attacks & Exploitation](wordpress-attacks.md)** - Weaponizing discovered vulnerabilities
-2. **[Privilege Escalation](wordpress-privilege-escalation.md)** - Gaining administrative access
-3. **[Post-Exploitation](wordpress-post-exploitation.md)** - Maintaining access and lateral movement
 
-**💡 Key Takeaway:** Thorough enumeration is critical for WordPress assessments. Manual techniques often discover vulnerabilities missed by automated scanners, while automated tools validate and expand manual findings. 
+1. [**WordPress Attacks & Exploitation**](wordpress-attacks.md) - Weaponizing discovered vulnerabilities
+2. [**Privilege Escalation**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/wordpress-privilege-escalation.md) - Gaining administrative access
+3. [**Post-Exploitation**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/wordpress-post-exploitation.md) - Maintaining access and lateral movement
+
+**💡 Key Takeaway:** Thorough enumeration is critical for WordPress assessments. Manual techniques often discover vulnerabilities missed by automated scanners, while automated tools validate and expand manual findings.

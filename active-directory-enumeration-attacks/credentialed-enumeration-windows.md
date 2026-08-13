@@ -1,4 +1,4 @@
-# Credentialed Enumeration - from Windows
+# 🪟 Credentialed Enumeration from Windows
 
 ## 📋 Overview
 
@@ -7,26 +7,30 @@ After gaining valid domain credentials, enumeration from a Windows attack host p
 ## 🎯 Strategic Context
 
 ### 🎪 **Windows vs Linux Enumeration Advantages**
-- **Native Integration**: Direct access to AD PowerShell modules and cmdlets
-- **Stealth Operations**: Blend in with legitimate administrative activities
-- **Comprehensive Data**: More detailed attribute and permission enumeration
-- **Visual Analysis**: Advanced attack path visualization with BloodHound GUI
+
+* **Native Integration**: Direct access to AD PowerShell modules and cmdlets
+* **Stealth Operations**: Blend in with legitimate administrative activities
+* **Comprehensive Data**: More detailed attribute and permission enumeration
+* **Visual Analysis**: Advanced attack path visualization with BloodHound GUI
 
 ### 🛠️ **Key Tools & Techniques**
-- **ActiveDirectory PowerShell Module**: Native Microsoft AD administration cmdlets
-- **PowerView**: Advanced AD reconnaissance and analysis framework
-- **SharpView**: .NET port of PowerView for modern environments
-- **Snaffler**: Automated sensitive file discovery across domain shares
-- **BloodHound**: Attack path visualization and relationship analysis
 
----
+* **ActiveDirectory PowerShell Module**: Native Microsoft AD administration cmdlets
+* **PowerView**: Advanced AD reconnaissance and analysis framework
+* **SharpView**: .NET port of PowerView for modern environments
+* **Snaffler**: Automated sensitive file discovery across domain shares
+* **BloodHound**: Attack path visualization and relationship analysis
+
+***
 
 ## 🔧 ActiveDirectory PowerShell Module
 
 ### 📝 **Overview**
+
 The ActiveDirectory PowerShell module contains 147+ cmdlets for comprehensive AD administration and enumeration. When available on domain-joined hosts (especially admin workstations), it provides native, stealth-friendly enumeration capabilities.
 
 ### 🔍 **Module Discovery and Loading**
+
 ```powershell
 # Check available modules
 Get-Module
@@ -39,6 +43,7 @@ Get-Module | Where-Object {$_.Name -eq "ActiveDirectory"}
 ```
 
 **Example Discovery Output:**
+
 ```powershell
 PS C:\htb> Get-Module
 
@@ -58,12 +63,14 @@ Script     2.0.0      PSReadline                          {Get-PSReadLineKeyHand
 ```
 
 ### 🏰 **Domain Information Gathering**
+
 ```powershell
 # Get comprehensive domain information
 Get-ADDomain
 ```
 
 **Key Information Retrieved:**
+
 ```powershell
 PS C:\htb> Get-ADDomain
 
@@ -87,6 +94,7 @@ SubordinateReferences              : {DC=LOGISTICS,DC=INLANEFREIGHT,DC=LOCAL,
 ```
 
 ### 👥 **User Enumeration**
+
 ```powershell
 # Find users with Service Principal Names (Kerberoastable)
 Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName
@@ -99,6 +107,7 @@ Get-ADUser -Filter {AdminCount -eq 1} -Properties AdminCount
 ```
 
 **Example Kerberoastable User Output:**
+
 ```powershell
 DistinguishedName    : CN=adfs,OU=Service Accounts,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
 Enabled              : True
@@ -124,12 +133,14 @@ SID                  : S-1-5-21-3842939050-3880317879-2865463114-5220
 ```
 
 ### 🔗 **Trust Relationship Enumeration**
+
 ```powershell
 # Enumerate all domain trusts
 Get-ADTrust -Filter *
 ```
 
 **Example Trust Output:**
+
 ```powershell
 Direction               : BiDirectional
 DisallowTransivity      : False
@@ -158,6 +169,7 @@ TrustType               : Uplevel
 ```
 
 ### 🏷️ **Group Management**
+
 ```powershell
 # Enumerate all groups
 Get-ADGroup -Filter * | Select-Object name
@@ -170,6 +182,7 @@ Get-ADGroupMember -Identity "Backup Operators"
 ```
 
 **Example Group Analysis:**
+
 ```powershell
 PS C:\htb> Get-ADGroup -Identity "Backup Operators"
 
@@ -192,32 +205,35 @@ SamAccountName    : backupagent
 SID               : S-1-5-21-3842939050-3880317879-2865463114-5220
 ```
 
----
+***
 
 ## ⚡ PowerView
 
 ### 📝 **Overview**
+
 PowerView is an advanced PowerShell framework for AD reconnaissance and situational awareness. It provides comprehensive enumeration capabilities, relationship analysis, and attack path identification through extensive cmdlet collections.
 
 ### 📊 **Core PowerView Functions**
 
-| **Category** | **Key Functions** | **Purpose** |
-|--------------|-------------------|-------------|
-| **Domain/LDAP** | Get-Domain, Get-DomainController, Get-DomainUser | Core domain enumeration |
-| **Groups** | Get-DomainGroup, Get-DomainGroupMember | Group and membership analysis |
-| **Computers** | Get-DomainComputer, Get-NetShare, Get-NetSession | Host and share enumeration |
-| **GPO** | Get-DomainGPO, Get-DomainPolicy | Group Policy analysis |
-| **ACL** | Find-InterestingDomainAcl | Permission and ACL enumeration |
-| **Trust** | Get-DomainTrust, Get-ForestTrust | Trust relationship mapping |
-| **Meta** | Find-DomainUserLocation, Find-LocalAdminAccess | Advanced discovery functions |
+| **Category**    | **Key Functions**                                | **Purpose**                    |
+| --------------- | ------------------------------------------------ | ------------------------------ |
+| **Domain/LDAP** | Get-Domain, Get-DomainController, Get-DomainUser | Core domain enumeration        |
+| **Groups**      | Get-DomainGroup, Get-DomainGroupMember           | Group and membership analysis  |
+| **Computers**   | Get-DomainComputer, Get-NetShare, Get-NetSession | Host and share enumeration     |
+| **GPO**         | Get-DomainGPO, Get-DomainPolicy                  | Group Policy analysis          |
+| **ACL**         | Find-InterestingDomainAcl                        | Permission and ACL enumeration |
+| **Trust**       | Get-DomainTrust, Get-ForestTrust                 | Trust relationship mapping     |
+| **Meta**        | Find-DomainUserLocation, Find-LocalAdminAccess   | Advanced discovery functions   |
 
 ### 👤 **User Enumeration and Analysis**
+
 ```powershell
 # Get detailed user information
 Get-DomainUser -Identity mmorgan -Domain inlanefreight.local | Select-Object -Property name,samaccountname,description,memberof,whencreated,pwdlastset,lastlogontimestamp,accountexpires,admincount,userprincipalname,serviceprincipalname,useraccountcontrol
 ```
 
 **Example Detailed User Output:**
+
 ```powershell
 name                 : Matthew Morgan
 samaccountname       : mmorgan
@@ -236,12 +252,14 @@ useraccountcontrol   : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD, DONT_REQ_PREAUTH
 ```
 
 ### 🔄 **Recursive Group Membership Analysis**
+
 ```powershell
 # Analyze nested group memberships
 Get-DomainGroupMember -Identity "Domain Admins" -Recurse
 ```
 
 **Example Recursive Output:**
+
 ```powershell
 GroupDomain             : INLANEFREIGHT.LOCAL
 GroupName               : Domain Admins
@@ -263,12 +281,14 @@ MemberSID               : S-1-5-21-3842939050-3880317879-2865463114-1965
 ```
 
 ### 🔗 **Trust Relationship Mapping**
+
 ```powershell
 # Map all domain trusts
 Get-DomainTrustMapping
 ```
 
 **Example Trust Mapping:**
+
 ```powershell
 SourceName      : INLANEFREIGHT.LOCAL
 TargetName      : LOGISTICS.INLANEFREIGHT.LOCAL
@@ -288,6 +308,7 @@ WhenChanged     : 2/27/2022 12:02:39 AM
 ```
 
 ### 🔐 **Administrative Access Testing**
+
 ```powershell
 # Test local admin access on specific hosts
 Test-AdminAccess -ComputerName ACADEMY-EA-MS01
@@ -297,6 +318,7 @@ Find-LocalAdminAccess
 ```
 
 **Example Admin Access Output:**
+
 ```powershell
 PS C:\htb> Test-AdminAccess -ComputerName ACADEMY-EA-MS01
 
@@ -306,12 +328,14 @@ ACADEMY-EA-MS01    True
 ```
 
 ### 🎫 **Kerberoastable Account Discovery**
+
 ```powershell
 # Find users with SPNs set (Kerberoastable)
 Get-DomainUser -SPN -Properties samaccountname,ServicePrincipalName
 ```
 
 **Example SPN Output:**
+
 ```powershell
 serviceprincipalname                          samaccountname
 --------------------                          --------------
@@ -327,14 +351,16 @@ testspn/kerberoast.inlanefreight.local        testspn
 testspn2/kerberoast.inlanefreight.local       testspn2
 ```
 
----
+***
 
 ## 🔨 SharpView
 
 ### 📝 **Overview**
+
 SharpView is a .NET port of PowerView, providing similar functionality while avoiding PowerShell detection mechanisms. It's particularly useful in environments with PowerShell restrictions or advanced monitoring.
 
 ### 🔍 **Basic Usage**
+
 ```cmd
 # Get help for specific functions
 .\SharpView.exe Get-DomainUser -Help
@@ -344,6 +370,7 @@ SharpView is a .NET port of PowerView, providing similar functionality while avo
 ```
 
 **Example SharpView Help Output:**
+
 ```cmd
 PS C:\htb> .\SharpView.exe Get-DomainUser -Help
 
@@ -351,6 +378,7 @@ Get_DomainUser -Identity <String[]> -DistinguishedName <String[]> -SamAccountNam
 ```
 
 **Example User Enumeration:**
+
 ```cmd
 PS C:\htb> .\SharpView.exe Get-DomainUser -Identity forend
 
@@ -371,26 +399,30 @@ memberof                       : {CN=VPN Users,OU=Security Groups,OU=Corp,DC=INL
                                 CN=Shared Calendar Read,OU=Security Groups,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL}
 ```
 
----
+***
 
 ## 📁 Snaffler
 
 ### 📝 **Overview**
+
 Snaffler automates the discovery of sensitive files across domain shares by enumerating hosts, shares, and readable directories, then hunting for files that could enhance our position in the assessment.
 
 ### 🚀 **Basic Execution**
+
 ```cmd
 # Basic Snaffler execution with output to console and log
 Snaffler.exe -s -d inlanefreight.local -o snaffler.log -v data
 ```
 
 **Command Breakdown:**
-- `-s`: Print results to console
-- `-d`: Specify domain to search
-- `-o`: Write results to log file
-- `-v data`: Verbosity level (data = only display results)
+
+* `-s`: Print results to console
+* `-d`: Specify domain to search
+* `-o`: Write results to log file
+* `-v data`: Verbosity level (data = only display results)
 
 ### 🔍 **Example Snaffler Output**
+
 ```cmd
 PS C:\htb> .\Snaffler.exe -d INLANEFREIGHT.LOCAL -s -v data
 
@@ -419,20 +451,22 @@ PS C:\htb> .\Snaffler.exe -d INLANEFREIGHT.LOCAL -s -v data
 
 ### 🎯 **Sensitive File Categories**
 
-| **Color Code** | **Risk Level** | **File Types** | **Examples** |
-|----------------|----------------|----------------|--------------|
-| **Red** | High | Keys, configs, dumps | .key, .config, .sqldump, .mdf |
-| **Black** | Medium | Encrypted stores | .kdb, .kwallet, .ppk, .psafe3 |
-| **Green** | Low | Shares discovered | Available network shares |
+| **Color Code** | **Risk Level** | **File Types**       | **Examples**                  |
+| -------------- | -------------- | -------------------- | ----------------------------- |
+| **Red**        | High           | Keys, configs, dumps | .key, .config, .sqldump, .mdf |
+| **Black**      | Medium         | Encrypted stores     | .kdb, .kwallet, .ppk, .psafe3 |
+| **Green**      | Low            | Shares discovered    | Available network shares      |
 
----
+***
 
 ## 🩸 BloodHound
 
 ### 📝 **Overview**
+
 BloodHound provides visual analysis of AD attack paths by mapping relationships between users, computers, groups, and permissions. The SharpHound collector gathers comprehensive data for upload to the BloodHound GUI.
 
 ### 🔧 **SharpHound Data Collection**
+
 ```cmd
 # Basic collection with all methods
 .\SharpHound.exe -c All --zipfilename ILFREIGHT
@@ -445,6 +479,7 @@ BloodHound provides visual analysis of AD attack paths by mapping relationships 
 ```
 
 **Example SharpHound Execution:**
+
 ```cmd
 PS C:\htb> .\SharpHound.exe -c All --zipfilename ILFREIGHT
 
@@ -460,6 +495,7 @@ PS C:\htb> .\SharpHound.exe -c All --zipfilename ILFREIGHT
 ```
 
 ### 📊 **BloodHound GUI Analysis**
+
 ```bash
 # Start BloodHound GUI (Windows)
 bloodhound
@@ -472,6 +508,7 @@ bloodhound
 ### 🔍 **Key BloodHound Queries**
 
 #### **🎯 High-Impact Pre-built Queries**
+
 ```cypher
 -- Find Computers with Unsupported Operating Systems
 MATCH (c:Computer) WHERE c.operatingsystem =~ "(?i).*(2000|2003|2008|xp|vista|7|me).*" RETURN c
@@ -489,6 +526,7 @@ MATCH (u:User) WHERE u.hasspn=true RETURN u
 ```
 
 #### **💎 Advanced Custom Queries**
+
 ```cypher
 -- Find users with DCSync rights
 MATCH p=()-[:DCSync|AllExtendedRights|GenericAll]->(:Domain) RETURN p
@@ -503,7 +541,7 @@ MATCH p=(c:Computer)-[:HasSession]->(u:User) WHERE u.highvalue = true RETURN p
 MATCH p=(u:User)-[:AllowedToDelegate]->(c:Computer) RETURN p
 ```
 
----
+***
 
 ## 🎯 HTB Academy Lab Solutions
 
@@ -512,6 +550,7 @@ MATCH p=(u:User)-[:AllowedToDelegate]->(c:Computer) RETURN p
 #### 🔍 **Question 1: "Using Bloodhound, determine how many Kerberoastable accounts exist within the INLANEFREIGHT domain. (Submit the number as the answer)"**
 
 **Solution Process:**
+
 ```cypher
 # Method 1: BloodHound Raw Query
 MATCH (u:User) WHERE u.hasspn=true RETURN count(u)
@@ -532,6 +571,7 @@ Get-ADUser -Filter {ServicePrincipalName -ne "$null"} | Measure-Object | Select-
 #### ⚡ **Question 2: "What PowerView function allows us to test if a user has administrative access to a local or remote host?"**
 
 **Solution:**
+
 ```powershell
 # The function is: Test-AdminAccess
 Test-AdminAccess -ComputerName HOSTNAME
@@ -545,6 +585,7 @@ Get-Help Test-AdminAccess
 #### 📁 **Question 3: "Run Snaffler and hunt for a readable web config file. What is the name of the user in the connection string within the file?"**
 
 **Solution Process:**
+
 ```cmd
 # Step 1: Run Snaffler to find web.config files
 .\Snaffler.exe -d INLANEFREIGHT.LOCAL -s -v data | findstr -i "web.config"
@@ -569,6 +610,7 @@ type "\\HOSTNAME\Share\path\web.config"
 #### 🔐 **Question 4: "What is the password for the database user?"**
 
 **Solution Process:**
+
 ```cmd
 # Continue from Question 3 - examine the same web.config file
 # Look for the password in the connection string:
@@ -579,11 +621,12 @@ type "\\HOSTNAME\Share\path\web.config"
 
 **Expected Answer Format:** `[password]` (e.g., `MyV3ryStr0ngP@ssw0rd!`)
 
----
+***
 
 ## 🔧 Advanced Enumeration Techniques
 
 ### 🎯 **Comprehensive User Analysis**
+
 ```powershell
 # Find high-value user accounts
 Get-DomainUser -Properties admincount,serviceprincipalname,memberof | Where-Object {$_.admincount -eq 1 -or $_.serviceprincipalname -ne $null}
@@ -596,6 +639,7 @@ Get-DomainUser -TrustedToAuth -Properties trustedtodelegated,serviceprincipalnam
 ```
 
 ### 🖥️ **Computer and Service Analysis**
+
 ```powershell
 # Find computers with specific services
 Get-DomainComputer -Properties operatingsystem,serviceprincipalname | Where-Object {$_.serviceprincipalname -match "MSSQL|HTTP|CIFS"}
@@ -609,6 +653,7 @@ Find-DomainUserLocation -UserGroupIdentity "Domain Admins"
 ```
 
 ### 🔐 **Permission and ACL Analysis**
+
 ```powershell
 # Find interesting ACLs
 Find-InterestingDomainAcl -ResolveGUIDs
@@ -620,11 +665,12 @@ Get-DomainGPO | Where-Object {$_.gpcfilesyspath -like "*SYSVOL*"}
 Get-DomainUser -AdminCount | Get-DomainObjectAcl -ResolveGUIDs | Where-Object {$_.ActiveDirectoryRights -match "GenericAll|WriteDacl|WriteOwner"}
 ```
 
----
+***
 
 ## ⚡ Quick Reference Commands
 
 ### 🔧 **Essential One-Liners**
+
 ```powershell
 # Quick Kerberoastable account count
 (Get-ADUser -Filter {ServicePrincipalName -ne "$null"}).Count
@@ -643,6 +689,7 @@ Get-DomainTrust | Select-Object SourceName,TargetName,TrustDirection,TrustType
 ```
 
 ### 🔍 **Data Analysis and Correlation**
+
 ```powershell
 # Cross-reference users and groups
 $users = Get-DomainUser -Properties memberof
@@ -663,17 +710,19 @@ $admins | ForEach-Object {
 }
 ```
 
----
+***
 
 ## 🔑 Key Takeaways
 
 ### ✅ **Windows Enumeration Advantages**
-- **Native Tool Integration**: Access to ActiveDirectory PowerShell module and built-in cmdlets
-- **Stealth Operations**: Blend in with legitimate administrative activities
-- **Comprehensive Analysis**: Deep attribute and relationship enumeration
-- **Visual Intelligence**: BloodHound provides unmatched attack path visualization
+
+* **Native Tool Integration**: Access to ActiveDirectory PowerShell module and built-in cmdlets
+* **Stealth Operations**: Blend in with legitimate administrative activities
+* **Comprehensive Analysis**: Deep attribute and relationship enumeration
+* **Visual Intelligence**: BloodHound provides unmatched attack path visualization
 
 ### 🎯 **Strategic Priorities**
+
 1. **Kerberoastable Accounts**: Identify service accounts with SPNs for credential extraction
 2. **Administrative Rights**: Map local admin access across domain systems
 3. **Sensitive File Discovery**: Use Snaffler to find configuration files and credentials
@@ -681,17 +730,19 @@ $admins | ForEach-Object {
 5. **Trust Relationships**: Understand cross-domain attack opportunities
 
 ### ⚠️ **Operational Considerations**
-- **Tool Placement**: Document all tools transferred to domain systems
-- **Artifact Cleanup**: Remove tools and logs at engagement conclusion
-- **Stealth vs Speed**: Balance comprehensive enumeration with detection avoidance
-- **Data Correlation**: Cross-reference findings from multiple tools for accuracy
+
+* **Tool Placement**: Document all tools transferred to domain systems
+* **Artifact Cleanup**: Remove tools and logs at engagement conclusion
+* **Stealth vs Speed**: Balance comprehensive enumeration with detection avoidance
+* **Data Correlation**: Cross-reference findings from multiple tools for accuracy
 
 ### 🚀 **Next Steps After Enumeration**
-- **Kerberoasting**: Extract and crack service account credentials
-- **ASREPRoasting**: Target accounts without Kerberos pre-authentication
-- **Privilege Escalation**: Exploit identified admin rights and permissions
-- **Lateral Movement**: Use discovered credentials and access rights for network traversal
 
----
+* **Kerberoasting**: Extract and crack service account credentials
+* **ASREPRoasting**: Target accounts without Kerberos pre-authentication
+* **Privilege Escalation**: Exploit identified admin rights and permissions
+* **Lateral Movement**: Use discovered credentials and access rights for network traversal
 
-*Windows-based credentialed enumeration provides the deepest insight into Active Directory environments - leveraging native tools and comprehensive frameworks to map the entire domain landscape and identify critical attack paths.* 
+***
+
+_Windows-based credentialed enumeration provides the deepest insight into Active Directory environments - leveraging native tools and comprehensive frameworks to map the entire domain landscape and identify critical attack paths._

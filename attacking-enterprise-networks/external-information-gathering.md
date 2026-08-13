@@ -1,4 +1,4 @@
-# External Information Gathering
+# 🔍 External Information Gathering
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🔍 Initial Network Reconnaissance
 
 ### 📊 Quick Port Discovery
+
 ```bash
 # Initial top 1000 ports scan
 sudo nmap --open -oA target_tcp_1k -iL scope
@@ -33,6 +34,7 @@ PORT     STATE SERVICE
 ```
 
 ### 🔧 Comprehensive Service Enumeration
+
 ```bash
 # Full port aggressive scan
 sudo nmap --open -p- -A -oA target_tcp_all_svc -iL scope
@@ -51,6 +53,7 @@ sudo nmap --open -p- -A -oA target_tcp_all_svc -iL scope
 ```
 
 ### 📈 Service Analysis with Nmap Grep
+
 ```bash
 # Extract service information efficiently
 egrep -v "^#|Status: Up" target_tcp_all_svc.gnmap | cut -d ' ' -f4- | tr ',' '\n' | \
@@ -69,6 +72,7 @@ sed -e 's/^[ \t]*//' | awk -F '/' '{print $7}' | grep -v "^$" | sort | uniq -c |
 ## 🌐 DNS Enumeration
 
 ### 📋 DNS Zone Transfer Attack
+
 ```bash
 # Attempt zone transfer for subdomain discovery
 dig axfr inlanefreight.local @TARGET_IP
@@ -90,6 +94,7 @@ vpn.inlanefreight.local.      86400  IN  A    127.0.0.1
 ```
 
 ### 🔍 Alternative DNS Enumeration
+
 ```bash
 # If zone transfer fails, use passive methods:
 # - DNSDumpster.com
@@ -104,6 +109,7 @@ ffuf -w /opt/useful/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ 
 ## 🌐 Virtual Host Discovery
 
 ### 📊 VHost Enumeration Process
+
 ```bash
 # Step 1: Determine invalid vhost response size
 curl -s -I http://TARGET_IP -H "HOST: defnotvalid.inlanefreight.local" | grep "Content-Length:"
@@ -126,6 +132,7 @@ vpn                     [Status: 200, Size: 1578]
 ```
 
 ### 🔧 Alternative VHost Tools
+
 ```bash
 # Gobuster vhost enumeration
 gobuster vhost -u http://TARGET_IP -w /opt/useful/seclists/Discovery/DNS/subdomains-top1million-5000.txt --domain inlanefreight.local
@@ -137,6 +144,7 @@ wfuzz -c -f sub-fighter -w /opt/useful/seclists/Discovery/DNS/namelist.txt -u "h
 ## 📝 Host File Configuration
 
 ### 🔧 Adding Discovered Hosts
+
 ```bash
 # Add all discovered subdomains to /etc/hosts
 sudo tee -a /etc/hosts > /dev/null <<EOT
@@ -152,6 +160,7 @@ cat /etc/hosts | grep inlanefreight
 ## 🎯 HTB Academy Lab Solutions
 
 ### Lab Environment
+
 ```bash
 # Target: 10.129.211.225 (ACADEMY-AEN-DMZ01)
 # Add to /etc/hosts:
@@ -159,6 +168,7 @@ sudo sh -c 'echo "TARGET_IP inlanefreight.local" >> /etc/hosts'
 ```
 
 ### 🔍 Question 1: Banner Grab Non-Standard Service
+
 ```bash
 # Service enumeration with version detection
 sudo nmap -sC -sV inlanefreight.local
@@ -172,6 +182,7 @@ sudo nmap -sC -sV inlanefreight.local
 ```
 
 ### 🌐 Question 2: DNS Zone Transfer Flag
+
 ```bash
 # Perform zone transfer
 dig AXFR inlanefreight.local @TARGET_IP
@@ -183,6 +194,7 @@ flag.inlanefreight.local. 86400  IN  TXT  "HTB{..."
 ```
 
 ### 📍 Question 3: Flag Subdomain FQDN
+
 ```bash
 # From zone transfer output:
 flag.inlanefreight.local. 86400  IN  TXT  "HTB{..."
@@ -191,6 +203,7 @@ flag.inlanefreight.local. 86400  IN  TXT  "HTB{..."
 ```
 
 ### 🔍 Question 4: Additional VHost Discovery
+
 ```bash
 # Determine invalid response size
 curl -sI http://TARGET_IP/ -H "Host: defnotvalid.inlanefreight.local" | grep "Content-Length:"
@@ -208,6 +221,7 @@ monitoring              [Status: 200, Size: 56]
 ## 🔄 Information Gathering Workflow
 
 ### 📊 Systematic Approach
+
 ```bash
 # 1. Initial port discovery
 sudo nmap --open -oA quick_scan -iL scope
@@ -229,6 +243,7 @@ sudo tee -a /etc/hosts <<< "TARGET_IP domain subdomain1.domain subdomain2.domain
 ```
 
 ### 🎯 Attack Surface Mapping
+
 ```cmd
 # Service categorization:
 Web Services:     80, 443, 8080, 8443
@@ -249,6 +264,7 @@ Remote Access:    22, 23, 3389, 5985, 5986
 ## ⚠️ Reconnaissance Best Practices
 
 ### 🔒 Stealth Considerations
+
 ```bash
 # Timing controls for stealth
 nmap -T2 --scan-delay 5s TARGET_IP
@@ -264,6 +280,7 @@ nmap -D RND:10 TARGET_IP
 ```
 
 ### 📋 Documentation Standards
+
 ```cmd
 # Essential documentation:
 - All scan outputs saved with timestamps
@@ -284,6 +301,6 @@ nmap -D RND:10 TARGET_IP
 6. **Comprehensive documentation** essential for attack planning
 7. **Multiple enumeration methods** ensure complete coverage
 
----
+***
 
-*External information gathering establishes the foundation for enterprise network attacks by mapping the complete external attack surface and identifying high-value targets for exploitation.* 
+_External information gathering establishes the foundation for enterprise network attacks by mapping the complete external attack surface and identifying high-value targets for exploitation._

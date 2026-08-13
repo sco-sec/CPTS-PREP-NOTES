@@ -1,14 +1,16 @@
-# Cracking Protected Files
+# 📁 Protected File Cracking
 
 ## Overview
-- Encrypted files can contain sensitive information
-- Common in corporate environments (GDPR compliance)
-- Often use AES-256 symmetric encryption
-- Can be cracked with right wordlists and tools
+
+* Encrypted files can contain sensitive information
+* Common in corporate environments (GDPR compliance)
+* Often use AES-256 symmetric encryption
+* Can be cracked with right wordlists and tools
 
 ## Hunting for Encrypted Files
 
 ### Common File Extensions
+
 ```bash
 # Search for common encrypted file types
 for ext in $(echo ".xls .xls* .xltx .od* .doc .doc* .pdf .pot .pot* .pp*")
@@ -19,17 +21,19 @@ done
 ```
 
 ### Common Protected File Types
-- **.docx, .xlsx, .pptx** - Microsoft Office documents
-- **.pdf** - Adobe PDF documents
-- **.zip, .rar, .7z** - Compressed archives
-- **.kdbx** - KeePass databases
-- **.p12, .pfx** - Certificate files
-- **.ssh keys** - SSH private keys
-- **.gpg** - GPG encrypted files
+
+* **.docx, .xlsx, .pptx** - Microsoft Office documents
+* **.pdf** - Adobe PDF documents
+* **.zip, .rar, .7z** - Compressed archives
+* **.kdbx** - KeePass databases
+* **.p12, .pfx** - Certificate files
+* **.ssh keys** - SSH private keys
+* **.gpg** - GPG encrypted files
 
 ## Finding SSH Keys
 
 ### Search for SSH Private Keys
+
 ```bash
 # Search for SSH private key headers
 grep -rnE '^\-{5}BEGIN [A-Z0-9]+ PRIVATE KEY\-{5}$' /* 2>/dev/null
@@ -40,6 +44,7 @@ find / -name "*.pem" -o -name "*.key" 2>/dev/null
 ```
 
 ### Check if SSH Key is Encrypted
+
 ```bash
 # Try to read key - will prompt for password if encrypted
 ssh-keygen -yf ~/.ssh/id_rsa
@@ -51,6 +56,7 @@ head -5 private_key.pem | grep "ENCRYPTED"
 ## File Cracking Tools
 
 ### Available 2john Tools
+
 ```bash
 # List all 2john conversion tools
 locate *2john*
@@ -68,6 +74,7 @@ locate *2john*
 ## Cracking SSH Keys
 
 ### Extract and Crack SSH Key
+
 ```bash
 # Extract hash from SSH private key
 ssh2john.py SSH.private > ssh.hash
@@ -80,6 +87,7 @@ john ssh.hash --show
 ```
 
 ### With Hashcat
+
 ```bash
 # Convert SSH key to hashcat format
 ssh2john.py SSH.private | cut -d: -f2 > ssh.hashcat
@@ -91,6 +99,7 @@ hashcat -a 0 -m 22931 ssh.hashcat /usr/share/wordlists/rockyou.txt
 ## Cracking Office Documents
 
 ### Microsoft Office Files
+
 ```bash
 # Extract hash from Office document
 office2john.py Protected.docx > protected-docx.hash
@@ -103,6 +112,7 @@ john protected-docx.hash --show
 ```
 
 ### With Hashcat
+
 ```bash
 # Office 2007-2013 (hashcat mode 9400)
 hashcat -a 0 -m 9400 office.hash /usr/share/wordlists/rockyou.txt
@@ -114,6 +124,7 @@ hashcat -a 0 -m 9500 office.hash /usr/share/wordlists/rockyou.txt
 ## Cracking PDF Files
 
 ### Extract and Crack PDF
+
 ```bash
 # Extract hash from PDF
 pdf2john.py PDF.pdf > pdf.hash
@@ -126,6 +137,7 @@ john pdf.hash --show
 ```
 
 ### With Hashcat
+
 ```bash
 # PDF 1.4-1.6 (hashcat mode 10400)
 hashcat -a 0 -m 10400 pdf.hash /usr/share/wordlists/rockyou.txt
@@ -137,6 +149,7 @@ hashcat -a 0 -m 10500 pdf.hash /usr/share/wordlists/rockyou.txt
 ## Cracking Archive Files
 
 ### ZIP Archives
+
 ```bash
 # Extract hash from ZIP
 zip2john archive.zip > zip.hash
@@ -149,6 +162,7 @@ hashcat -a 0 -m 13600 zip.hash /usr/share/wordlists/rockyou.txt
 ```
 
 ### RAR Archives
+
 ```bash
 # Extract hash from RAR
 rar2john archive.rar > rar.hash
@@ -161,6 +175,7 @@ hashcat -a 0 -m 12500 rar.hash /usr/share/wordlists/rockyou.txt
 ```
 
 ### 7-Zip Archives
+
 ```bash
 # Extract hash from 7z
 7z2john.pl archive.7z > 7z.hash
@@ -175,6 +190,7 @@ hashcat -a 0 -m 11600 7z.hash /usr/share/wordlists/rockyou.txt
 ## Other Protected Files
 
 ### KeePass Databases
+
 ```bash
 # Extract hash from KeePass
 keepass2john Database.kdbx > keepass.hash
@@ -187,6 +203,7 @@ hashcat -a 0 -m 13400 keepass.hash /usr/share/wordlists/rockyou.txt
 ```
 
 ### GPG Files
+
 ```bash
 # Extract hash from GPG
 gpg2john encrypted.gpg > gpg.hash
@@ -197,18 +214,18 @@ john --wordlist=rockyou.txt gpg.hash
 
 ## Common Hashcat Hash Modes
 
-| File Type | Mode | Description |
-|-----------|------|-------------|
-| PDF 1.4-1.6 | 10400 | PDF (Portable Document Format) |
-| PDF 1.7 Level 3 | 10500 | PDF 1.7 Level 3 (Acrobat 9) |
-| MS Office 2007 | 9400 | Office 2007 |
-| MS Office 2010 | 9500 | Office 2010 |
-| MS Office 2013 | 9600 | Office 2013 |
-| ZIP | 13600 | WinZip |
-| RAR3 | 12500 | RAR3-hp |
-| 7-Zip | 11600 | 7-Zip |
-| KeePass | 13400 | KeePass 1 (AES/Twofish) |
-| SSH Private Key | 22931 | RSA/DSA/EC/OPENSSH |
+| File Type       | Mode  | Description                    |
+| --------------- | ----- | ------------------------------ |
+| PDF 1.4-1.6     | 10400 | PDF (Portable Document Format) |
+| PDF 1.7 Level 3 | 10500 | PDF 1.7 Level 3 (Acrobat 9)    |
+| MS Office 2007  | 9400  | Office 2007                    |
+| MS Office 2010  | 9500  | Office 2010                    |
+| MS Office 2013  | 9600  | Office 2013                    |
+| ZIP             | 13600 | WinZip                         |
+| RAR3            | 12500 | RAR3-hp                        |
+| 7-Zip           | 11600 | 7-Zip                          |
+| KeePass         | 13400 | KeePass 1 (AES/Twofish)        |
+| SSH Private Key | 22931 | RSA/DSA/EC/OPENSSH             |
 
 ## Tips for Success
 
@@ -223,6 +240,7 @@ john --wordlist=rockyou.txt gpg.hash
 ## Cracking Protected Archives
 
 ### ZIP Files (Extended)
+
 ```bash
 # Extract hash from ZIP
 zip2john ZIP.zip > zip.hash
@@ -238,6 +256,7 @@ john zip.hash --show
 ```
 
 ### OpenSSL Encrypted GZIP Files
+
 ```bash
 # Check if file is OpenSSL encrypted
 file GZIP.gzip
@@ -249,6 +268,7 @@ done
 ```
 
 ### BitLocker Encrypted Drives
+
 ```bash
 # Extract hashes from BitLocker VHD
 bitlocker2john -i Backup.vhd > backup.hashes
@@ -266,11 +286,13 @@ hashcat -m 22100 backup.hash --show
 ### Mounting BitLocker Drives
 
 #### Windows
+
 1. Double-click the .vhd file
 2. Double-click the BitLocker volume
 3. Enter the cracked password
 
 #### Linux/macOS
+
 ```bash
 # Install dislocker
 sudo apt-get install dislocker
@@ -346,31 +368,35 @@ sudo losetup -d /dev/loop0
 ```
 
 **Key Points:**
-- Use `losetup --all` to verify loop device assignment
-- BitLocker partitions are usually `p1` or `p2` (e.g., `/dev/loop0p1`)
-- The `dislocker-file` is created in the first mount point
-- Always unmount and detach loop devices when finished
+
+* Use `losetup --all` to verify loop device assignment
+* BitLocker partitions are usually `p1` or `p2` (e.g., `/dev/loop0p1`)
+* The `dislocker-file` is created in the first mount point
+* Always unmount and detach loop devices when finished
 
 ### Common Archive Types
-- **.zip** - ZIP archives
-- **.rar** - RAR archives 
-- **.7z** - 7-Zip archives
-- **.tar.gz** - Tarball with gzip
-- **.tar.bz2** - Tarball with bzip2
-- **.vhd/.vhdx** - Virtual Hard Disk (often BitLocker)
-- **.vmdk** - VMware Virtual Disk
-- **.truecrypt** - TrueCrypt volumes
-- **.luks** - Linux Unified Key Setup
+
+* **.zip** - ZIP archives
+* **.rar** - RAR archives
+* **.7z** - 7-Zip archives
+* **.tar.gz** - Tarball with gzip
+* **.tar.bz2** - Tarball with bzip2
+* **.vhd/.vhdx** - Virtual Hard Disk (often BitLocker)
+* **.vmdk** - VMware Virtual Disk
+* **.truecrypt** - TrueCrypt volumes
+* **.luks** - Linux Unified Key Setup
 
 ### Additional Archive Hash Modes
-| Archive Type | Tool | Hashcat Mode |
-|-------------|------|--------------|
-| BitLocker | bitlocker2john | 22100 |
-| TrueCrypt | truecrypt_volume2john | 6211 |
-| LUKS | luks2john | 14600 |
-| VMware VMDK | vmware2john | 20300 |
+
+| Archive Type | Tool                   | Hashcat Mode |
+| ------------ | ---------------------- | ------------ |
+| BitLocker    | bitlocker2john         | 22100        |
+| TrueCrypt    | truecrypt\_volume2john | 6211         |
+| LUKS         | luks2john              | 14600        |
+| VMware VMDK  | vmware2john            | 20300        |
 
 ## Automation Script Example
+
 ```bash
 #!/bin/bash
 # Auto-crack common protected files and archives
@@ -398,4 +424,4 @@ for file in $(find . -name "*.pdf" -o -name "*.docx" -o -name "*.zip" -o -name "
             ;;
     esac
 done
-``` 
+```

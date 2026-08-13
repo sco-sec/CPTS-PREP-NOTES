@@ -1,25 +1,27 @@
-# **Plink.exe Windows Pivoting - HTB Academy Page 8**
+# 🪟 Plink Windows Pivoting
 
 ## **📋 Module Overview**
 
-**Purpose:** Windows-based SSH tunneling and pivoting using Plink.exe  
-**Tool:** PuTTY Link (plink.exe) - Windows command-line SSH client  
-**Scenario:** Windows attack host or compromised Windows pivot  
-**Technique:** Dynamic port forwarding with SOCKS proxy  
-**Integration:** Proxifier for Windows application tunneling  
+**Purpose:** Windows-based SSH tunneling and pivoting using Plink.exe\
+**Tool:** PuTTY Link (plink.exe) - Windows command-line SSH client\
+**Scenario:** Windows attack host or compromised Windows pivot\
+**Technique:** Dynamic port forwarding with SOCKS proxy\
+**Integration:** Proxifier for Windows application tunneling
 
----
+***
 
 ## **1. Introduction to Plink.exe**
 
 ### **What is Plink?**
-- **Full Name:** PuTTY Link
-- **Type:** Windows command-line SSH tool
-- **Package:** Part of PuTTY suite
-- **Capability:** SSH tunneling, port forwarding, SOCKS proxy
-- **Era:** Pre-Windows 10 standard (before native OpenSSH)
+
+* **Full Name:** PuTTY Link
+* **Type:** Windows command-line SSH tool
+* **Package:** Part of PuTTY suite
+* **Capability:** SSH tunneling, port forwarding, SOCKS proxy
+* **Era:** Pre-Windows 10 standard (before native OpenSSH)
 
 ### **Why Use Plink?**
+
 1. **Living off the Land** - often pre-installed on Windows systems
 2. **Windows Native** - no need to transfer additional tools
 3. **Stealth** - uses legitimate administrative tool
@@ -27,30 +29,32 @@
 5. **Integration** - pairs well with Windows tools like Proxifier
 
 ### **Common Scenarios**
-- **Windows-based attack host** instead of Linux
-- **Compromised Windows system** as pivot point
-- **Locked down environment** where uploading tools is risky
-- **Legacy systems** with PuTTY already installed
-- **File share access** to plink.exe without installation
 
----
+* **Windows-based attack host** instead of Linux
+* **Compromised Windows system** as pivot point
+* **Locked down environment** where uploading tools is risky
+* **Legacy systems** with PuTTY already installed
+* **File share access** to plink.exe without installation
+
+***
 
 ## **2. Plink vs SSH Comparison**
 
-| **Aspect** | **SSH (Linux)** | **Plink (Windows)** |
-|------------|-----------------|---------------------|
-| **Platform** | Linux/Unix | Windows |
-| **Syntax** | `ssh -D 9050 user@host` | `plink -ssh -D 9050 user@host` |
-| **Authentication** | Key/password | Key/password |
-| **Integration** | Native Linux tools | Proxifier, Windows apps |
-| **Stealth** | Standard on Linux | Legitimate Windows tool |
-| **Availability** | Always present | Depends on PuTTY install |
+| **Aspect**         | **SSH (Linux)**         | **Plink (Windows)**            |
+| ------------------ | ----------------------- | ------------------------------ |
+| **Platform**       | Linux/Unix              | Windows                        |
+| **Syntax**         | `ssh -D 9050 user@host` | `plink -ssh -D 9050 user@host` |
+| **Authentication** | Key/password            | Key/password                   |
+| **Integration**    | Native Linux tools      | Proxifier, Windows apps        |
+| **Stealth**        | Standard on Linux       | Legitimate Windows tool        |
+| **Availability**   | Always present          | Depends on PuTTY install       |
 
----
+***
 
 ## **3. Basic Plink Dynamic Port Forwarding**
 
 ### **Network Topology**
+
 ```
 [Windows Attack Host] → [Ubuntu Pivot] → [Internal Network]
     10.10.15.5           10.129.15.50      172.16.5.0/24
@@ -59,6 +63,7 @@
 ```
 
 ### **Command Syntax**
+
 ```bash
 # Basic dynamic port forward with Plink
 plink -ssh -D 9050 ubuntu@10.129.15.50
@@ -71,6 +76,7 @@ plink -ssh -D 9050 ubuntu@10.129.15.50
 ```
 
 ### **Expected Output**
+
 ```
 Using username "ubuntu".
 ubuntu@10.129.15.50's password:
@@ -85,6 +91,7 @@ ubuntu@pivot:~$
 ```
 
 ### **Verification**
+
 ```cmd
 # Check if SOCKS proxy is listening (Windows Command Prompt)
 netstat -an | findstr :9050
@@ -93,19 +100,21 @@ netstat -an | findstr :9050
 TCP    127.0.0.1:9050         0.0.0.0:0              LISTENING
 ```
 
----
+***
 
 ## **4. Proxifier Integration**
 
 ### **What is Proxifier?**
-- **Purpose:** Windows SOCKS/HTTP proxy client
-- **Function:** Routes application traffic through proxies
-- **Capability:** Proxy chaining, application-specific routing
-- **Target:** Desktop applications (RDP, browsers, etc.)
+
+* **Purpose:** Windows SOCKS/HTTP proxy client
+* **Function:** Routes application traffic through proxies
+* **Capability:** Proxy chaining, application-specific routing
+* **Target:** Desktop applications (RDP, browsers, etc.)
 
 ### **Proxifier Configuration Steps**
 
 #### **Step 1: Add SOCKS Server**
+
 ```
 Proxifier → Profile Menu → Proxy Servers → Add
 
@@ -117,6 +126,7 @@ Server Configuration:
 ```
 
 #### **Step 2: Create Proxification Rules**
+
 ```
 Proxifier → Profile Menu → Proxification Rules → Add
 
@@ -128,18 +138,20 @@ Rule Configuration:
 ```
 
 #### **Step 3: Enable Proxification**
+
 ```
 Proxifier → Profile Menu → Proxification Rules → Enable Rules
 Check: "Process all connections through proxy"
 ```
 
----
+***
 
 ## **5. RDP Through Plink SOCKS Tunnel**
 
 ### **Complete Workflow**
 
 #### **Step 1: Start Plink SOCKS Tunnel**
+
 ```cmd
 # Windows Command Prompt
 plink -ssh -D 9050 ubuntu@10.129.15.50
@@ -148,6 +160,7 @@ plink -ssh -D 9050 ubuntu@10.129.15.50
 ```
 
 #### **Step 2: Configure Proxifier**
+
 ```
 1. Open Proxifier
 2. Add SOCKS proxy: 127.0.0.1:9050
@@ -156,6 +169,7 @@ plink -ssh -D 9050 ubuntu@10.129.15.50
 ```
 
 #### **Step 3: Launch RDP Session**
+
 ```cmd
 # Start Remote Desktop Connection
 mstsc.exe
@@ -167,19 +181,21 @@ Password: pass@123
 ```
 
 ### **Traffic Flow Analysis**
+
 ```
 [mstsc.exe] → [Proxifier] → [Plink SOCKS] → [SSH Tunnel] → [Ubuntu Pivot] → [Windows Target RDP]
 Windows RDP     Proxy        Local :9050     Encrypted      SSH Server      172.16.5.19:3389
 Client          Client                       Connection
 ```
 
----
+***
 
 ## **6. Advanced Plink Techniques**
 
 ### **Authentication Methods**
 
 #### **Password Authentication**
+
 ```cmd
 # Interactive password prompt
 plink -ssh -D 9050 ubuntu@10.129.15.50
@@ -189,6 +205,7 @@ echo password | plink -ssh -D 9050 ubuntu@10.129.15.50 -pw
 ```
 
 #### **Key-based Authentication**
+
 ```cmd
 # Using PuTTY private key format (.ppk)
 plink -ssh -D 9050 -i C:\keys\ubuntu.ppk ubuntu@10.129.15.50
@@ -197,6 +214,7 @@ plink -ssh -D 9050 -i C:\keys\ubuntu.ppk ubuntu@10.129.15.50
 ```
 
 ### **Multiple Port Forwards**
+
 ```cmd
 # Dynamic + Local port forwards
 plink -ssh -D 9050 -L 8080:172.16.5.19:80 ubuntu@10.129.15.50
@@ -206,6 +224,7 @@ plink -ssh -L 3389:172.16.5.19:3389 -L 445:172.16.5.19:445 ubuntu@10.129.15.50
 ```
 
 ### **Background Process**
+
 ```cmd
 # Run Plink in background (Windows)
 start /B plink -ssh -D 9050 ubuntu@10.129.15.50
@@ -214,13 +233,14 @@ start /B plink -ssh -D 9050 ubuntu@10.129.15.50
 tasklist | findstr plink
 ```
 
----
+***
 
 ## **7. Windows Application Integration**
 
 ### **Applications That Work with SOCKS Proxies**
 
 #### **Native SOCKS Support**
+
 ```
 ✅ Web Browsers (Firefox, Chrome with proxy)
 ✅ FTP Clients (WinSCP, FileZilla)
@@ -229,6 +249,7 @@ tasklist | findstr plink
 ```
 
 #### **Proxifier-Required Applications**
+
 ```
 ⚙️ mstsc.exe (Remote Desktop)
 ⚙️ Windows Explorer (SMB shares)
@@ -237,6 +258,7 @@ tasklist | findstr plink
 ```
 
 ### **Browser Configuration Example**
+
 ```
 Firefox → Settings → Network Settings → Manual Proxy Configuration
 SOCKS Host: 127.0.0.1
@@ -244,23 +266,26 @@ Port: 9050
 SOCKS v4
 ```
 
----
+***
 
 ## **8. Operational Security with Plink**
 
 ### **Stealth Considerations**
+
 1. **Legitimate Tool** - Plink is standard administrative software
 2. **Network Noise** - SSH traffic appears normal
 3. **Process Name** - plink.exe is not suspicious
 4. **Registry Traces** - Minimal system footprint
 
 ### **Detection Risks**
+
 1. **Network Monitoring** - SSH connections to pivot hosts
 2. **Process Monitoring** - Unusual plink.exe usage patterns
 3. **Proxy Detection** - SOCKS traffic analysis
 4. **Authentication Logs** - SSH login records
 
 ### **Mitigation Strategies**
+
 ```cmd
 # Use legitimate-looking SSH sessions
 plink -ssh -D 9050 admin@server.company.com
@@ -272,13 +297,14 @@ plink -ssh -D 8080 ubuntu@10.129.15.50
 taskkill /F /IM plink.exe
 ```
 
----
+***
 
 ## **9. Troubleshooting Plink Issues**
 
 ### **Common Problems and Solutions**
 
 #### **Authentication Failures**
+
 ```cmd
 # Problem: Access denied
 plink: Access denied
@@ -291,6 +317,7 @@ plink: Access denied
 ```
 
 #### **Connection Refused**
+
 ```cmd
 # Problem: Network unreachable
 plink: Network error: Connection refused
@@ -303,6 +330,7 @@ plink: Network error: Connection refused
 ```
 
 #### **SOCKS Proxy Not Working**
+
 ```cmd
 # Problem: Applications can't connect through proxy
 # Solutions:
@@ -315,6 +343,7 @@ plink: Network error: Connection refused
 ```
 
 #### **Proxifier Issues**
+
 ```
 # Problem: Proxifier not routing traffic
 # Solutions:
@@ -324,11 +353,12 @@ plink: Network error: Connection refused
 4. Restart Proxifier service
 ```
 
----
+***
 
 ## **10. Alternative Windows SSH Tools**
 
 ### **Built-in Windows SSH (Windows 10+)**
+
 ```cmd
 # Modern Windows has native SSH client
 ssh -D 9050 ubuntu@10.129.15.50
@@ -338,6 +368,7 @@ where ssh
 ```
 
 ### **Other Windows SSH Clients**
+
 ```cmd
 # KiTTY (PuTTY fork)
 kitty -ssh -D 9050 ubuntu@10.129.15.50
@@ -349,16 +380,18 @@ BvSsh -host=10.129.15.50 -user=ubuntu -localFwd=9050:127.0.0.1:9050
 MobaXterm with SSH tunneling
 ```
 
----
+***
 
 ## **11. Lab Exercise Recreation**
 
 ### **HTB Academy Optional Exercise**
+
 **Task:** "Attempt to use Plink from a Windows-based attack host. Set up a proxy connection and RDP to the Windows target (172.16.5.19) with 'victor:pass@123'"
 
 ### **Complete Solution Steps**
 
 #### **Step 1: Environment Setup**
+
 ```cmd
 # Requirements:
 - Windows attack host
@@ -368,6 +401,7 @@ MobaXterm with SSH tunneling
 ```
 
 #### **Step 2: Establish Plink Tunnel**
+
 ```cmd
 # Create SOCKS tunnel through Ubuntu pivot
 plink -ssh -D 9050 ubuntu@10.129.202.64
@@ -377,6 +411,7 @@ ubuntu@10.129.202.64's password: HTB_@cademy_stdnt!
 ```
 
 #### **Step 3: Configure Proxifier**
+
 ```
 1. Open Proxifier
 2. Profile → Proxy Servers → Add
@@ -390,6 +425,7 @@ ubuntu@10.129.202.64's password: HTB_@cademy_stdnt!
 ```
 
 #### **Step 4: RDP Connection**
+
 ```cmd
 # Launch Remote Desktop
 mstsc.exe
@@ -401,27 +437,29 @@ Password: pass@123
 ```
 
 #### **Step 5: Submit Answer**
+
 ```
 Answer: "I tried Plink"
 ```
 
----
+***
 
 ## **12. Comparison with Linux SSH Methods**
 
 ### **Functionality Comparison**
 
-| **Feature** | **Linux SSH** | **Windows Plink** |
-|-------------|---------------|-------------------|
-| **Dynamic Forward** | `ssh -D 9050` | `plink -ssh -D 9050` |
-| **Local Forward** | `ssh -L 8080:target:80` | `plink -ssh -L 8080:target:80` |
-| **Remote Forward** | `ssh -R 8080:localhost:80` | `plink -ssh -R 8080:localhost:80` |
-| **Background** | `ssh -fN -D 9050` | `start /B plink -ssh -D 9050` |
-| **Key Auth** | `ssh -i key` | `plink -i key.ppk` |
+| **Feature**         | **Linux SSH**              | **Windows Plink**                 |
+| ------------------- | -------------------------- | --------------------------------- |
+| **Dynamic Forward** | `ssh -D 9050`              | `plink -ssh -D 9050`              |
+| **Local Forward**   | `ssh -L 8080:target:80`    | `plink -ssh -L 8080:target:80`    |
+| **Remote Forward**  | `ssh -R 8080:localhost:80` | `plink -ssh -R 8080:localhost:80` |
+| **Background**      | `ssh -fN -D 9050`          | `start /B plink -ssh -D 9050`     |
+| **Key Auth**        | `ssh -i key`               | `plink -i key.ppk`                |
 
 ### **Integration Differences**
 
 #### **Linux Integration**
+
 ```bash
 # Direct proxychains support
 proxychains nmap -sT 172.16.5.19
@@ -431,6 +469,7 @@ curl --socks5 127.0.0.1:9050 http://172.16.5.19
 ```
 
 #### **Windows Integration**
+
 ```cmd
 # Requires Proxifier for most applications
 Proxifier → mstsc.exe → 172.16.5.19
@@ -439,11 +478,12 @@ Proxifier → mstsc.exe → 172.16.5.19
 firefox → proxy settings → SOCKS 127.0.0.1:9050
 ```
 
----
+***
 
 ## **13. Real-World Scenarios**
 
 ### **Scenario 1: Corporate Windows Environment**
+
 ```
 Situation: Pentesting corporate network
 Environment: Windows workstations with PuTTY installed
@@ -452,6 +492,7 @@ Solution: Use Plink for SOCKS tunneling + Proxifier for RDP
 ```
 
 ### **Scenario 2: Legacy System Compromise**
+
 ```
 Situation: Compromised older Windows server
 Limitation: Cannot upload new tools
@@ -460,6 +501,7 @@ Solution: Leverage existing Plink for tunneling
 ```
 
 ### **Scenario 3: Windows Red Team Operation**
+
 ```
 Situation: Windows-based red team infrastructure
 Challenge: Need to blend in with Windows environment
@@ -467,11 +509,12 @@ Approach: Use Windows-native tools (Plink, Proxifier, mstsc)
 Benefit: Reduced detection, natural tool usage
 ```
 
----
+***
 
 ## **14. Best Practices**
 
 ### **Operational Guidelines**
+
 1. **Test Locally First** - Verify Plink works before deployment
 2. **Multiple Tunnels** - Create redundant paths when possible
 3. **Authentication Security** - Use keys when possible
@@ -479,6 +522,7 @@ Benefit: Reduced detection, natural tool usage
 5. **Documentation** - Record tunnel configurations
 
 ### **Security Recommendations**
+
 1. **Timing Variation** - Don't establish tunnels at predictable times
 2. **Port Diversity** - Use different SOCKS ports
 3. **Session Management** - Monitor and limit session duration
@@ -486,16 +530,18 @@ Benefit: Reduced detection, natural tool usage
 5. **Process Hiding** - Consider process migration techniques
 
 ### **Performance Optimization**
+
 1. **Compression** - Use SSH compression for slow links
 2. **Keep-Alive** - Maintain persistent connections
 3. **Concurrent Sessions** - Balance load across multiple tunnels
 4. **Bandwidth Monitoring** - Track usage patterns
 
----
+***
 
 ## **15. Integration with Other Tools**
 
 ### **Metasploit Integration**
+
 ```ruby
 # Metasploit with SOCKS proxy (requires Proxychains4Windows)
 msf6 > setg Proxies socks4:127.0.0.1:9050
@@ -505,6 +551,7 @@ msf6 auxiliary(scanner/portscan/tcp) > run
 ```
 
 ### **PowerShell Integration**
+
 ```powershell
 # PowerShell with proxy settings
 $proxy = New-Object System.Net.WebProxy("socks://127.0.0.1:9050")
@@ -514,6 +561,7 @@ $webClient.DownloadString("http://172.16.5.19")
 ```
 
 ### **Nmap through Proxy**
+
 ```cmd
 # Using ProxyChains4Windows (if available)
 proxychains4 nmap -sT -Pn 172.16.5.19
@@ -522,12 +570,12 @@ proxychains4 nmap -sT -Pn 172.16.5.19
 nmap --proxy socks4://127.0.0.1:9050 172.16.5.19
 ```
 
----
+***
 
 ## **References**
 
-- **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 8
-- **PuTTY Documentation**: [Official PuTTY Manual](https://www.chiark.greenend.org.uk/~sgtatham/putty/docs.html)
-- **Proxifier Manual**: [Proxifier Documentation](https://www.proxifier.com/documentation/)
-- **SANS**: [SSH Tunneling with Windows](https://www.sans.org/blog/ssh-tunneling-with-windows/)
-- **Microsoft**: [Windows SSH Client](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse) 
+* **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 8
+* **PuTTY Documentation**: [Official PuTTY Manual](https://www.chiark.greenend.org.uk/~sgtatham/putty/docs.html)
+* **Proxifier Manual**: [Proxifier Documentation](https://www.proxifier.com/documentation/)
+* **SANS**: [SSH Tunneling with Windows](https://www.sans.org/blog/ssh-tunneling-with-windows/)
+* **Microsoft**: [Windows SSH Client](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse)

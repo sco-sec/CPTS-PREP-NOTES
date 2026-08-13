@@ -1,57 +1,67 @@
-# MySQL Enumeration
+# 🔍 MySQL Enumeration
 
 ## Overview
+
 MySQL is an open-source SQL relational database management system developed and supported by Oracle. A database is simply a structured collection of data organized for easy use and retrieval. The database system can quickly process large amounts of data with high performance.
 
 **Key Characteristics:**
-- **Port 3306**: Default MySQL port
-- **Protocol**: MySQL native protocol over TCP
-- **Authentication**: Username/password based
-- **Default Users**: root, mysql
-- **File Extension**: .sql files (e.g., wordpress.sql)
+
+* **Port 3306**: Default MySQL port
+* **Protocol**: MySQL native protocol over TCP
+* **Authentication**: Username/password based
+* **Default Users**: root, mysql
+* **File Extension**: .sql files (e.g., wordpress.sql)
 
 ## MySQL Architecture
 
 ### MySQL Clients
+
 The MySQL clients can retrieve and edit data using structured queries to the database engine. Operations include:
-- **Inserting**: Adding new records
-- **Deleting**: Removing records
-- **Modifying**: Updating existing records
-- **Retrieving**: Querying data
+
+* **Inserting**: Adding new records
+* **Deleting**: Removing records
+* **Modifying**: Updating existing records
+* **Retrieving**: Querying data
 
 ### MySQL Databases
+
 MySQL is ideally suited for applications such as:
-- **Dynamic websites**: Efficient syntax and high response speed
-- **Web applications**: Content management systems like WordPress
-- **LAMP Stack**: Linux, Apache, MySQL, PHP
-- **LEMP Stack**: Linux, Nginx, MySQL, PHP
+
+* **Dynamic websites**: Efficient syntax and high response speed
+* **Web applications**: Content management systems like WordPress
+* **LAMP Stack**: Linux, Apache, MySQL, PHP
+* **LEMP Stack**: Linux, Nginx, MySQL, PHP
 
 ### Database Content Types
+
 MySQL databases commonly store:
 
-| Content Type | Examples |
-|-------------|----------|
-| **Headers** | Page titles, meta information |
-| **Texts** | Article content, descriptions |
-| **Meta tags** | SEO tags, keywords |
-| **Forms** | Contact forms, registration data |
-| **Users** | Customers, Usernames, Administrators, Moderators |
+| Content Type       | Examples                                                  |
+| ------------------ | --------------------------------------------------------- |
+| **Headers**        | Page titles, meta information                             |
+| **Texts**          | Article content, descriptions                             |
+| **Meta tags**      | SEO tags, keywords                                        |
+| **Forms**          | Contact forms, registration data                          |
+| **Users**          | Customers, Usernames, Administrators, Moderators          |
 | **Authentication** | Email addresses, User information, Permissions, Passwords |
-| **Links** | External/Internal links, Links to Files |
-| **Content** | Specific contents, Values |
+| **Links**          | External/Internal links, Links to Files                   |
+| **Content**        | Specific contents, Values                                 |
 
 **Security Note**: Sensitive data like passwords can be stored in plain-text form by MySQL, but are generally encrypted by PHP scripts using secure methods like One-Way-Encryption.
 
 ## MySQL Commands
+
 A MySQL database translates commands internally into executable code. SQL commands can:
-- Display, modify, add, or delete rows in tables
-- Change table structure
-- Create or delete relationships and indexes
-- Manage users and permissions
+
+* Display, modify, add, or delete rows in tables
+* Change table structure
+* Create or delete relationships and indexes
+* Manage users and permissions
 
 ## Default Configuration
 
 ### Installation and Configuration Analysis
+
 ```bash
 # Install MySQL server
 sudo apt install mysql-server -y
@@ -61,6 +71,7 @@ cat /etc/mysql/mysql.conf.d/mysqld.cnf | grep -v "#" | sed -r '/^\s*$/d'
 ```
 
 ### Default Configuration Output
+
 ```bash
 [client]
 port		= 3306
@@ -93,25 +104,27 @@ symbolic-links=0
 
 ### Security-Relevant Configuration Options
 
-| Setting | Description | Risk Level |
-|---------|-------------|------------|
-| `user` | Sets which user the MySQL service will run as | High |
-| `password` | Sets the password for the MySQL user | Critical |
-| `admin_address` | IP address for TCP/IP connections on administrative network interface | High |
-| `debug` | Indicates current debugging settings | Medium |
-| `sql_warnings` | Controls whether single-row INSERT statements produce information strings | Medium |
-| `secure_file_priv` | Limits the effect of data import and export operations | High |
+| Setting            | Description                                                               | Risk Level |
+| ------------------ | ------------------------------------------------------------------------- | ---------- |
+| `user`             | Sets which user the MySQL service will run as                             | High       |
+| `password`         | Sets the password for the MySQL user                                      | Critical   |
+| `admin_address`    | IP address for TCP/IP connections on administrative network interface     | High       |
+| `debug`            | Indicates current debugging settings                                      | Medium     |
+| `sql_warnings`     | Controls whether single-row INSERT statements produce information strings | Medium     |
+| `secure_file_priv` | Limits the effect of data import and export operations                    | High       |
 
 ### Security Issues
-1. **Plain-text Credentials**: user, password, and admin_address entries are in plain text
-2. **File Permissions**: Configuration files often have incorrect permissions  
-3. **Information Disclosure**: debug and sql_warnings provide verbose error output
+
+1. **Plain-text Credentials**: user, password, and admin\_address entries are in plain text
+2. **File Permissions**: Configuration files often have incorrect permissions
+3. **Information Disclosure**: debug and sql\_warnings provide verbose error output
 4. **Privilege Escalation**: Verbose errors can reveal system information
 5. **Command Execution**: SQL injections can potentially execute system commands
 
 ## Footprinting the Service
 
 ### Service Detection
+
 ```bash
 # Nmap MySQL detection
 sudo nmap 10.129.14.128 -sV -sC -p3306 --script mysql*
@@ -161,6 +174,7 @@ PORT     STATE SERVICE     VERSION
 **Important Note**: Scan results should be manually verified as some information might be false-positive.
 
 ### Connection Testing
+
 ```bash
 # Test connection without password (will fail if password required)
 mysql -u root -h 10.129.14.132
@@ -173,6 +187,7 @@ mysql -u root -pP4SSw0rd -h 10.129.14.128
 ```
 
 ### SSL/TLS Connection Issues
+
 ```bash
 # Common SSL/TLS error with self-signed certificates
 mysql -u robin -probin -h 10.129.42.195
@@ -188,13 +203,15 @@ mysql -u robin -probin -h 10.129.42.195 --skip-ssl
 ```
 
 **SSL/TLS Error Types:**
-- **ERROR 2026**: TLS/SSL error with self-signed certificates
-- **Solution**: Use `--ssl=0` or `--ssl-mode=DISABLED` to bypass SSL verification
-- **Security Note**: Only disable SSL in testing environments, not production
+
+* **ERROR 2026**: TLS/SSL error with self-signed certificates
+* **Solution**: Use `--ssl=0` or `--ssl-mode=DISABLED` to bypass SSL verification
+* **Security Note**: Only disable SSL in testing environments, not production
 
 ## Interaction with MySQL Server
 
 ### Successful Connection Example
+
 ```bash
 mysql -u root -pP4SSw0rd -h 10.129.14.128
 
@@ -225,6 +242,7 @@ MySQL [(none)]> select version();
 ```
 
 ### System Schema Exploration
+
 ```bash
 # Use mysql system database
 MySQL [(none)]> use mysql;
@@ -257,6 +275,7 @@ MySQL [mysql]> show tables;
 ```
 
 ### System Schema (sys) Analysis
+
 ```bash
 # Use sys database for metadata
 mysql> use sys;
@@ -295,17 +314,18 @@ mysql> select host, unique_users from host_summary;
 
 ### Connection and Basic Operations
 
-| Command | Description |
-|---------|-------------|
-| `mysql -u <user> -p<password> -h <IP address>` | Connect to MySQL server (no space between -p and password) |
-| `show databases;` | Show all databases |
-| `use <database>;` | Select one of the existing databases |
-| `show tables;` | Show all available tables in the selected database |
-| `show columns from <table>;` | Show all columns in the selected table |
-| `select * from <table>;` | Show everything in the desired table |
-| `select * from <table> where <column> = "<string>";` | Search for needed string in the desired table |
+| Command                                              | Description                                                |
+| ---------------------------------------------------- | ---------------------------------------------------------- |
+| `mysql -u <user> -p<password> -h <IP address>`       | Connect to MySQL server (no space between -p and password) |
+| `show databases;`                                    | Show all databases                                         |
+| `use <database>;`                                    | Select one of the existing databases                       |
+| `show tables;`                                       | Show all available tables in the selected database         |
+| `show columns from <table>;`                         | Show all columns in the selected table                     |
+| `select * from <table>;`                             | Show everything in the desired table                       |
+| `select * from <table> where <column> = "<string>";` | Search for needed string in the desired table              |
 
 ### Advanced Query Examples
+
 ```bash
 # Database exploration
 SHOW DATABASES;
@@ -326,22 +346,25 @@ SELECT * FROM mysql.user WHERE User='root';
 ## Database Schema Information
 
 ### Important System Databases
-- **information_schema**: Contains metadata about all databases (ANSI/ISO standard)
-- **mysql**: Contains MySQL server system data and configurations
-- **performance_schema**: Contains performance monitoring information
-- **sys**: Contains system schema with interpreted performance data
+
+* **information\_schema**: Contains metadata about all databases (ANSI/ISO standard)
+* **mysql**: Contains MySQL server system data and configurations
+* **performance\_schema**: Contains performance monitoring information
+* **sys**: Contains system schema with interpreted performance data
 
 **Schema Differences:**
-- **System Schema**: Microsoft system catalog (more comprehensive)
-- **Information Schema**: ANSI/ISO standard metadata (standardized)
+
+* **System Schema**: Microsoft system catalog (more comprehensive)
+* **Information Schema**: ANSI/ISO standard metadata (standardized)
 
 ## HTB Academy Lab Questions
 
 ### Question 1: Version Detection
-**Task**: Enumerate the MySQL server and determine the version in use
-**Format**: MySQL X.X.XX
+
+**Task**: Enumerate the MySQL server and determine the version in use **Format**: MySQL X.X.XX
 
 **Solution**:
+
 ```bash
 # Step 1: Service detection
 nmap -p3306 -sV target
@@ -354,9 +377,11 @@ nmap -p3306 -sV target
 ```
 
 ### Question 2: Data Extraction
+
 **Task**: Using credentials "robin:robin", find email address of customer "Otto Lang"
 
 **Solution**:
+
 ```bash
 # Step 1: Connect with provided credentials (with SSL disabled)
 mysql -u robin -probin -h target --ssl=0
@@ -422,6 +447,7 @@ MySQL [customers]> SELECT email FROM myTable WHERE name = "Otto Lang";
 ## Security Assessment
 
 ### Common Vulnerabilities
+
 1. **Default Credentials**: Testing root with empty password
 2. **Weak Passwords**: Common password patterns
 3. **Information Disclosure**: Version information, database names
@@ -430,26 +456,30 @@ MySQL [customers]> SELECT email FROM myTable WHERE name = "Otto Lang";
 6. **Network Exposure**: MySQL accessible from external networks
 
 ### Enumeration Checklist
-- [ ] Port scan for 3306
-- [ ] Service version detection
-- [ ] Default credential testing
-- [ ] Anonymous access testing
-- [ ] Database enumeration
-- [ ] User account discovery
-- [ ] Privilege assessment
-- [ ] Configuration analysis
-- [ ] Data extraction testing
+
+* [ ] Port scan for 3306
+* [ ] Service version detection
+* [ ] Default credential testing
+* [ ] Anonymous access testing
+* [ ] Database enumeration
+* [ ] User account discovery
+* [ ] Privilege assessment
+* [ ] Configuration analysis
+* [ ] Data extraction testing
 
 ## MariaDB Relationship
+
 **MariaDB** is a fork of MySQL created when Oracle acquired MySQL AB. Key points:
-- Created by original MySQL chief developer
-- Based on MySQL source code
-- Often used interchangeably with MySQL
-- Compatible with MySQL protocols and commands
-- Common in Linux distributions
+
+* Created by original MySQL chief developer
+* Based on MySQL source code
+* Often used interchangeably with MySQL
+* Compatible with MySQL protocols and commands
+* Common in Linux distributions
 
 ## Reference Documentation
-- **MySQL Reference Manual**: Comprehensive configuration options
-- **Security Issues Section**: Best practices for securing MySQL servers
-- **HTB Academy**: Practical enumeration techniques
-- **Penetration Testing**: Real-world attack scenarios 
+
+* **MySQL Reference Manual**: Comprehensive configuration options
+* **Security Issues Section**: Best practices for securing MySQL servers
+* **HTB Academy**: Practical enumeration techniques
+* **Penetration Testing**: Real-world attack scenarios

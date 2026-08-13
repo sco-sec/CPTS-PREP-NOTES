@@ -1,4 +1,4 @@
-# Windows Process Communication Analysis
+# 🔄 Communication with Processes
 
 ## 🎯 Overview
 
@@ -7,19 +7,22 @@
 ## 🔑 Access Tokens
 
 ### Concept
-- **Access tokens** describe the security context of processes/threads
-- Contain user identity and privilege information  
-- **Token presentation** occurs with every process interaction
-- **Token inheritance** from parent processes
+
+* **Access tokens** describe the security context of processes/threads
+* Contain user identity and privilege information
+* **Token presentation** occurs with every process interaction
+* **Token inheritance** from parent processes
 
 **Key Token Privileges:**
-- `SeImpersonatePrivilege` - Rogue/Juicy/Lonely Potato attacks
-- `SeAssignPrimaryTokenPrivilege` - Token manipulation
-- `SeDebugPrivilege` - Process debugging and memory access
+
+* `SeImpersonatePrivilege` - Rogue/Juicy/Lonely Potato attacks
+* `SeAssignPrimaryTokenPrivilege` - Token manipulation
+* `SeDebugPrivilege` - Process debugging and memory access
 
 ## 🌐 Network Service Enumeration
 
 ### Active Connections Analysis
+
 ```cmd
 # Display all active connections with PIDs
 netstat -ano
@@ -34,13 +37,15 @@ Get-NetTCPConnection -State Listen
 ### Target Service Categories
 
 **🎯 High-Value Services:**
-- **Port 21** - FTP (FileZilla Server)
-- **Port 80/8080** - Web servers (IIS, XAMPP, Tomcat)
-- **Port 3389** - RDP
-- **Port 5985/5986** - WinRM
-- **Port 1433** - MSSQL
+
+* **Port 21** - FTP (FileZilla Server)
+* **Port 80/8080** - Web servers (IIS, XAMPP, Tomcat)
+* **Port 3389** - RDP
+* **Port 5985/5986** - WinRM
+* **Port 1433** - MSSQL
 
 **🔍 Localhost-Only Services:**
+
 ```cmd
 # Look for services bound to loopback addresses
 netstat -ano | findstr 127.0.0.1
@@ -51,6 +56,7 @@ netstat -ano | findstr ::1
 ```
 
 ### Service-to-Process Mapping
+
 ```cmd
 # Find process by PID from netstat
 tasklist | findstr "[PID]"
@@ -63,15 +69,17 @@ tasklist | findstr "5044"     # Identify process name
 ## 🔄 Named Pipes
 
 ### Concept
-- **Named pipes** enable inter-process communication via shared memory
-- **Client-server model** - creator is server, communicator is client
-- **Communication types**:
-  - **Half-duplex** - One-way (client → server)
-  - **Full-duplex** - Two-way communication
+
+* **Named pipes** enable inter-process communication via shared memory
+* **Client-server model** - creator is server, communicator is client
+* **Communication types**:
+  * **Half-duplex** - One-way (client → server)
+  * **Full-duplex** - Two-way communication
 
 ### Named Pipe Enumeration
 
 #### Using Pipelist (Sysinternals)
+
 ```cmd
 # List all named pipes
 pipelist.exe /accepteula
@@ -84,6 +92,7 @@ pipelist.exe /accepteula
 ```
 
 #### Using PowerShell
+
 ```powershell
 # List named pipes with Get-ChildItem
 Get-ChildItem \\.\pipe\
@@ -95,6 +104,7 @@ gci \\.\pipe\
 ### Named Pipe Security Analysis
 
 #### Permission Enumeration with AccessChk
+
 ```cmd
 # Check specific pipe permissions
 accesschk.exe /accepteula \\.\Pipe\[PIPE_NAME] -v
@@ -106,6 +116,7 @@ accesschk.exe -w \pipe\* -v
 ```
 
 #### Dangerous Permission Patterns
+
 ```cmd
 # Dangerous combinations:
 RW Everyone - FILE_ALL_ACCESS      # Complete control
@@ -116,7 +127,9 @@ RW Everyone - WRITE_DAC            # Permission modification
 ## 🚨 Common Attack Vectors
 
 ### Web Server Exploitation
+
 **Scenario**: IIS/XAMPP running as privileged user
+
 ```cmd
 # 1. Identify web server process
 netstat -ano | findstr :80
@@ -128,7 +141,9 @@ tasklist | findstr "[PID]"
 ```
 
 ### FileZilla Server Attack
+
 **Scenario**: Admin interface on localhost:14147
+
 ```cmd
 # 1. Identify FileZilla admin port
 netstat -ano | findstr 127.0.0.1:14147
@@ -139,13 +154,17 @@ netstat -ano | findstr 127.0.0.1:14147
 ```
 
 ### Splunk Universal Forwarder
+
 **Scenario**: Default configuration without authentication
-- **Default behavior**: Runs as SYSTEM
-- **Attack method**: Deploy malicious applications
-- **Impact**: Direct SYSTEM-level code execution
+
+* **Default behavior**: Runs as SYSTEM
+* **Attack method**: Deploy malicious applications
+* **Impact**: Direct SYSTEM-level code execution
 
 ### Named Pipe Privilege Escalation
+
 **Example**: WindscribeService vulnerability
+
 ```cmd
 # 1. Find vulnerable pipe
 accesschk.exe -w \pipe\* -v | findstr "Everyone"
@@ -160,14 +179,17 @@ accesschk.exe -accepteula -w \pipe\WindscribeService -v
 ## 🎯 HTB Academy Lab Solutions
 
 ### Lab Environment
-- **Target**: `10.129.43.43` (ACADEMY-WINLPE-SRV01)
-- **Credentials**: `htb-student:HTB_@cademy_stdnt!`
-- **Tools**: `C:\Tools\AccessChk\`
+
+* **Target**: `10.129.43.43` (ACADEMY-WINLPE-SRV01)
+* **Credentials**: `htb-student:HTB_@cademy_stdnt!`
+* **Tools**: `C:\Tools\AccessChk\`
 
 ### Question 1: Service on Port 21
+
 **Objective**: Identify service listening on 0.0.0.0:21
 
 **Solution Steps:**
+
 ```cmd
 # 1. Connect via RDP
 xfreerdp /v:10.129.43.43 /u:htb-student /p:HTB_@cademy_stdnt!
@@ -183,10 +205,12 @@ tasklist | findstr "2156"
 
 **Answer**: `filezilla server`
 
-### Question 2: WRITE_DAC Privileges on Named Pipe
-**Objective**: Find account with WRITE_DAC over `\pipe\SQLLocal\SQLEXPRESS01`
+### Question 2: WRITE\_DAC Privileges on Named Pipe
+
+**Objective**: Find account with WRITE\_DAC over `\pipe\SQLLocal\SQLEXPRESS01`
 
 **Solution Steps:**
+
 ```cmd
 # 1. Navigate to AccessChk directory
 cd C:\Tools\AccessChk
@@ -203,6 +227,7 @@ accesschk.exe -accepteula -w \pipe\SQLLocal\SQLEXPRESS01 -v
 ## 🔍 Attack Pattern Recognition
 
 ### Network Service Indicators
+
 ```cmd
 # Identify potential targets:
 Port 8080     # Tomcat, development servers
@@ -212,6 +237,7 @@ Localhost-only # Insecure by design assumption
 ```
 
 ### Named Pipe Red Flags
+
 ```cmd
 # Dangerous permission combinations:
 Everyone group      # Overly permissive
@@ -221,6 +247,7 @@ Custom pipe names  # Application vulnerabilities
 ```
 
 ### Service Context Analysis
+
 ```cmd
 # High-privilege service users:
 SYSTEM                    # Highest privileges
@@ -232,26 +259,29 @@ Service accounts         # Often over-privileged
 ## 📋 Process Communication Checklist
 
 ### Network Services
-- [ ] **Active connections** (`netstat -ano`)
-- [ ] **Localhost services** (127.0.0.1 binding)
-- [ ] **Process identification** (`tasklist`)
-- [ ] **Service context** (user running service)
-- [ ] **Web server detection** (port 80, 8080, 8443)
-- [ ] **Administrative interfaces** (non-standard ports)
+
+* [ ] **Active connections** (`netstat -ano`)
+* [ ] **Localhost services** (127.0.0.1 binding)
+* [ ] **Process identification** (`tasklist`)
+* [ ] **Service context** (user running service)
+* [ ] **Web server detection** (port 80, 8080, 8443)
+* [ ] **Administrative interfaces** (non-standard ports)
 
 ### Named Pipes
-- [ ] **Pipe enumeration** (`pipelist.exe` or `gci \\.\pipe\`)
-- [ ] **Permission analysis** (`accesschk.exe -w \pipe\*`)
-- [ ] **Everyone group access** (overly permissive pipes)
-- [ ] **Custom application pipes** (non-standard names)
-- [ ] **WRITE_DAC privileges** (permission modification)
+
+* [ ] **Pipe enumeration** (`pipelist.exe` or `gci \\.\pipe\`)
+* [ ] **Permission analysis** (`accesschk.exe -w \pipe\*`)
+* [ ] **Everyone group access** (overly permissive pipes)
+* [ ] **Custom application pipes** (non-standard names)
+* [ ] **WRITE\_DAC privileges** (permission modification)
 
 ### Attack Surface Assessment
-- [ ] **SeImpersonatePrivilege** detection
-- [ ] **Vulnerable service versions** 
-- [ ] **Default configurations** (Splunk, FileZilla)
-- [ ] **File upload capabilities** (web servers)
-- [ ] **Administrative access** (localhost services)
+
+* [ ] **SeImpersonatePrivilege** detection
+* [ ] **Vulnerable service versions**
+* [ ] **Default configurations** (Splunk, FileZilla)
+* [ ] **File upload capabilities** (web servers)
+* [ ] **Administrative access** (localhost services)
 
 ## 💡 Key Takeaways
 
@@ -262,6 +292,6 @@ Service accounts         # Often over-privileged
 5. **Default configurations** frequently contain security weaknesses
 6. **Service context matters** - identify which user runs each service
 
----
+***
 
-*Process communication analysis reveals privilege escalation opportunities through network services and inter-process communication vulnerabilities.* 
+_Process communication analysis reveals privilege escalation opportunities through network services and inter-process communication vulnerabilities._

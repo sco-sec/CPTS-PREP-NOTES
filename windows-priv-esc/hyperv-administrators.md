@@ -1,4 +1,4 @@
-# Hyper-V Administrators Privilege Escalation
+# 💻 Hyper-V Administrators
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🖥️ Virtual Machine Attack Vectors
 
 ### Domain Controller VM Compromise
+
 ```cmd
 # Attack scenario:
 1. Create clone of live Domain Controller VM
@@ -16,13 +17,15 @@
 ```
 
 **Risk Assessment:**
-- **Virtualized DCs** = Full domain compromise potential
-- **VM cloning** bypasses all online protections
-- **Offline analysis** undetectable by security tools
+
+* **Virtualized DCs** = Full domain compromise potential
+* **VM cloning** bypasses all online protections
+* **Offline analysis** undetectable by security tools
 
 ## 🔗 Hard Link Exploitation
 
 ### Attack Mechanism
+
 ```cmd
 # CVE-2018-0952 / CVE-2019-0841 exploitation:
 1. vmms.exe restores permissions as NT AUTHORITY\SYSTEM
@@ -32,12 +35,14 @@
 ```
 
 ### Target File Example
+
 ```cmd
 # Mozilla Maintenance Service target
 C:\Program Files (x86)\Mozilla Maintenance Service\maintenanceservice.exe
 ```
 
 ### Exploitation Steps
+
 ```cmd
 # 1. Run PowerShell hard link exploit
 # 2. Take ownership of target file
@@ -51,6 +56,7 @@ sc.exe start MozillaMaintenance
 ## ⚠️ Limitations
 
 ### Patching Status
+
 ```cmd
 # MITIGATED: March 2020 Windows security updates
 # Changed hard link behavior
@@ -58,6 +64,7 @@ sc.exe start MozillaMaintenance
 ```
 
 ### Alternative Vectors
+
 ```cmd
 # Focus on:
 - VM-based attacks (still viable)
@@ -68,6 +75,7 @@ sc.exe start MozillaMaintenance
 ## 🔍 Detection & Defense
 
 ### Monitoring
+
 ```cmd
 # Watch for:
 - Hyper-V VM cloning activities
@@ -77,6 +85,7 @@ sc.exe start MozillaMaintenance
 ```
 
 ### Hardening
+
 ```cmd
 # Mitigation strategies:
 - Regular Windows updates (March 2020+)
@@ -92,6 +101,6 @@ sc.exe start MozillaMaintenance
 3. **Hard link exploitation** patched since March 2020
 4. **Virtualization security** critical for domain protection
 
----
+***
 
-*Hyper-V Administrators group represents significant risk in virtualized environments, particularly when Domain Controllers are virtualized.* 
+_Hyper-V Administrators group represents significant risk in virtualized environments, particularly when Domain Controllers are virtualized._

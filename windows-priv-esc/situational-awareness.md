@@ -1,13 +1,13 @@
-# Windows Privilege Escalation - Situational Awareness
+# 🔍 Situational Awareness
 
 ## 🎯 Overview
 
 **Situational awareness** is the first critical step in Windows privilege escalation. Before attempting any escalation techniques, we must understand:
 
-- **Network topology** and dual-homed systems
-- **Security protections** in place (AV, EDR, AppLocker)
-- **System context** and current privileges
-- **Network connectivity** and potential lateral movement paths
+* **Network topology** and dual-homed systems
+* **Security protections** in place (AV, EDR, AppLocker)
+* **System context** and current privileges
+* **Network connectivity** and potential lateral movement paths
 
 > **"We cannot function and react effectively without an understanding of our current surroundings"**
 
@@ -16,6 +16,7 @@
 ### Interface and IP Address Enumeration
 
 #### Basic Network Configuration
+
 ```cmd
 # Complete network interface information
 ipconfig /all
@@ -28,6 +29,7 @@ ipconfig /displaydns
 ```
 
 #### Key Network Details to Note
+
 ```cmd
 # Look for:
 - Multiple network interfaces (dual-homed systems)
@@ -37,6 +39,7 @@ ipconfig /displaydns
 ```
 
 **Example Output Analysis:**
+
 ```cmd
 # Dual-homed system identified
 IPv4 Address: 10.129.43.8     # External/DMZ network
@@ -58,10 +61,11 @@ arp -a -N [interface_ip]
 ```
 
 **Strategic Value:**
-- **Recent communications** - Shows hosts recently contacted
-- **Network discovery** - Identifies active hosts on each network
-- **Lateral movement targets** - Potential next hop systems
-- **Administrative patterns** - RDP/WinRM connection evidence
+
+* **Recent communications** - Shows hosts recently contacted
+* **Network discovery** - Identifies active hosts on each network
+* **Lateral movement targets** - Potential next hop systems
+* **Administrative patterns** - RDP/WinRM connection evidence
 
 ### Routing Table Examination
 
@@ -77,6 +81,7 @@ route print -6
 ```
 
 **Analysis Points:**
+
 ```cmd
 # Network segments accessible:
 Network Destination    Netmask          Gateway       Interface
@@ -128,10 +133,11 @@ Get-MpPreference | Select-Object DisableRealtimeMonitoring, DisableBehaviorMonit
 ```
 
 **Critical Status Fields:**
-- `AntivirusEnabled` - AV engine status
-- `RealTimeProtectionEnabled` - Live scanning
-- `BehaviorMonitorEnabled` - Behavioral analysis
-- `OnAccessProtectionEnabled` - File access monitoring
+
+* `AntivirusEnabled` - AV engine status
+* `RealTimeProtectionEnabled` - Live scanning
+* `BehaviorMonitorEnabled` - Behavioral analysis
+* `OnAccessProtectionEnabled` - File access monitoring
 
 ### AppLocker Policy Assessment
 
@@ -150,13 +156,15 @@ Get-AppLockerPolicy -Local | Test-AppLockerPolicy -path C:\Windows\System32\cmd.
 ```
 
 **AppLocker Rule Types:**
-- **Executable Rules** - Controls .exe, .com files
-- **Windows Installer Rules** - Controls .msi, .msp files
-- **Script Rules** - Controls .ps1, .bat, .cmd files
-- **Packaged App Rules** - Controls Windows Store apps
-- **DLL Rules** - Controls .dll files (rarely used)
+
+* **Executable Rules** - Controls .exe, .com files
+* **Windows Installer Rules** - Controls .msi, .msp files
+* **Script Rules** - Controls .ps1, .bat, .cmd files
+* **Packaged App Rules** - Controls Windows Store apps
+* **DLL Rules** - Controls .dll files (rarely used)
 
 #### AppLocker Bypass Indicators
+
 ```powershell
 # Look for path-based rules that can be bypassed
 PathConditions: {%PROGRAMFILES%\*}  # May allow unsigned executables in Program Files
@@ -235,35 +243,40 @@ Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 10
 ## 📋 Situational Awareness Checklist
 
 ### Network Assessment
-- [ ] **Multiple interfaces identified** - Check for dual-homed systems
-- [ ] **Internal networks mapped** - Document accessible network segments  
-- [ ] **ARP cache analyzed** - Note recent communication patterns
-- [ ] **Routing table reviewed** - Understand network topology
-- [ ] **Active connections listed** - Identify current network activity
+
+* [ ] **Multiple interfaces identified** - Check for dual-homed systems
+* [ ] **Internal networks mapped** - Document accessible network segments
+* [ ] **ARP cache analyzed** - Note recent communication patterns
+* [ ] **Routing table reviewed** - Understand network topology
+* [ ] **Active connections listed** - Identify current network activity
 
 ### Security Posture
-- [ ] **Windows Defender status** - Determine AV/EDR protection level
-- [ ] **AppLocker rules assessed** - Understand execution restrictions
-- [ ] **Firewall configuration** - Check for outbound restrictions
-- [ ] **Security services identified** - Note EDR/monitoring tools
-- [ ] **Admin privileges confirmed** - Verify current access level
+
+* [ ] **Windows Defender status** - Determine AV/EDR protection level
+* [ ] **AppLocker rules assessed** - Understand execution restrictions
+* [ ] **Firewall configuration** - Check for outbound restrictions
+* [ ] **Security services identified** - Note EDR/monitoring tools
+* [ ] **Admin privileges confirmed** - Verify current access level
 
 ### System Context
-- [ ] **User privileges enumerated** - Document current user context
-- [ ] **Group memberships verified** - Check for privileged groups
-- [ ] **System version identified** - Note OS version and patch level
-- [ ] **Installed software cataloged** - Identify potential attack vectors
+
+* [ ] **User privileges enumerated** - Document current user context
+* [ ] **Group memberships verified** - Check for privileged groups
+* [ ] **System version identified** - Note OS version and patch level
+* [ ] **Installed software cataloged** - Identify potential attack vectors
 
 ## 🎯 HTB Academy Lab - Situational Awareness
 
 ### Lab Environment
-- **Target**: Windows system accessible via RDP
-- **Credentials**: `htb-student:HTB_@cademy_stdnt!`
-- **Objective**: Identify network configuration and security restrictions
+
+* **Target**: Windows system accessible via RDP
+* **Credentials**: `htb-student:HTB_@cademy_stdnt!`
+* **Objective**: Identify network configuration and security restrictions
 
 ### Lab Questions
 
 #### Question 1: Network Interface Discovery
+
 **Objective**: Find the IP address of the other NIC attached to the target host
 
 ```cmd
@@ -275,7 +288,8 @@ ipconfig /all
 # Answer format: X.X.X.X (IP address of secondary interface)
 ```
 
-#### Question 2: AppLocker Executable Restrictions  
+#### Question 2: AppLocker Executable Restrictions
+
 **Objective**: Identify which executable (other than cmd.exe) is blocked by AppLocker
 
 ```powershell
@@ -291,12 +305,14 @@ Get-AppLockerPolicy -Local | Test-AppLockerPolicy -path C:\Windows\System32\net.
 ```
 
 **Common Blocked Executables:**
-- `powershell.exe` - PowerShell interpreter
-- `cmd.exe` - Command prompt (mentioned as blocked)
-- `net.exe` - Network configuration utility
-- `wmic.exe` - Windows Management Instrumentation tool
+
+* `powershell.exe` - PowerShell interpreter
+* `cmd.exe` - Command prompt (mentioned as blocked)
+* `net.exe` - Network configuration utility
+* `wmic.exe` - Windows Management Instrumentation tool
 
 ### Expected Results
+
 ```cmd
 # Network discovery result
 Interface 1: 10.129.43.8    (External/HTB network)
@@ -316,6 +332,6 @@ net.exe: ALLOWED
 4. **Tool restrictions** - AppLocker policies affect available attack vectors
 5. **Systematic approach** - Complete situational awareness before technical exploitation
 
----
+***
 
-*This guide covers the essential first step in Windows privilege escalation - gathering comprehensive situational awareness to inform subsequent attack strategies.* 
+_This guide covers the essential first step in Windows privilege escalation - gathering comprehensive situational awareness to inform subsequent attack strategies._

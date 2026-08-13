@@ -1,34 +1,40 @@
-# MSSQL Enumeration
+# 🏢 MSSQL Enumeration
 
 ## Overview
+
 Microsoft SQL (MSSQL) is Microsoft's SQL-based relational database management system. Unlike MySQL, which is open-source, MSSQL is closed source and was initially written to run on Windows operating systems. It is popular among database administrators and developers when building applications that run on Microsoft's .NET framework due to its strong native support for .NET.
 
 **Key Characteristics:**
-- **Port 1433**: Default MSSQL port
-- **Authentication**: Windows Authentication or SQL Server Authentication
-- **Default Instance**: MSSQLSERVER
-- **Protocol**: Tabular Data Stream (TDS)
-- **Platform**: Primarily Windows (Linux/MacOS versions available)
+
+* **Port 1433**: Default MSSQL port
+* **Authentication**: Windows Authentication or SQL Server Authentication
+* **Default Instance**: MSSQLSERVER
+* **Protocol**: Tabular Data Stream (TDS)
+* **Platform**: Primarily Windows (Linux/MacOS versions available)
 
 ## MSSQL Clients
 
 ### SQL Server Management Studio (SSMS)
+
 **SQL Server Management Studio (SSMS)** comes as a feature that can be installed with the MSSQL install package or downloaded separately. Key points:
-- Commonly installed on the server for initial configuration
-- Can be installed on any system for remote database management
-- May contain saved credentials on vulnerable systems
-- Provides full database management capabilities
+
+* Commonly installed on the server for initial configuration
+* Can be installed on any system for remote database management
+* May contain saved credentials on vulnerable systems
+* Provides full database management capabilities
 
 ### Alternative MSSQL Clients
-| Client | Description |
-|--------|-------------|
-| **mssql-cli** | Command-line interface for MSSQL |
-| **SQL Server PowerShell** | PowerShell module for MSSQL |
-| **HeidiSQL** | Lightweight GUI client |
-| **SQLPro** | Professional database client |
+
+| Client                        | Description                                    |
+| ----------------------------- | ---------------------------------------------- |
+| **mssql-cli**                 | Command-line interface for MSSQL               |
+| **SQL Server PowerShell**     | PowerShell module for MSSQL                    |
+| **HeidiSQL**                  | Lightweight GUI client                         |
+| **SQLPro**                    | Professional database client                   |
 | **Impacket's mssqlclient.py** | Python-based client (preferred for pentesting) |
 
 ### Locating Impacket MSSQL Client
+
 ```bash
 # Find impacket mssqlclient location
 locate mssqlclient
@@ -42,54 +48,58 @@ locate mssqlclient
 
 MSSQL has default system databases that help understand the structure of all databases hosted on a target server:
 
-| Database | Description |
-|----------|-------------|
-| **master** | Tracks all system information for an SQL server instance |
-| **model** | Template database that acts as a structure for every new database created |
-| **msdb** | Used by SQL Server Agent to schedule jobs & alerts |
-| **tempdb** | Stores temporary objects |
-| **resource** | Read-only database containing system objects included with SQL server |
+| Database     | Description                                                               |
+| ------------ | ------------------------------------------------------------------------- |
+| **master**   | Tracks all system information for an SQL server instance                  |
+| **model**    | Template database that acts as a structure for every new database created |
+| **msdb**     | Used by SQL Server Agent to schedule jobs & alerts                        |
+| **tempdb**   | Stores temporary objects                                                  |
+| **resource** | Read-only database containing system objects included with SQL server     |
 
 ## Default Configuration
 
 ### Initial Setup
+
 When an admin initially installs and configures MSSQL to be network accessible:
-- **Service Account**: SQL service runs as `NT SERVICE\MSSQLSERVER`
-- **Authentication**: Windows Authentication by default
-- **Encryption**: Not enforced by default
-- **Access Control**: Uses Windows OS for authentication processing
+
+* **Service Account**: SQL service runs as `NT SERVICE\MSSQLSERVER`
+* **Authentication**: Windows Authentication by default
+* **Encryption**: Not enforced by default
+* **Access Control**: Uses Windows OS for authentication processing
 
 ### Authentication Methods
-1. **Windows Authentication**: 
-   - Uses local SAM database or domain controller
-   - Integrates with Active Directory
-   - Can lead to privilege escalation if compromised
 
+1. **Windows Authentication**:
+   * Uses local SAM database or domain controller
+   * Integrates with Active Directory
+   * Can lead to privilege escalation if compromised
 2. **SQL Server Authentication**:
-   - Uses database-specific user accounts
-   - Independent of Windows authentication
+   * Uses database-specific user accounts
+   * Independent of Windows authentication
 
 ## Dangerous Settings
 
 Common misconfigurations that can lead to security issues:
 
-| Setting | Risk Level | Description |
-|---------|------------|-------------|
-| **No encryption** | High | MSSQL clients not using encryption to connect |
-| **Self-signed certificates** | Medium | Can be spoofed during attacks |
-| **Named pipes enabled** | Medium | Additional attack surface |
-| **Default SA credentials** | Critical | Weak or unchanged SA account passwords |
-| **SA account enabled** | High | Admins may forget to disable default SA account |
+| Setting                      | Risk Level | Description                                     |
+| ---------------------------- | ---------- | ----------------------------------------------- |
+| **No encryption**            | High       | MSSQL clients not using encryption to connect   |
+| **Self-signed certificates** | Medium     | Can be spoofed during attacks                   |
+| **Named pipes enabled**      | Medium     | Additional attack surface                       |
+| **Default SA credentials**   | Critical   | Weak or unchanged SA account passwords          |
+| **SA account enabled**       | High       | Admins may forget to disable default SA account |
 
 ## Footprinting the Service
 
 ### Comprehensive Nmap Scan
+
 ```bash
 # Complete MSSQL enumeration with all scripts
 sudo nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=1433,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 1433 target
 ```
 
 ### Example Nmap Output Analysis
+
 ```bash
 Starting Nmap 7.91 ( https://nmap.org ) at 2021-11-08 09:40 EST
 Nmap scan report for target
@@ -124,13 +134,15 @@ Host script results:
 ```
 
 **Key Information Extracted:**
-- **Hostname**: SQL-01
-- **Instance**: MSSQLSERVER
-- **Version**: Microsoft SQL Server 2019 RTM (15.00.2000.00)
-- **Named Pipes**: Enabled (\\target\pipe\sql\query)
-- **Clustering**: Not clustered
+
+* **Hostname**: SQL-01
+* **Instance**: MSSQLSERVER
+* **Version**: Microsoft SQL Server 2019 RTM (15.00.2000.00)
+* **Named Pipes**: Enabled (\target\pipe\sql\query)
+* **Clustering**: Not clustered
 
 ### Metasploit MSSQL Ping Scanner
+
 ```bash
 # Use Metasploit auxiliary scanner
 msf6 > use auxiliary/scanner/mssql/mssql_ping
@@ -152,6 +164,7 @@ msf6 auxiliary(scanner/mssql/mssql_ping) > run
 ## Connecting with mssqlclient.py
 
 ### Windows Authentication
+
 ```bash
 # Connect using Windows authentication
 python3 mssqlclient.py Administrator@target -windows-auth
@@ -171,6 +184,7 @@ Password:
 ```
 
 ### Basic Database Enumeration
+
 ```bash
 # List all databases
 SQL> select name from sys.databases
@@ -185,6 +199,7 @@ Transactions
 ```
 
 ### SQL Server Authentication
+
 ```bash
 # Connect with SQL Server authentication
 python3 mssqlclient.py sa@target
@@ -196,6 +211,7 @@ python3 mssqlclient.py backdoor@target -windows-auth
 ## Advanced Enumeration
 
 ### Database Information Gathering
+
 ```bash
 # Get MSSQL version
 SQL> SELECT @@version;
@@ -214,6 +230,7 @@ SQL> SELECT * FROM sys.database_permissions;
 ```
 
 ### System Information
+
 ```bash
 # Get system configuration
 SQL> SELECT name, value FROM sys.configurations WHERE name = 'xp_cmdshell';
@@ -228,9 +245,11 @@ SQL> SELECT name, physical_name FROM sys.master_files;
 ## HTB Academy Lab Questions
 
 ### Question 1: Hostname Detection
+
 **Task**: Enumerate the target and list the hostname of MSSQL server
 
 **Solution**:
+
 ```bash
 # Step 1: Comprehensive nmap scan
 sudo nmap --script ms-sql-info,ms-sql-ntlm-info -p1433 target
@@ -244,9 +263,11 @@ sudo nmap --script ms-sql-info,ms-sql-ntlm-info -p1433 target
 ```
 
 ### Question 2: Non-Default Database Discovery
+
 **Task**: Connect using account (backdoor:Password1) and list non-default database
 
 **Solution**:
+
 ```bash
 # Step 1: Connect with provided credentials
 python3 mssqlclient.py backdoor@target -windows-auth
@@ -265,6 +286,7 @@ SQL> select name from sys.databases;
 ## Enumeration Techniques
 
 ### 1. Service Detection
+
 ```bash
 # Basic MSSQL detection
 nmap -p1433 -sV target
@@ -274,6 +296,7 @@ nmap -p1433 --script ms-sql-info,ms-sql-config,ms-sql-tables target
 ```
 
 ### 2. Authentication Testing
+
 ```bash
 # Test Windows authentication
 impacket-mssqlclient administrator@target -windows-auth
@@ -286,6 +309,7 @@ impacket-mssqlclient backdoor@target -windows-auth
 ```
 
 ### 3. Database Analysis
+
 ```bash
 # List databases
 SELECT name FROM sys.databases;
@@ -303,6 +327,7 @@ SELECT * FROM table_name;
 ## Security Assessment
 
 ### Common Vulnerabilities
+
 1. **Default Credentials**: SA account with weak passwords
 2. **Windows Authentication**: Compromised domain accounts
 3. **Missing Encryption**: Plaintext communication
@@ -310,19 +335,21 @@ SELECT * FROM table_name;
 5. **Outdated Software**: Unpatched MSSQL instances
 
 ### Enumeration Checklist
-- [ ] Port scan for 1433
-- [ ] Service version detection
-- [ ] Hostname extraction
-- [ ] Authentication method testing
-- [ ] Default credential testing
-- [ ] Database enumeration
-- [ ] System database analysis
-- [ ] Custom database discovery
-- [ ] User and permission assessment
+
+* [ ] Port scan for 1433
+* [ ] Service version detection
+* [ ] Hostname extraction
+* [ ] Authentication method testing
+* [ ] Default credential testing
+* [ ] Database enumeration
+* [ ] System database analysis
+* [ ] Custom database discovery
+* [ ] User and permission assessment
 
 ## Attack Vectors
 
 ### 1. Credential-based Access
+
 ```bash
 # Brute force SA account
 hydra -l sa -P passwords.txt mssql://target
@@ -332,6 +359,7 @@ crackmapexec mssql target -u users.txt -p passwords.txt
 ```
 
 ### 2. Command Execution
+
 ```bash
 # Enable xp_cmdshell
 SQL> EXEC sp_configure 'show advanced options', 1;
@@ -344,6 +372,7 @@ SQL> EXEC xp_cmdshell 'whoami';
 ```
 
 ### 3. Data Extraction
+
 ```bash
 # Extract sensitive data
 SQL> SELECT * FROM sys.sql_logins;
@@ -356,6 +385,7 @@ SQL> SELECT * FROM sys.server_principals;
 ## Tools and Techniques
 
 ### Essential Tools
+
 ```bash
 # Impacket mssqlclient
 impacket-mssqlclient user@target -windows-auth
@@ -371,9 +401,10 @@ use auxiliary/scanner/mssql/mssql_login
 ## Defensive Measures
 
 ### Security Best Practices
+
 1. **Disable SA account**: Use Windows Authentication only
 2. **Enable encryption**: Force SSL/TLS connections
 3. **Least privilege**: Restrict database permissions
 4. **Regular updates**: Apply security patches
 5. **Monitor access**: Enable audit logging
-6. **Network security**: Firewall restrictions 
+6. **Network security**: Firewall restrictions

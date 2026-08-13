@@ -1,4 +1,4 @@
-# Types of Reports
+# 📊 Types of Reports
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 📊 Assessment Types
 
 ### 🔍 Vulnerability Assessment
+
 ```cmd
 # Characteristics:
 - Automated scanning (authenticated/unauthenticated)
@@ -22,6 +23,7 @@
 ```
 
 ### ⚔️ Penetration Testing
+
 ```cmd
 # Characteristics:
 - Beyond automated scanning
@@ -43,6 +45,7 @@
 ## 📋 Report Categories
 
 ### 🔍 Internal Penetration Test Report
+
 ```cmd
 # Primary focus:
 - Active Directory domain compromise
@@ -59,6 +62,7 @@
 ```
 
 ### 🌐 External Penetration Test Report
+
 ```cmd
 # Additional elements:
 - OSINT data collection
@@ -77,6 +81,7 @@
 ```
 
 ### 📑 Vulnerability Assessment Report
+
 ```cmd
 # Content focus:
 - Scanner result themes
@@ -95,6 +100,7 @@
 ## 📋 Specialized Assessment Types
 
 ### 🔄 Inter-Disciplinary Assessments
+
 ```cmd
 # Purple Team Assessments:
 - Red team simulation + Blue team response
@@ -122,6 +128,7 @@
 ```
 
 ### 🔧 Hardware Penetration Testing
+
 ```cmd
 # Scope considerations:
 - IoT device security
@@ -139,6 +146,7 @@
 ## 📄 Additional Deliverables
 
 ### 📊 Attestation Report/Letter
+
 ```cmd
 # Purpose:
 - Third-party compliance evidence
@@ -154,6 +162,7 @@
 ```
 
 ### 📈 Presentation Slide Deck
+
 ```cmd
 # Audience considerations:
 - Technical vs Executive focus
@@ -169,6 +178,7 @@
 ```
 
 ### 📋 Findings Spreadsheet
+
 ```cmd
 # Format:
 - Tabular finding layout
@@ -185,6 +195,7 @@
 ```
 
 ### 🚨 Vulnerability Notifications
+
 ```cmd
 # When to issue:
 - Critical internet-exposed RCE
@@ -202,6 +213,7 @@
 ## 🔄 Report Lifecycle
 
 ### 📝 Draft Report Process
+
 ```cmd
 # Client collaboration approach:
 1. Submit draft report
@@ -219,6 +231,7 @@
 ```
 
 ### 🔁 Post-Remediation Testing
+
 ```cmd
 # Scope limitations:
 - Original findings only
@@ -242,6 +255,7 @@
 ## 🎯 HTB Academy Lab Solutions
 
 ### Lab Questions
+
 ```bash
 # Question 1: Automated assessment with no exploitation
 # Answer: Vulnerability Assessment
@@ -251,6 +265,7 @@
 ```
 
 ### Assessment Perspective Matrix
+
 ```cmd
 # Testing perspectives:
 Black Box:  Company name only
@@ -266,6 +281,7 @@ Full:       Remain undetected throughout assessment
 ## ⚠️ Professional Considerations
 
 ### 📋 Client Communication
+
 ```cmd
 # Pre-assessment:
 - Establish RoE boundaries
@@ -281,6 +297,7 @@ Full:       Remain undetected throughout assessment
 ```
 
 ### 🔒 Ethical Boundaries
+
 ```cmd
 # Maintain integrity:
 - No severity modification under pressure
@@ -305,6 +322,6 @@ Full:       Remain undetected throughout assessment
 6. **Ethical boundaries** must be maintained throughout
 7. **Professional communication** essential for client success
 
----
+***
 
-*Understanding different report types and assessment methodologies ensures appropriate deliverables that meet client needs while maintaining professional standards and ethical boundaries.* 
+_Understanding different report types and assessment methodologies ensures appropriate deliverables that meet client needs while maintaining professional standards and ethical boundaries._

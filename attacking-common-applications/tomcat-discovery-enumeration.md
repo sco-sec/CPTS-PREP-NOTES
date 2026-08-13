@@ -7,25 +7,28 @@
 Apache Tomcat represents a critical attack surface in enterprise environments, serving as the **open-source servlet container** for Java applications including **Spring Framework**, **Gradle builds**, and custom enterprise applications. With **over 220,000 live websites** and **904,000+ historical deployments**, Tomcat often provides **high-value targets** for internal network penetration and **external footholds** into corporate infrastructure.
 
 **Key Tomcat Statistics:**
-- **220,000+ active Tomcat websites** globally (BuiltWith data)
-- **904,000+ historical deployments** across internet infrastructure
-- **1.22% of top 1 million websites** use Tomcat (3.8% of top 100k)
-- **Position #13** in web server market share rankings
-- **Major users:** Alibaba, USPTO, American Red Cross, LA Times
+
+* **220,000+ active Tomcat websites** globally (BuiltWith data)
+* **904,000+ historical deployments** across internet infrastructure
+* **1.22% of top 1 million websites** use Tomcat (3.8% of top 100k)
+* **Position #13** in web server market share rankings
+* **Major users:** Alibaba, USPTO, American Red Cross, LA Times
 
 **Enterprise Deployment Patterns:**
-- **External exposure:** Less common but high-impact when discovered
-- **Internal prevalence:** Multiple instances per environment (common)
-- **EyeWitness priority:** First position under "High Value Targets"
-- **Configuration issues:** Frequent weak/default credential usage
 
----
+* **External exposure:** Less common but high-impact when discovered
+* **Internal prevalence:** Multiple instances per environment (common)
+* **EyeWitness priority:** First position under "High Value Targets"
+* **Configuration issues:** Frequent weak/default credential usage
+
+***
 
 ## Tomcat Architecture & Components
 
 ### Core Directory Structure
 
 #### Standard Tomcat Installation Layout
+
 ```
 /opt/tomcat/ (or /usr/local/tomcat/)
 ├── bin/                    # Scripts and binaries for server management
@@ -65,6 +68,7 @@ Apache Tomcat represents a critical attack surface in enterprise environments, s
 ### Web Application Structure
 
 #### Standard WAR Application Layout
+
 ```
 webapps/customapp/
 ├── images/                # Static image resources
@@ -92,6 +96,7 @@ webapps/customapp/
 ### Critical Configuration Files
 
 #### web.xml - Deployment Descriptor
+
 ```xml
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
@@ -137,6 +142,7 @@ webapps/customapp/
 ```
 
 #### tomcat-users.xml - User Authentication
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <tomcat-users xmlns="http://tomcat.apache.org/xml"
@@ -164,13 +170,14 @@ webapps/customapp/
 </tomcat-users>
 ```
 
----
+***
 
 ## Discovery & Fingerprinting Techniques
 
 ### HTTP Header Analysis
 
 #### Method 1: Server Header Detection
+
 ```bash
 # Basic server header analysis
 curl -I http://target.com:8080/
@@ -188,6 +195,7 @@ Server: Apache/2.4.41 (Ubuntu) # (reverse proxy - check further)
 ```
 
 #### Method 2: Error Page Fingerprinting
+
 ```bash
 # Request invalid/non-existent pages to trigger error responses
 curl -s http://app-dev.inlanefreight.local:8080/invalid
@@ -203,6 +211,7 @@ curl -s http://target.com:8080/nonexistent | grep -oP 'Apache Tomcat/\K[0-9.]+'
 ```
 
 #### Method 3: Standard Application Detection
+
 ```bash
 # Check for default Tomcat applications
 default_apps=(
@@ -222,6 +231,7 @@ done
 ### Documentation Page Analysis
 
 #### /docs Directory Enumeration
+
 ```bash
 # Tomcat documentation often reveals version information
 curl -s http://app-dev.inlanefreight.local:8080/docs/ | grep -i tomcat
@@ -238,6 +248,7 @@ curl -I http://target.com:8080/docs/architecture/
 ```
 
 #### Examples Application Analysis
+
 ```bash
 # Examples application provides version and configuration insights
 curl -s http://target.com:8080/examples/ | grep -i version
@@ -253,6 +264,7 @@ curl -s http://target.com:8080/examples/servlets/servlet/RequestInfoExample | gr
 ### Advanced Fingerprinting Methods
 
 #### JSP Engine Detection
+
 ```bash
 # Test JSP functionality and version
 curl -X POST http://target.com:8080/examples/jsp/jsp2/misc/config.jsp
@@ -265,6 +277,7 @@ curl -s http://target.com:8080/ | grep -i jasper
 ```
 
 #### JVM Information Gathering
+
 ```bash
 # Attempt to gather JVM information via manager app
 curl -s http://target.com:8080/manager/text/serverinfo
@@ -276,13 +289,14 @@ curl -s http://target.com:8080/manager/ | grep -i "java\|jvm"
 curl -s http://target.com:8080/examples/servlets/servlet/RequestInfoExample | grep -i java
 ```
 
----
+***
 
 ## Administrative Interface Discovery
 
 ### Manager Application Enumeration
 
 #### /manager Interface Discovery
+
 ```bash
 # Test for Tomcat Manager accessibility
 curl -I http://target.com:8080/manager/
@@ -309,6 +323,7 @@ done
 ```
 
 #### Manager Application Functionality
+
 ```bash
 # Manager application capabilities (when accessible):
 # /manager/html     - Web-based GUI for application management
@@ -325,6 +340,7 @@ done
 ```
 
 #### Host Manager Discovery
+
 ```bash
 # Host Manager for virtual host administration
 curl -I http://target.com:8080/host-manager/
@@ -340,6 +356,7 @@ curl -I http://target.com:8080/host-manager/html
 ### Default Credential Testing
 
 #### Common Tomcat Credentials
+
 ```bash
 # Standard default credentials (often unchanged):
 credentials=(
@@ -371,6 +388,7 @@ done
 ```
 
 #### Automated Credential Testing
+
 ```bash
 # Hydra-based brute force attack
 hydra -C /usr/share/seclists/Passwords/Default-Credentials/tomcat-betterdefaultpasslist.txt \
@@ -401,13 +419,14 @@ EOF
 # Use cluster bomb attack on /manager/html with credential pairs
 ```
 
----
+***
 
 ## Application and Service Enumeration
 
 ### Directory and File Discovery
 
 #### Gobuster Enumeration
+
 ```bash
 # Comprehensive directory enumeration
 gobuster dir -u http://web01.inlanefreight.local:8180/ \
@@ -451,6 +470,7 @@ EOF
 ```
 
 #### Application-Specific Discovery
+
 ```bash
 # Discover deployed applications
 curl -s http://target.com:8080/ | grep -oP 'href="[^"]*"' | grep -v http | sort -u
@@ -475,6 +495,7 @@ done
 ### WAR File and JSP Discovery
 
 #### JSP Page Enumeration
+
 ```bash
 # Common JSP file extensions and paths
 jsp_extensions=(
@@ -502,6 +523,7 @@ admin_jsps=(
 ```
 
 #### WAR File Analysis
+
 ```bash
 # If WAR files are accessible, download and analyze:
 wget http://target.com:8080/applications/app.war
@@ -521,13 +543,14 @@ grep -r -i "password\|secret\|key" .
 grep -r -i "jdbc\|database\|conn" .
 ```
 
----
+***
 
 ## Configuration File Analysis
 
 ### tomcat-users.xml Reconnaissance
 
 #### User and Role Analysis
+
 ```bash
 # If accessible via LFI or directory traversal:
 curl -s http://target.com:8080/../../conf/tomcat-users.xml
@@ -548,6 +571,7 @@ curl -s http://target.com:8080/conf/tomcat-users.xml | \
 ```
 
 #### Security Constraint Analysis
+
 ```bash
 # Analyze web.xml for security configurations:
 curl -s http://target.com:8080/WEB-INF/web.xml | grep -A 10 -B 5 "security-constraint"
@@ -562,6 +586,7 @@ curl -s http://target.com:8080/WEB-INF/web.xml | grep -A 5 "url-pattern"
 ### server.xml Analysis
 
 #### Connector and Port Configuration
+
 ```bash
 # Analyze server configuration if accessible:
 curl -s http://target.com:8080/../../conf/server.xml | grep -i connector
@@ -577,6 +602,7 @@ curl -s http://target.com:8080/conf/server.xml | \
 ```
 
 #### Virtual Host Enumeration
+
 ```bash
 # Identify configured virtual hosts:
 curl -s http://target.com:8080/conf/server.xml | grep -A 5 -B 5 "Host name"
@@ -590,16 +616,18 @@ for vhost in $vhosts; do
 done
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab 1: Tomcat Version Detection
+
 **Question:** "What version of Tomcat is running on the application located at http://web01.inlanefreight.local:8180?"
 
 **Solution Methodology:**
 
 #### Step 1: Environment Setup
+
 ```bash
 # Add VHost entry to /etc/hosts
 echo "10.129.201.58 web01.inlanefreight.local" >> /etc/hosts
@@ -609,6 +637,7 @@ curl -I http://web01.inlanefreight.local:8180/
 ```
 
 #### Step 2: Version Detection Methods
+
 ```bash
 # Method 1: Error page analysis (most reliable)
 curl -s http://web01.inlanefreight.local:8180/invalid | grep -i tomcat
@@ -624,6 +653,7 @@ curl -s http://web01.inlanefreight.local:8180/examples/ | grep -i version
 ```
 
 #### Step 3: Expected Answer Extraction
+
 ```bash
 # Version format expected: X.X.X (e.g., 10.0.10)
 # Primary method - error page:
@@ -637,12 +667,14 @@ curl -s http://web01.inlanefreight.local:8180/docs/ | \
 # HTB Answer: 10.0.10
 ```
 
-### Lab 2: Admin User Role Analysis  
+### Lab 2: Admin User Role Analysis
+
 **Question:** "What role does the admin user have in the configuration example?"
 
 **Solution Methodology:**
 
 #### Step 1: Configuration File Analysis
+
 ```bash
 # The question refers to the configuration example shown in the HTB Academy content
 # From the tomcat-users.xml example provided:
@@ -655,6 +687,7 @@ curl -s http://web01.inlanefreight.local:8180/docs/ | \
 ```
 
 #### Step 2: Role Analysis
+
 ```bash
 # Admin user roles breakdown:
 # username="admin" has roles="manager-gui,admin-gui"
@@ -667,6 +700,7 @@ curl -s http://web01.inlanefreight.local:8180/docs/ | \
 ```
 
 #### Step 3: Role Functionality Understanding
+
 ```bash
 # Role hierarchy and capabilities:
 # manager-gui  - Tomcat Manager HTML interface
@@ -678,43 +712,48 @@ curl -s http://web01.inlanefreight.local:8180/docs/ | \
 # The admin-gui role is the distinguishing characteristic of the admin user
 ```
 
----
+***
 
 ## Intelligence Gathering Workflow
 
 ### Systematic Tomcat Assessment
 
 #### Phase 1: Discovery & Fingerprinting
-- [ ] **Service Detection** - Port scanning and service identification
-- [ ] **Version Fingerprinting** - Error pages, documentation, headers
-- [ ] **Application Discovery** - Default apps, custom deployments
-- [ ] **Directory Enumeration** - Hidden paths and administrative interfaces
+
+* [ ] **Service Detection** - Port scanning and service identification
+* [ ] **Version Fingerprinting** - Error pages, documentation, headers
+* [ ] **Application Discovery** - Default apps, custom deployments
+* [ ] **Directory Enumeration** - Hidden paths and administrative interfaces
 
 #### Phase 2: Administrative Interface Assessment
-- [ ] **Manager Application Access** - /manager, /host-manager testing
-- [ ] **Default Credential Testing** - Common username/password combinations
-- [ ] **Authentication Mechanism Analysis** - HTTP Basic, Form-based, LDAP
-- [ ] **Role and Permission Mapping** - User capabilities and access levels
+
+* [ ] **Manager Application Access** - /manager, /host-manager testing
+* [ ] **Default Credential Testing** - Common username/password combinations
+* [ ] **Authentication Mechanism Analysis** - HTTP Basic, Form-based, LDAP
+* [ ] **Role and Permission Mapping** - User capabilities and access levels
 
 #### Phase 3: Application Analysis
-- [ ] **WAR File Discovery** - Deployed applications identification
-- [ ] **JSP Enumeration** - Server-side page discovery
-- [ ] **Configuration File Access** - web.xml, tomcat-users.xml analysis
-- [ ] **Framework Identification** - Spring, Struts, custom applications
+
+* [ ] **WAR File Discovery** - Deployed applications identification
+* [ ] **JSP Enumeration** - Server-side page discovery
+* [ ] **Configuration File Access** - web.xml, tomcat-users.xml analysis
+* [ ] **Framework Identification** - Spring, Struts, custom applications
 
 #### Phase 4: Vulnerability Research
-- [ ] **Version-Specific CVEs** - Known vulnerability research
-- [ ] **Configuration Weaknesses** - Security misconfigurations
-- [ ] **Application Vulnerabilities** - Custom code analysis
-- [ ] **Privilege Escalation Vectors** - Manager interface abuse
 
----
+* [ ] **Version-Specific CVEs** - Known vulnerability research
+* [ ] **Configuration Weaknesses** - Security misconfigurations
+* [ ] **Application Vulnerabilities** - Custom code analysis
+* [ ] **Privilege Escalation Vectors** - Manager interface abuse
+
+***
 
 ## Enterprise Deployment Patterns
 
 ### Internal Network Reconnaissance
 
 #### Multi-Instance Discovery
+
 ```bash
 # Tomcat commonly runs on multiple ports in enterprise environments:
 common_ports=(8080 8443 8009 8180 8280 8380 8480 8580 8680 8780 8880 8980)
@@ -729,6 +768,7 @@ nmap -sV -p 8009 target.com
 ```
 
 #### Load Balancer Detection
+
 ```bash
 # Identify load-balanced Tomcat instances:
 curl -I http://target.com:8080/ | grep -i "x-forwarded\|load-balancer\|cluster"
@@ -741,6 +781,7 @@ curl -b cookies.txt http://target.com:8080/ | grep -i jsessionid
 ### Development vs Production Discrimination
 
 #### Environment Identification
+
 ```bash
 # Look for development/staging indicators:
 dev_indicators=(
@@ -761,13 +802,14 @@ done
 curl -s http://target.com:8080/examples/ | grep -i "example\|test\|debug"
 ```
 
----
+***
 
 ## Security Assessment Priorities
 
 ### High-Value Target Identification
 
 #### EyeWitness Integration
+
 ```bash
 # Tomcat typically appears first in EyeWitness "High Value Targets"
 # Automated screenshot and service identification:
@@ -782,6 +824,7 @@ EOF
 ```
 
 #### Risk Prioritization
+
 ```bash
 # High-risk Tomcat configurations:
 1. Default credentials (tomcat:tomcat, admin:admin)
@@ -793,13 +836,14 @@ EOF
 7. Excessive user privileges (admin-gui roles)
 ```
 
----
+***
 
 ## Next Steps
 
 After Tomcat enumeration, proceed to:
-1. **[Tomcat Attacks & Exploitation](tomcat-attacks.md)** - WAR file uploads and manager abuse
-2. **[Java Application Security](java-application-security.md)** - Servlet and JSP vulnerabilities
-3. **[Jenkins Discovery](jenkins-discovery.md)** - CI/CD infrastructure enumeration
 
-**💡 Key Takeaway:** Tomcat enumeration focuses on **administrative interface discovery**, **version identification**, and **configuration analysis**. Enterprise environments frequently contain **multiple Tomcat instances** with **weak default credentials**, making systematic enumeration crucial for identifying **high-value attack vectors** and **internal network footholds**. 
+1. [**Tomcat Attacks & Exploitation**](tomcat-attacks.md) - WAR file uploads and manager abuse
+2. [**Java Application Security**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/java-application-security.md) - Servlet and JSP vulnerabilities
+3. [**Jenkins Discovery**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/jenkins-discovery.md) - CI/CD infrastructure enumeration
+
+**💡 Key Takeaway:** Tomcat enumeration focuses on **administrative interface discovery**, **version identification**, and **configuration analysis**. Enterprise environments frequently contain **multiple Tomcat instances** with **weak default credentials**, making systematic enumeration crucial for identifying **high-value attack vectors** and **internal network footholds**.

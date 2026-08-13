@@ -1,26 +1,28 @@
-# **Windows Netsh Port Forwarding - HTB Academy Page 11**
+# ⚙️ Netsh Port Forwarding
 
 ## **📋 Module Overview**
 
-**Purpose:** Native Windows port forwarding using built-in tools  
-**Tool:** netsh.exe - Windows network configuration utility  
-**Technique:** IPv4-to-IPv4 port proxy forwarding  
-**Advantage:** No external tools required (living off the land)  
-**Scenario:** Windows workstation as pivot to internal network  
+**Purpose:** Native Windows port forwarding using built-in tools\
+**Tool:** netsh.exe - Windows network configuration utility\
+**Technique:** IPv4-to-IPv4 port proxy forwarding\
+**Advantage:** No external tools required (living off the land)\
+**Scenario:** Windows workstation as pivot to internal network
 
----
+***
 
 ## **1. Introduction to Windows Netsh**
 
 ### **What is Netsh?**
-- **Full Name:** Network Shell (netsh.exe)
-- **Type:** Built-in Windows command-line utility
-- **Purpose:** Network configuration and management
-- **Location:** `C:\Windows\System32\netsh.exe`
-- **Availability:** Present on all Windows systems
-- **Privileges:** Requires administrator privileges for port forwarding
+
+* **Full Name:** Network Shell (netsh.exe)
+* **Type:** Built-in Windows command-line utility
+* **Purpose:** Network configuration and management
+* **Location:** `C:\Windows\System32\netsh.exe`
+* **Availability:** Present on all Windows systems
+* **Privileges:** Requires administrator privileges for port forwarding
 
 ### **Netsh Capabilities**
+
 1. **Finding routes** - network path discovery
 2. **Viewing firewall configuration** - Windows Firewall management
 3. **Adding proxies** - proxy server configuration
@@ -29,14 +31,15 @@
 
 ### **Netsh vs Other Windows Tools**
 
-| **Tool** | **Type** | **Availability** | **Configuration** | **Stealth** |
-|----------|----------|------------------|-------------------|-------------|
-| **Netsh** | Built-in | Always present | Command-line | High (legitimate tool) |
-| **Plink** | External | PuTTY required | SSH-based | Medium (admin tool) |
-| **PowerShell** | Built-in | Windows 7+ | Script-based | High (native) |
-| **SSH** | External | Windows 10+ | SSH tunneling | Medium (newer feature) |
+| **Tool**       | **Type** | **Availability** | **Configuration** | **Stealth**            |
+| -------------- | -------- | ---------------- | ----------------- | ---------------------- |
+| **Netsh**      | Built-in | Always present   | Command-line      | High (legitimate tool) |
+| **Plink**      | External | PuTTY required   | SSH-based         | Medium (admin tool)    |
+| **PowerShell** | Built-in | Windows 7+       | Script-based      | High (native)          |
+| **SSH**        | External | Windows 10+      | SSH tunneling     | Medium (newer feature) |
 
 ### **Network Topology Example**
+
 ```
 [Attack Host] → [Windows 10 Pivot] → [Windows Server]
 10.10.15.5       10.129.15.150        172.16.5.25:3389
@@ -44,13 +47,14 @@ xfreerdp         netsh portproxy      RDP service
 :8080            :8080 → :3389        Domain Controller
 ```
 
----
+***
 
 ## **2. Basic Netsh Port Forwarding**
 
 ### **IPv4-to-IPv4 Port Proxy**
 
 #### **Creating Port Forward Rule**
+
 ```cmd
 # Basic netsh port forwarding syntax
 netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.129.15.150 connectport=3389 connectaddress=172.16.5.25
@@ -65,6 +69,7 @@ netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.129.15
 ```
 
 #### **Verifying Port Forward**
+
 ```cmd
 # Show all IPv4-to-IPv4 port forwards
 netsh.exe interface portproxy show v4tov4
@@ -78,16 +83,18 @@ Address         Port        Address         Port
 ```
 
 ### **Understanding the Configuration**
-- **Listen Address:** 10.129.15.150 (Windows 10 pivot host)
-- **Listen Port:** 8080 (accessible from attack host)
-- **Connect Address:** 172.16.5.25 (internal Windows server)
-- **Connect Port:** 3389 (RDP service)
 
----
+* **Listen Address:** 10.129.15.150 (Windows 10 pivot host)
+* **Listen Port:** 8080 (accessible from attack host)
+* **Connect Address:** 172.16.5.25 (internal Windows server)
+* **Connect Port:** 3389 (RDP service)
+
+***
 
 ## **3. Practical Implementation**
 
 ### **Step 1: Access Windows Pivot Host**
+
 ```cmd
 # RDP to Windows 10 pivot (from HTB Academy lab)
 xfreerdp /v:<windows_pivot_ip> /u:htb-student /p:HTB_@cademy_stdnt!
@@ -98,6 +105,7 @@ netstat -an | findstr :3389
 ```
 
 ### **Step 2: Create Port Forward Rule**
+
 ```cmd
 # Open Command Prompt as Administrator
 # Run netsh port forwarding command
@@ -107,6 +115,7 @@ netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.129.15
 ```
 
 ### **Step 3: Verify Configuration**
+
 ```cmd
 # Check if rule was created successfully
 netsh.exe interface portproxy show v4tov4
@@ -119,6 +128,7 @@ TCP    10.129.15.150:8080     0.0.0.0:0         LISTENING
 ```
 
 ### **Step 4: Test Port Forward**
+
 ```bash
 # From attack host (Pwnbox), connect through port forward
 xfreerdp /v:10.129.15.150:8080 /u:victor /p:pass@123 /cert:ignore
@@ -126,11 +136,12 @@ xfreerdp /v:10.129.15.150:8080 /u:victor /p:pass@123 /cert:ignore
 # Traffic flow: Attack Host → Pivot:8080 → DC:3389
 ```
 
----
+***
 
 ## **4. Advanced Netsh Configurations**
 
 ### **Multiple Port Forwards**
+
 ```cmd
 # Forward multiple services simultaneously
 netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.129.15.150 connectport=3389 connectaddress=172.16.5.19
@@ -142,6 +153,7 @@ netsh.exe interface portproxy show v4tov4
 ```
 
 ### **Different Interface Binding**
+
 ```cmd
 # Bind to all interfaces (0.0.0.0)
 netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=3389 connectaddress=172.16.5.19
@@ -151,6 +163,7 @@ netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=192.168.1
 ```
 
 ### **IPv6 Support**
+
 ```cmd
 # IPv6-to-IPv6 forwarding
 netsh.exe interface portproxy add v6tov6 listenport=8080 listenaddress=::1 connectport=3389 connectaddress=fe80::1
@@ -162,16 +175,18 @@ netsh.exe interface portproxy add v4tov6 listenport=8080 listenaddress=10.129.15
 netsh.exe interface portproxy add v6tov4 listenport=8080 listenaddress=::1 connectport=3389 connectaddress=172.16.5.19
 ```
 
----
+***
 
 ## **5. HTB Academy Lab Exercise**
 
 ### **Lab Challenge**
+
 **"Using the concepts covered in this section, take control of the DC (172.16.5.19) using xfreerdp by pivoting through the Windows 10 target host. Submit the approved contact's name found inside the 'VendorContacts.txt' file located in the 'Approved Vendors' folder on Victor's desktop (victor's credentials: victor:pass@123)."**
 
 ### **Complete Solution Steps**
 
 #### **Step 1: Connect to Windows 10 Pivot**
+
 ```bash
 # RDP to Windows 10 pivot host
 xfreerdp /v:<windows10_ip> /u:htb-student /p:HTB_@cademy_stdnt! /cert:ignore
@@ -181,6 +196,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt! /cert:ignore
 ```
 
 #### **Step 2: Configure Netsh Port Forward**
+
 ```cmd
 # In Windows 10 Command Prompt (Run as Administrator)
 netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.129.42.198 connectport=3389 connectaddress=172.16.5.19
@@ -196,6 +212,7 @@ Address         Port        Address         Port
 ```
 
 #### **Step 3: Test Port Forward**
+
 ```cmd
 # Verify port is listening
 netstat -an | findstr :8080
@@ -205,6 +222,7 @@ TCP    10.129.42.198:8080     0.0.0.0:0         LISTENING
 ```
 
 #### **Step 4: Connect to DC through Port Forward**
+
 ```bash
 # From attack host (Pwnbox)
 xfreerdp /v:10.129.42.198:8080 /u:victor /p:pass@123 /cert:ignore
@@ -213,6 +231,7 @@ xfreerdp /v:10.129.42.198:8080 /u:victor /p:pass@123 /cert:ignore
 ```
 
 #### **Step 5: Navigate to File Location**
+
 ```
 # Once logged in as victor on DC (172.16.5.19):
 1. Open File Explorer
@@ -223,6 +242,7 @@ xfreerdp /v:10.129.42.198:8080 /u:victor /p:pass@123 /cert:ignore
 ```
 
 #### **Step 6: Submit Answer**
+
 ```
 # Format: 1 space, not case-sensitive
 Answer: [Approved contact name from VendorContacts.txt]
@@ -230,13 +250,14 @@ Answer: [Approved contact name from VendorContacts.txt]
 
 **Expected File Path:** `C:\Users\victor\Desktop\Approved Vendors\VendorContacts.txt`
 
----
+***
 
 ## **6. Troubleshooting Netsh Issues**
 
 ### **Common Problems**
 
 #### **Access Denied Errors**
+
 ```cmd
 # Problem: Insufficient privileges
 Access is denied.
@@ -253,6 +274,7 @@ Access is denied.
 ```
 
 #### **Port Already in Use**
+
 ```cmd
 # Problem: Listen port already bound
 The process cannot access the file because it is being used by another process.
@@ -269,6 +291,7 @@ The process cannot access the file because it is being used by another process.
 ```
 
 #### **Connection Refused**
+
 ```cmd
 # Problem: Cannot connect to forwarded port
 Connection refused
@@ -285,6 +308,7 @@ Connection refused
 ```
 
 #### **Firewall Blocking**
+
 ```cmd
 # Problem: Windows Firewall blocking connections
 # Solutions:
@@ -299,11 +323,12 @@ Connection refused
    netsh advfirewall firewall show rule name=all | findstr 8080
 ```
 
----
+***
 
 ## **7. Management and Cleanup**
 
 ### **Listing Port Forwards**
+
 ```cmd
 # Show all IPv4-to-IPv4 forwards
 netsh.exe interface portproxy show v4tov4
@@ -316,6 +341,7 @@ netsh.exe interface portproxy show all
 ```
 
 ### **Deleting Port Forwards**
+
 ```cmd
 # Delete specific IPv4-to-IPv4 forward
 netsh.exe interface portproxy delete v4tov4 listenport=8080 listenaddress=10.129.15.150
@@ -328,6 +354,7 @@ netsh.exe interface portproxy delete v6tov6 listenport=8080 listenaddress=::1
 ```
 
 ### **Persistent Configuration**
+
 ```cmd
 # Port forwards created with netsh are persistent across reboots
 # They survive system restarts automatically
@@ -338,11 +365,12 @@ netsh.exe interface portproxy delete v6tov6 listenport=8080 listenaddress=::1
 # - Third-party tools
 ```
 
----
+***
 
 ## **8. Security Considerations**
 
 ### **Operational Security (OPSEC)**
+
 1. **Legitimate Tool** - netsh.exe is standard Windows utility
 2. **Administrative Logs** - commands logged in Windows Event Log
 3. **Persistent Rules** - forwards survive reboots (good for persistence)
@@ -350,6 +378,7 @@ netsh.exe interface portproxy delete v6tov6 listenport=8080 listenaddress=::1
 5. **Process Visibility** - no additional processes required
 
 ### **Detection Risks**
+
 1. **Command Line Auditing** - PowerShell/CMD logging may capture commands
 2. **Event Log Entries** - Windows Security log may record configuration changes
 3. **Network Monitoring** - unusual port listeners detectable
@@ -357,6 +386,7 @@ netsh.exe interface portproxy delete v6tov6 listenport=8080 listenaddress=::1
 5. **Forensic Artifacts** - commands may be recoverable from memory/disk
 
 ### **Registry Storage**
+
 ```cmd
 # Port proxy rules stored in registry
 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PortProxy\v4tov4\tcp
@@ -365,11 +395,12 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PortProxy\v4tov4\tcp
 reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PortProxy\v4tov4\tcp
 ```
 
----
+***
 
 ## **9. Integration with Other Techniques**
 
 ### **Netsh + SSH Tunneling**
+
 ```bash
 # Combine netsh port forwarding with SSH tunnels
 # 1. Create netsh forward on Windows pivot
@@ -380,6 +411,7 @@ ssh -L 9999:172.16.5.19:3389 user@10.129.15.150 -p 8080
 ```
 
 ### **Netsh + Meterpreter**
+
 ```ruby
 # Use Meterpreter to execute netsh commands
 meterpreter > shell
@@ -390,6 +422,7 @@ meterpreter > portfwd add -l 8081 -p 3389 -r 172.16.5.19
 ```
 
 ### **PowerShell Integration**
+
 ```powershell
 # PowerShell wrapper for netsh commands
 function New-PortForward {
@@ -408,11 +441,12 @@ function New-PortForward {
 New-PortForward -ListenPort 8080 -ListenAddress "10.129.15.150" -ConnectPort 3389 -ConnectAddress "172.16.5.19"
 ```
 
----
+***
 
 ## **10. Advanced Scenarios**
 
 ### **Multi-Hop Pivoting**
+
 ```cmd
 # Chain multiple netsh forwards
 # Windows Pivot 1 (DMZ)
@@ -423,6 +457,7 @@ netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.0.0.50
 ```
 
 ### **Service-Specific Forwarding**
+
 ```cmd
 # RDP forwarding
 netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=3389 connectaddress=172.16.5.19
@@ -438,6 +473,7 @@ netsh.exe interface portproxy add v4tov4 listenport=8443 listenaddress=0.0.0.0 c
 ```
 
 ### **Load Balancing Simulation**
+
 ```cmd
 # Forward to multiple backends (manual round-robin)
 netsh.exe interface portproxy add v4tov4 listenport=8081 listenaddress=0.0.0.0 connectport=80 connectaddress=172.16.5.10
@@ -445,38 +481,41 @@ netsh.exe interface portproxy add v4tov4 listenport=8082 listenaddress=0.0.0.0 c
 netsh.exe interface portproxy add v4tov4 listenport=8083 listenaddress=0.0.0.0 connectport=80 connectaddress=172.16.5.12
 ```
 
----
+***
 
 ## **11. Comparison with Other Windows Tools**
 
 ### **Netsh vs Windows Alternatives**
 
-| **Tool** | **Complexity** | **Persistence** | **Admin Required** | **Stealth** |
-|----------|----------------|-----------------|-------------------|-------------|
-| **Netsh** | Low | High (persistent) | Yes | High |
-| **PowerShell** | Medium | Low (script-based) | Depends | Medium |
-| **Windows Firewall** | High | High | Yes | High |
-| **IIS URL Rewrite** | High | High | Yes | Medium |
+| **Tool**             | **Complexity** | **Persistence**    | **Admin Required** | **Stealth** |
+| -------------------- | -------------- | ------------------ | ------------------ | ----------- |
+| **Netsh**            | Low            | High (persistent)  | Yes                | High        |
+| **PowerShell**       | Medium         | Low (script-based) | Depends            | Medium      |
+| **Windows Firewall** | High           | High               | Yes                | High        |
+| **IIS URL Rewrite**  | High           | High               | Yes                | Medium      |
 
 ### **When to Use Netsh**
-✅ **Windows environment** with admin access  
-✅ **Persistent forwarding** needed across reboots  
-✅ **Simple port forwarding** requirements  
-✅ **Living off the land** approach preferred  
-✅ **No external tools** can be installed  
+
+✅ **Windows environment** with admin access\
+✅ **Persistent forwarding** needed across reboots\
+✅ **Simple port forwarding** requirements\
+✅ **Living off the land** approach preferred\
+✅ **No external tools** can be installed
 
 ### **When NOT to Use Netsh**
-❌ **No admin privileges** available  
-❌ **Complex routing** requirements  
-❌ **Cross-platform** compatibility needed  
-❌ **Temporary forwarding** only (creates persistent rules)  
-❌ **Stealth operation** (logged extensively)  
 
----
+❌ **No admin privileges** available\
+❌ **Complex routing** requirements\
+❌ **Cross-platform** compatibility needed\
+❌ **Temporary forwarding** only (creates persistent rules)\
+❌ **Stealth operation** (logged extensively)
+
+***
 
 ## **12. Best Practices**
 
 ### **Operational Guidelines**
+
 1. **Test locally first** - verify connectivity before deployment
 2. **Use non-standard ports** - avoid common port detection
 3. **Document configurations** - track created port forwards
@@ -484,6 +523,7 @@ netsh.exe interface portproxy add v4tov4 listenport=8083 listenaddress=0.0.0.0 c
 5. **Monitor connections** - watch for unexpected traffic
 
 ### **Security Recommendations**
+
 1. **Minimize exposure time** - create forwards only when needed
 2. **Use specific bind addresses** - avoid 0.0.0.0 when possible
 3. **Implement access controls** - Windows Firewall rules
@@ -491,18 +531,19 @@ netsh.exe interface portproxy add v4tov4 listenport=8083 listenaddress=0.0.0.0 c
 5. **Rotate ports regularly** - vary port usage patterns
 
 ### **Performance Considerations**
+
 1. **Limit concurrent forwards** - avoid resource exhaustion
 2. **Monitor bandwidth usage** - track network utilization
 3. **Consider connection limits** - Windows has TCP connection limits
 4. **Optimize for target services** - tune for specific protocols
 5. **Test under load** - verify performance with multiple connections
 
----
+***
 
 ## **References**
 
-- **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 11
-- **Microsoft Netsh Documentation**: [Official Netsh Reference](https://docs.microsoft.com/en-us/windows-server/networking/technologies/netsh/netsh)
-- **Netsh Portproxy**: [Port Proxy Commands](https://docs.microsoft.com/en-us/windows-server/networking/technologies/netsh/netsh-interface-portproxy)
-- **Windows Network Security**: [Security Considerations](https://docs.microsoft.com/en-us/windows/security/threat-protection/)
-- **SANS Windows Pivoting**: [Windows Lateral Movement Techniques](https://www.sans.org/blog/windows-lateral-movement/) 
+* **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 11
+* **Microsoft Netsh Documentation**: [Official Netsh Reference](https://docs.microsoft.com/en-us/windows-server/networking/technologies/netsh/netsh)
+* **Netsh Portproxy**: [Port Proxy Commands](https://docs.microsoft.com/en-us/windows-server/networking/technologies/netsh/netsh-interface-portproxy)
+* **Windows Network Security**: [Security Considerations](https://docs.microsoft.com/en-us/windows/security/threat-protection/)
+* **SANS Windows Pivoting**: [Windows Lateral Movement Techniques](https://www.sans.org/blog/windows-lateral-movement/)

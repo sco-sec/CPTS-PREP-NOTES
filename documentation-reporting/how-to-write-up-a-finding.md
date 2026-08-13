@@ -1,4 +1,4 @@
-# How to Write Up a Finding
+# 🔍 How to Write Up a Finding
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 📋 Essential Finding Components
 
 ### 🔍 Required Elements
+
 ```cmd
 # Minimum finding information:
 1. Description           # Vulnerability explanation and affected platforms
@@ -26,6 +27,7 @@
 ```
 
 ### 📊 Finding Structure Template
+
 ```markdown
 ## [Finding Title]
 
@@ -55,6 +57,7 @@
 ## 🔍 Evidence Best Practices
 
 ### 📊 Reproduction Steps Guidelines
+
 ```cmd
 # Structure principles:
 - Break each step into separate figures
@@ -71,6 +74,7 @@
 ```
 
 ### 📷 Screenshot Standards
+
 ```cmd
 # Requirements:
 - Include URL/address bar
@@ -88,6 +92,7 @@
 ```
 
 ### 💻 Terminal Output Presentation
+
 ```cmd
 # Preferred: Copy-paste terminal text
 # Benefits:
@@ -105,6 +110,7 @@ SMB    172.16.5.5    445    DC01    [+] INLANEFREIGHT.LOCAL\administrator:<REDAC
 ## 📝 Remediation Best Practices
 
 ### ✅ Good Remediation Examples
+
 ```cmd
 # Specific and actionable:
 "To remediate this finding, update the following registry values:
@@ -121,6 +127,7 @@ Note: Registry changes should be tested in a small group before enterprise deplo
 ```
 
 ### ❌ Bad Remediation Examples
+
 ```cmd
 # Vague and unhelpful:
 "Reconfigure your registry settings to harden against X"
@@ -137,6 +144,7 @@ Note: Registry changes should be tested in a small group before enterprise deplo
 ## 🎯 Sample Finding Examples
 
 ### 🔑 Kerberoasting Finding
+
 ```markdown
 ## Weak Kerberos Authentication ("Kerberoasting")
 
@@ -169,6 +177,7 @@ Successful exploitation provides attackers with service account credentials that
 ```
 
 ### 🌐 Web Application Finding
+
 ```markdown
 ## Tomcat Manager Weak/Default Credentials
 
@@ -202,6 +211,7 @@ Attackers can deploy malicious web applications (WAR files) leading to complete 
 ## 🔍 Quality Reference Selection
 
 ### ✅ Good Reference Sources
+
 ```cmd
 # Vendor-agnostic sources:
 - OWASP documentation
@@ -219,6 +229,7 @@ Attackers can deploy malicious web applications (WAR files) leading to complete 
 ```
 
 ### ❌ Poor Reference Sources
+
 ```cmd
 # Avoid:
 - Paywall-protected content
@@ -232,6 +243,7 @@ Attackers can deploy malicious web applications (WAR files) leading to complete 
 ## 🎯 HTB Academy Lab Solution
 
 ### Lab Question
+
 ```bash
 # Question: Good or Bad remediation recommendation?
 # "An attacker can own your whole entire network cause your DC is way out of date. You should really fix that!"
@@ -247,6 +259,7 @@ Attackers can deploy malicious web applications (WAR files) leading to complete 
 ```
 
 ### WriteHat Tool Practice
+
 ```bash
 # Lab access:
 # Browse to: https://TARGET_IP
@@ -262,6 +275,7 @@ Attackers can deploy malicious web applications (WAR files) leading to complete 
 ## 🔧 Professional Writing Guidelines
 
 ### 📝 Language Standards
+
 ```cmd
 # Professional tone:
 - Clear, concise language
@@ -279,6 +293,7 @@ Attackers can deploy malicious web applications (WAR files) leading to complete 
 ```
 
 ### 🎯 Client Consideration
+
 ```cmd
 # Reader perspective:
 - May not have penetration testing background
@@ -305,6 +320,6 @@ Attackers can deploy malicious web applications (WAR files) leading to complete 
 6. **Reference quality** affects long-term finding usefulness
 7. **Consistent formatting** improves report readability and professionalism
 
----
+***
 
-*Well-written findings combine technical accuracy with clear communication, providing clients with actionable intelligence for vulnerability remediation and security improvement.* 
+_Well-written findings combine technical accuracy with clear communication, providing clients with actionable intelligence for vulnerability remediation and security improvement._

